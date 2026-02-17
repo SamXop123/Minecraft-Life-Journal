@@ -54,3 +54,13 @@ export function generateRefreshToken(payload) {
 export function verifyAccessToken(token) {
   return jwt.verify(token, process.env.JWT_ACCESS_SECRET);
 }
+
+/**
+ * Verify and decode a JWT refresh token.
+ * @param {string} token - The JWT refresh token to verify.
+ * @returns {object} The decoded payload.
+ * @throws {Error} If the token is invalid or expired.
+ */
+export function verifyRefreshToken(token) {
+  return jwt.verify(token, process.env.JWT_REFRESH_SECRET);
+}
