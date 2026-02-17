@@ -44,7 +44,7 @@ export async function POST(req) {
     const accessToken = generateAccessToken(tokenPayload);
     const refreshToken = generateRefreshToken(tokenPayload);
 
-    return NextResponse.json(
+    const response = NextResponse.json(
       {
         message: "Login successful",
         user: {
@@ -53,10 +53,19 @@ export async function POST(req) {
           email: user.email,
         },
         accessToken,
-        refreshToken,
       },
       { status: 200 }
     );
+
+    response.cookies.set("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      path: "/",
+      maxAge: 7 * 24 * 60 * 60,
+    });
+
+    return response;
   } catch (error) {
     console.error("Login error:", error);
     return NextResponse.json(
