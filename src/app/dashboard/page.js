@@ -247,3 +247,225 @@ export default function DashboardPage() {
                   backgroundColor: "rgba(0,0,0,0.45)",
                   border: "1px solid rgba(218,165,32,0.15)",
                   boxShadow:
+                    "0 8px 40px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,200,100,0.03)",
+                }}
+                initial={{ opacity: 0, y: -14 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -14 }}
+                transition={{ duration: 0.35 }}
+              >
+                <h2
+                  className="text-lg font-semibold text-amber-100 mb-4"
+                  style={{ textShadow: "0 1px 8px rgba(0,0,0,0.7)" }}
+                >
+                  Create New World
+                </h2>
+
+                {formError && (
+                  <div className="mb-4 p-3 bg-red-900/30 border border-red-500/30 rounded-lg text-red-400 text-sm">
+                    {formError}
+                  </div>
+                )}
+
+                <form
+                  onSubmit={handleCreateWorld}
+                  className="grid grid-cols-1 sm:grid-cols-2 gap-4"
+                >
+                  <div>
+                    <label
+                      htmlFor="name"
+                      className="block text-sm text-amber-200/50 mb-1"
+                    >
+                      World Name *
+                    </label>
+                    <input
+                      id="name"
+                      name="name"
+                      type="text"
+                      required
+                      value={form.name}
+                      onChange={handleFormChange}
+                      className="w-full px-4 py-2.5 rounded-lg text-amber-50 placeholder-amber-900/50 focus:outline-none focus:ring-2 focus:ring-amber-600/40 focus:border-transparent backdrop-blur-sm"
+                      style={{
+                        backgroundColor: "rgba(0,0,0,0.35)",
+                        border: "1px solid rgba(218,165,32,0.1)",
+                      }}
+                      placeholder="My Survival World"
+                    />
+                  </div>
+
+                  <div>
+                    <label
+                      htmlFor="mcVersion"
+                      className="block text-sm text-amber-200/50 mb-1"
+                    >
+                      Minecraft Version *
+                    </label>
+                    <input
+                      id="mcVersion"
+                      name="mcVersion"
+                      type="text"
+                      required
+                      value={form.mcVersion}
+                      onChange={handleFormChange}
+                      className="w-full px-4 py-2.5 rounded-lg text-amber-50 placeholder-amber-900/50 focus:outline-none focus:ring-2 focus:ring-amber-600/40 focus:border-transparent backdrop-blur-sm"
+                      style={{
+                        backgroundColor: "rgba(0,0,0,0.35)",
+                        border: "1px solid rgba(218,165,32,0.1)",
+                      }}
+                      placeholder="1.21"
+                    />
+                  </div>
+
+                  <div>
+                    <label
+                      htmlFor="seed"
+                      className="block text-sm text-amber-200/50 mb-1"
+                    >
+                      Seed (optional)
+                    </label>
+                    <input
+                      id="seed"
+                      name="seed"
+                      type="text"
+                      value={form.seed}
+                      onChange={handleFormChange}
+                      className="w-full px-4 py-2.5 rounded-lg text-amber-50 placeholder-amber-900/50 focus:outline-none focus:ring-2 focus:ring-amber-600/40 focus:border-transparent backdrop-blur-sm"
+                      style={{
+                        backgroundColor: "rgba(0,0,0,0.35)",
+                        border: "1px solid rgba(218,165,32,0.1)",
+                      }}
+                      placeholder="World seed"
+                    />
+                  </div>
+
+                  <div>
+                    <label
+                      htmlFor="mode"
+                      className="block text-sm text-amber-200/50 mb-1"
+                    >
+                      Game Mode *
+                    </label>
+                    <select
+                      id="mode"
+                      name="mode"
+                      required
+                      value={form.mode}
+                      onChange={handleFormChange}
+                      className="w-full px-4 py-2.5 rounded-lg text-amber-50 focus:outline-none focus:ring-2 focus:ring-amber-600/40 focus:border-transparent backdrop-blur-sm"
+                      style={{
+                        backgroundColor: "rgba(0,0,0,0.35)",
+                        border: "1px solid rgba(218,165,32,0.1)",
+                      }}
+                    >
+                      <option value="survival">Survival</option>
+                      <option value="hardcore">Hardcore</option>
+                      <option value="creative">Creative</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label
+                      htmlFor="type"
+                      className="block text-sm text-amber-200/50 mb-1"
+                    >
+                      World Type *
+                    </label>
+                    <select
+                      id="type"
+                      name="type"
+                      required
+                      value={form.type}
+                      onChange={handleFormChange}
+                      className="w-full px-4 py-2.5 rounded-lg text-amber-50 focus:outline-none focus:ring-2 focus:ring-amber-600/40 focus:border-transparent backdrop-blur-sm"
+                      style={{
+                        backgroundColor: "rgba(0,0,0,0.35)",
+                        border: "1px solid rgba(218,165,32,0.1)",
+                      }}
+                    >
+                      <option value="solo">Solo</option>
+                      <option value="multiplayer">Multiplayer</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label
+                      htmlFor="startedAt"
+                      className="block text-sm text-amber-200/50 mb-1"
+                    >
+                      Start Date *
+                    </label>
+                    <input
+                      id="startedAt"
+                      name="startedAt"
+                      type="date"
+                      required
+                      value={form.startedAt}
+                      onChange={handleFormChange}
+                      className="w-full px-4 py-2.5 rounded-lg text-amber-50 focus:outline-none focus:ring-2 focus:ring-amber-600/40 focus:border-transparent backdrop-blur-sm"
+                      style={{
+                        backgroundColor: "rgba(0,0,0,0.35)",
+                        border: "1px solid rgba(218,165,32,0.1)",
+                      }}
+                    />
+                  </div>
+
+                  <div className="sm:col-span-2">
+                    <button
+                      type="submit"
+                      disabled={submitting}
+                      className="px-6 py-2.5 font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      style={{
+                        backgroundColor: "rgba(160,100,30,0.6)",
+                        color: "#ffe0b0",
+                        border: "1px solid rgba(218,165,32,0.3)",
+                        boxShadow: "0 2px 14px rgba(0,0,0,0.5)",
+                        textShadow: "0 1px 4px rgba(0,0,0,0.6)",
+                      }}
+                    >
+                      {submitting ? "Creating..." : "Create World"}
+                    </button>
+                  </div>
+                </form>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Worlds Grid */}
+          {worlds.length === 0 ? (
+            <motion.div
+              className="flex flex-col items-center justify-center py-24 text-center"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.3, duration: 0.6 }}
+            >
+              <p
+                className="text-amber-200/60 text-lg mb-2"
+                style={{ textShadow: "0 2px 10px rgba(0,0,0,0.7)" }}
+              >
+                No worlds yet.
+              </p>
+              <p
+                className="text-amber-200/35 text-sm"
+                style={{ textShadow: "0 1px 6px rgba(0,0,0,0.5)" }}
+              >
+                Create your first Minecraft world to start journaling memories.
+              </p>
+            </motion.div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+              {worlds.map((world, i) => (
+                <WorldCard
+                  key={world._id}
+                  world={world}
+                  index={i}
+                  onClick={() => router.push(`/world/${world._id}`)}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
