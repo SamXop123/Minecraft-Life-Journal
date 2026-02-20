@@ -120,16 +120,16 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="relative min-h-screen overflow-hidden">
+    <div className="relative min-h-screen">
 
       {/* ═══════════════════════════════════════
           LAYER 0 — BREATHING BACKGROUND IMAGE
       ═══════════════════════════════════════ */}
       <motion.div
-        className="absolute inset-0"
+        className="fixed inset-0"
         animate={{ scale: [1, 1.02, 1] }}
         transition={{ duration: 14, repeat: Infinity, ease: "easeInOut" }}
-        style={{ transformOrigin: "50% 40%" }}
+        style={{ transformOrigin: "50% 40%", zIndex: 0 }}
       >
         <img
           src="/minecraft-hero.jpg"
@@ -143,8 +143,9 @@ export default function DashboardPage() {
           LAYER 1 — DARK GRADIENT OVERLAY
       ═══════════════════════════════════════ */}
       <div
-        className="absolute inset-0"
+        className="fixed inset-0"
         style={{
+          zIndex: 1,
           background: `
             linear-gradient(
               180deg,
@@ -161,8 +162,9 @@ export default function DashboardPage() {
           LAYER 2 — WARM GOLDEN SUN GLOW
       ═══════════════════════════════════════ */}
       <motion.div
-        className="absolute inset-0 pointer-events-none"
+        className="fixed inset-0 pointer-events-none"
         style={{
+          zIndex: 2,
           background:
             "radial-gradient(ellipse 50% 50% at 65% 20%, rgba(255,180,60,0.12) 0%, rgba(255,140,30,0.04) 40%, transparent 70%)",
         }}
@@ -174,8 +176,9 @@ export default function DashboardPage() {
           LAYER 3 — VIGNETTE (DARK EDGES)
       ═══════════════════════════════════════ */}
       <div
-        className="absolute inset-0 pointer-events-none"
+        className="fixed inset-0 pointer-events-none"
         style={{
+          zIndex: 3,
           background:
             "radial-gradient(ellipse 70% 65% at 50% 45%, transparent 35%, rgba(0,0,0,0.55) 100%)",
         }}
@@ -184,14 +187,14 @@ export default function DashboardPage() {
       {/* ═══════════════════════════════════════
           LAYER 4 — PIXEL PARTICLES
       ═══════════════════════════════════════ */}
-      <div className="absolute inset-0 pointer-events-none opacity-50">
+      <div className="fixed inset-0 pointer-events-none opacity-50" style={{ zIndex: 4 }}>
         <PixelParticles count={18} />
       </div>
 
       {/* ═══════════════════════════════════════
           CONTENT
       ═══════════════════════════════════════ */}
-      <div className="relative z-10 px-4 py-10 min-h-screen">
+      <div className="relative px-4 py-10 min-h-screen" style={{ zIndex: 10 }}>
         <div className="max-w-5xl mx-auto">
 
           {/* Header */}
