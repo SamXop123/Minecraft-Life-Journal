@@ -234,20 +234,79 @@ export default function Navbar() {
               )}
             </Link>
 
-            {/* Separator with pixel art style */}
+            {/* Separator */}
             <div className="flex flex-col gap-0.5 mx-1">
-              <div
-                className="w-px h-1.5"
-                style={{ backgroundColor: "rgba(218,165,32,0.2)" }}
-              />
-              <div
-                className="w-px h-1.5"
-                style={{ backgroundColor: "rgba(218,165,32,0.15)" }}
-              />
-              <div
-                className="w-px h-1.5"
-                style={{ backgroundColor: "rgba(218,165,32,0.1)" }}
-              />
+              <div className="w-px h-1.5" style={{ backgroundColor: "rgba(218,165,32,0.2)" }} />
+              <div className="w-px h-1.5" style={{ backgroundColor: "rgba(218,165,32,0.15)" }} />
+              <div className="w-px h-1.5" style={{ backgroundColor: "rgba(218,165,32,0.1)" }} />
+            </div>
+
+            {/* Profile Link - Minecraft button style */}
+            <Link
+              href="/profile"
+              className="relative px-4 py-2 text-sm font-medium rounded-md transition-all duration-200"
+              style={{
+                color: pathname === "/profile" ? "#ffd896" : "#b89868",
+                textShadow: "0 1px 6px rgba(0,0,0,0.8), 0 -1px 0 rgba(0,0,0,0.3)",
+                backgroundColor: pathname === "/profile"
+                  ? "rgba(218,165,32,0.15)"
+                  : "rgba(0,0,0,0.2)",
+                border: "2px solid",
+                borderTopColor: pathname === "/profile"
+                  ? "rgba(255,200,100,0.3)"
+                  : "rgba(218,165,32,0.12)",
+                borderRightColor: pathname === "/profile"
+                  ? "rgba(160,100,30,0.4)"
+                  : "rgba(80,50,15,0.3)",
+                borderBottomColor: pathname === "/profile"
+                  ? "rgba(80,50,15,0.5)"
+                  : "rgba(60,40,10,0.4)",
+                borderLeftColor: pathname === "/profile"
+                  ? "rgba(218,165,32,0.2)"
+                  : "rgba(100,60,20,0.25)",
+                boxShadow: pathname === "/profile"
+                  ? "0 2px 8px rgba(218,165,32,0.2), inset 0 1px 0 rgba(255,200,100,0.1)"
+                  : "0 2px 6px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,200,100,0.03)",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.color = "#ffd896";
+                e.currentTarget.style.backgroundColor = "rgba(218,165,32,0.2)";
+                e.currentTarget.style.transform = "translateY(-1px)";
+                e.currentTarget.style.boxShadow =
+                  "0 4px 12px rgba(218,165,32,0.25), inset 0 1px 0 rgba(255,200,100,0.15)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.color =
+                  pathname === "/profile" ? "#ffd896" : "#b89868";
+                e.currentTarget.style.backgroundColor =
+                  pathname === "/profile"
+                    ? "rgba(218,165,32,0.15)"
+                    : "rgba(0,0,0,0.2)";
+                e.currentTarget.style.transform = "translateY(0)";
+                e.currentTarget.style.boxShadow = pathname === "/profile"
+                  ? "0 2px 8px rgba(218,165,32,0.2), inset 0 1px 0 rgba(255,200,100,0.1)"
+                  : "0 2px 6px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,200,100,0.03)";
+              }}
+            >
+              Profile
+              {pathname === "/profile" && (
+                <motion.div
+                  className="absolute -bottom-1 left-1 right-1 h-0.5 rounded-full"
+                  style={{
+                    background:
+                      "linear-gradient(90deg, rgba(218,165,32,0.5), rgba(255,180,60,0.7), rgba(218,165,32,0.5))",
+                    boxShadow: "0 0 8px rgba(255,170,60,0.5)",
+                  }}
+                  layoutId="navIndicator"
+                />
+              )}
+            </Link>
+
+            {/* Separator */}
+            <div className="flex flex-col gap-0.5 mx-1">
+              <div className="w-px h-1.5" style={{ backgroundColor: "rgba(218,165,32,0.2)" }} />
+              <div className="w-px h-1.5" style={{ backgroundColor: "rgba(218,165,32,0.15)" }} />
+              <div className="w-px h-1.5" style={{ backgroundColor: "rgba(218,165,32,0.1)" }} />
             </div>
 
             {/* Logout Button - Minecraft button style */}
