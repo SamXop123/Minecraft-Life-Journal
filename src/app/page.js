@@ -141,11 +141,47 @@ export default function Home() {
     };
   }, [playing, getAudio]);
 
+  const toggleAudio = () => {
+    console.log("Toggle clicked, current playing state:", playing);
+    const audio = getAudio();
+    console.log("Audio element:", audio);
+    console.log("Audio src:", audio.src);
+    console.log("Audio readyState:", audio.readyState);
+    
+    if (playing) {
+      audio.pause();
+      setPlaying(false);
+      localStorage.setItem(AUDIO_KEY, "off");
+      console.log("Audio paused");
+    } else {
+      audio.play()
+        .then(() => {
+          console.log("Audio playing successfully");
+        })
+        .catch((error) => {
+          console.error("Audio play error:", error);
+          console.error("Error name:", error.name);
+          console.error("Error message:", error.message);
+        });
+      setPlaying(true);
+      localStorage.setItem(AUDIO_KEY, "on");
+    }
+  };
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[#0f172a]">
-      <h1 className="text-4xl font-bold text-white">
-        Minecraft Life Journal
-      </h1>
+    <div className="relative min-h-screen overflow-hidden bg-[#030609]">
+
+      {/* ═══════════════════════════════════════
+          AMBIENT AUDIO TOGGLE
+      ═══════════════════════════════════════ */}
+      <button
+        onClick={toggleAudio}
+        aria-label={playing ? "Mute ambient sound" : "Play ambient sound"}
+        className="fixed top-5 right-5 z-50 w-11 h-11 flex items-center justify-center rounded-full bg-white/10 backdrop-blur-sm border border-white/15 text-lg cursor-pointer select-none hover:bg-white/20 hover:shadow-[0_0_16px_rgba(255,255,255,0.12)] transition-all duration-200"
+      >
+        {playing ? "\uD83D\uDD0A" : "\uD83D\uDD07"}
+      </button>
+
     </div>
   );
 }
