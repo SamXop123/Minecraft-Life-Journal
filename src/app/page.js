@@ -283,6 +283,192 @@ export default function Home() {
         ))}
       </motion.div>
 
+      {/* ═══════════════════════════════════════
+          LAYERS B & C — SUN & MOON ORBIT
+          Keyframe-based elliptical path.
+          No scaleY — zero distortion.
+          Orbit center sits near the ground line.
+      ═══════════════════════════════════════ */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
+        {/* Orbit origin — horizontally centered, near ground level */}
+        <div className="absolute left-1/2 bottom-[10%]" style={{ width: 0, height: 0 }}>
+
+          {/* ── Sun ── */}
+          <motion.div
+            className="absolute"
+            style={{ width: 72, height: 72, marginLeft: -36, marginTop: -36 }}
+            animate={{ x: sunX, y: sunY }}
+            transition={orbitTransition}
+          >
+            <div
+              className="w-[72px] h-[72px] rounded-full"
+              style={{
+                background:
+                  "radial-gradient(circle, #ffe082 20%, #ffb300 70%, #ff8f00 100%)",
+                boxShadow:
+                  "0 0 60px 16px rgba(255,183,0,0.4), 0 0 120px 40px rgba(255,183,0,0.15)",
+              }}
+            />
+          </motion.div>
+
+          {/* ── Moon ── */}
+          <motion.div
+            className="absolute"
+            style={{ width: 52, height: 52, marginLeft: -26, marginTop: -26 }}
+            animate={{ x: moonX, y: moonY }}
+            transition={orbitTransition}
+          >
+            <div
+              className="w-[52px] h-[52px] rounded-full"
+              style={{
+                background:
+                  "radial-gradient(circle, #e8eaf0 25%, #c8ccd8 70%, #a0a8b8 100%)",
+                boxShadow:
+                  "0 0 40px 12px rgba(200,215,255,0.2), 0 0 80px 28px rgba(200,215,255,0.08)",
+              }}
+            />
+          </motion.div>
+
+        </div>
+      </div>
+
+      {/* ═══════════════════════════════════════
+          FOG & GROUND
+      ═══════════════════════════════════════ */}
+
+      {/* Bottom fog gradient */}
+      <div
+        className="absolute bottom-0 left-0 right-0 h-64 pointer-events-none"
+        style={{
+          background:
+            "linear-gradient(to top, rgba(10,20,15,0.9) 0%, rgba(10,20,15,0.4) 40%, transparent 100%)",
+        }}
+      />
+
+      {/* Depth shadow above grass */}
+      <div
+        className="absolute bottom-[52px] left-0 right-0 h-4 pointer-events-none"
+        style={{
+          background: "linear-gradient(to top, rgba(0,0,0,0.5), transparent)",
+        }}
+      />
+
+      {/* Pixel-style grass strip */}
+      <div
+        className="absolute bottom-[28px] left-0 right-0 flex"
+        aria-hidden="true"
+      >
+        {grassBlocks.map((b) => (
+          <div key={b.id} className="flex-1" style={{ height: b.height }}>
+            <div className="w-full h-full bg-[#3a7d44]" />
+          </div>
+        ))}
+      </div>
+
+      {/* Grass surface line */}
+      <div className="absolute bottom-[28px] left-0 right-0 h-[3px] bg-[#4caf50]" />
+
+      {/* Dirt strip + darker accent */}
+      <div className="absolute bottom-0 left-0 right-0 h-[28px] bg-[#5c3a21]" />
+      <div className="absolute bottom-0 left-0 right-0 h-[10px] bg-[#3e2714]" />
+
+      {/* ═══════════════════════════════════════
+          HERO CONTENT
+      ═══════════════════════════════════════ */}
+
+      {/* Dark vignette behind text for readability at all sky states */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background:
+            "radial-gradient(ellipse 70% 50% at 50% 45%, rgba(0,0,0,0.35) 0%, transparent 70%)",
+        }}
+      />
+
+      <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-4 text-center pb-24">
+
+        {/* Title */}
+        <motion.h1
+          className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-extrabold tracking-tight mb-5 leading-tight"
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.9, ease: "easeOut" }}
+        >
+          <span
+            className="block text-green-400"
+            style={{
+              textShadow:
+                "0 0 20px rgba(74,222,128,0.35), 0 0 60px rgba(74,222,128,0.15)",
+            }}
+          >
+            Minecraft
+          </span>
+          <span
+            className="block text-white"
+            style={{
+              textShadow: "0 0 30px rgba(255,255,255,0.08)",
+            }}
+          >
+            Life Journal
+          </span>
+        </motion.h1>
+
+        {/* Subtitle */}
+        <motion.p
+          className="text-lg sm:text-xl md:text-2xl text-gray-300 max-w-lg mb-3 font-medium"
+          style={{ textShadow: "0 2px 12px rgba(0,0,0,0.5)" }}
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.9, delay: 0.25, ease: "easeOut" }}
+        >
+          Preserve the worlds that mattered.
+        </motion.p>
+
+        {/* Microcopy */}
+        <motion.p
+          className="text-sm sm:text-base text-gray-400 max-w-md mb-12 tracking-wide"
+          style={{ textShadow: "0 2px 10px rgba(0,0,0,0.5)" }}
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.9, delay: 0.45, ease: "easeOut" }}
+        >
+          Every diamond. Every death. Every world.
+        </motion.p>
+
+        {/* Buttons */}
+        <motion.div
+          className="flex flex-col sm:flex-row gap-5"
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.9, delay: 0.6, ease: "easeOut" }}
+        >
+          <motion.div
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.97 }}
+            transition={{ type: "spring", stiffness: 400, damping: 20 }}
+          >
+            <Link
+              href="/register"
+              className="inline-block px-10 py-4 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-lg rounded-xl text-center shadow-[0_4px_20px_rgba(16,185,129,0.3)] hover:shadow-[0_6px_30px_rgba(16,185,129,0.45)] transition-all duration-200"
+            >
+              Get Started
+            </Link>
+          </motion.div>
+
+          <motion.div
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.97 }}
+            transition={{ type: "spring", stiffness: 400, damping: 20 }}
+          >
+            <Link
+              href="/login"
+              className="inline-block px-10 py-4 bg-gray-800/70 hover:bg-gray-700/80 border border-gray-600 hover:border-gray-500 text-gray-300 hover:text-white font-bold text-lg rounded-xl text-center shadow-[0_4px_16px_rgba(0,0,0,0.4)] hover:shadow-[0_6px_24px_rgba(0,0,0,0.5)] transition-all duration-200"
+            >
+              Login
+            </Link>
+          </motion.div>
+        </motion.div>
+      </div>
     </div>
   );
 }
