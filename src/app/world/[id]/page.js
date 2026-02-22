@@ -122,3 +122,135 @@ export default function WorldDetailPage({ params }) {
     setMemoryForm({ ...memoryForm, [e.target.name]: e.target.value });
   }
 
+  function handleFileChange(e) {
+    const file = e.target.files[0];
+    if (file) {
+      setImageFile(file);
+      setImagePreview(URL.createObjectURL(file));
+    } else {
+      setImageFile(null);
+      setImagePreview(null);
+    }
+  }
+
+  async function handleAddMemory(e) {
+    e.preventDefault();
+    setMemoryFormError("");
+    setSubmitting(true);
+
+    const token = getToken();
+
+    try {
+      let imageUrl = "";
+
+      // Upload image if selected
+      if (imageFile) {
+        const formData = new FormData();
+        formData.append("file", imageFile);
+
+        const uploadRes = await fetch("/api/upload", {
+          method: "POST",
+          headers: { Authorization: `Bearer ${token}` },
+          body: formData,
+        });
+
+        const uploadData = await uploadRes.json();
+
+        if (!uploadRes.ok) {
+          setMemoryFormError(uploadData.message || "Image upload failed");
+          return;
+        }
+
+        imageUrl = uploadData.imageUrl;
+      }
+
+      const res = await fetch("/api/memories", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ ...memoryForm, worldId, imageUrl: imageUrl || undefined }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setMemoryFormError(data.message || "Failed to add memory");
+        return;
+      }
+
+      setMemoryForm({
+        title: "",
+        category: "achievement",
+        description: "",
+        memoryDate: "",
+      });
+      setImageFile(null);
+      setImagePreview(null);
+      setShowMemoryForm(false);
+      await fetchMemories(worldId, token);
+    } catch {
+      setMemoryFormError("Something went wrong. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  async function handleDeleteMemory(memoryId) {
+    const token = getToken();
+    setDeletingId(memoryId);
+
+    try {
+      const res = await fetch(`/api/memories/delete/${memoryId}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (res.ok) {
+        await fetchMemories(worldId, token);
+      }
+    } catch {
+      console.error("Failed to delete memory");
+    } finally {
+      setDeletingId(null);
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: "#1a1008" }}>
+        <motion.p
+          className="text-amber-200/60 text-lg"
+          style={{ textShadow: "0 1px 8px rgba(0,0,0,0.6)" }}
+          animate={{ opacity: [0.4, 0.8, 0.4] }}
+          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+        >
+          Loading...
+        </motion.p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-950 gap-4">
+        <p className="text-red-400 text-lg">{error}</p>
+        <Link
+          href="/dashboard"
+          className="text-emerald-400 hover:underline text-sm"
+        >
+          ← Back to Dashboard
+        </Link>
+      </div>
+    );
+  }
+
+  if (!world) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-950">
+        <p className="text-gray-400 text-lg">Loading world...</p>
+      </div>
+    );
+  }
+
