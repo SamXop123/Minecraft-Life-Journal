@@ -182,6 +182,107 @@ export default function Home() {
         {playing ? "\uD83D\uDD0A" : "\uD83D\uDD07"}
       </button>
 
+      {/* ═══════════════════════════════════════
+          LAYER A — ANIMATED SKY GRADIENTS
+      ═══════════════════════════════════════ */}
+
+      {/* Night sky base (always present) */}
+      <div
+        className="absolute inset-0"
+        style={{
+          background:
+            "radial-gradient(ellipse 130% 90% at 50% 20%, #0a1628 0%, #060d18 50%, #030609 100%)",
+        }}
+      />
+
+      {/* Day sky — peaks at noon (25%), zero during night half */}
+      <motion.div
+        className="absolute inset-0"
+        style={{
+          background:
+            "linear-gradient(180deg, #1a3a5c 0%, #2563a8 30%, #4a90c4 55%, #7ab8d4 80%, #b0d8e8 100%)",
+        }}
+        animate={{
+          opacity: [0.15, 0.5, 0.85, 1, 0.85, 0.5, 0.15, 0, 0, 0, 0.05, 0.15],
+        }}
+        transition={{
+          duration: CYCLE,
+          times:   [0, 0.08, 0.17, 0.25, 0.33, 0.42, 0.50, 0.58, 0.75, 0.88, 0.95, 1],
+          repeat: Infinity,
+          ease: "linear",
+        }}
+      />
+
+      {/* Sunrise / Sunset warm overlay — peaks at 0% (sunrise) and 50% (sunset) */}
+      <motion.div
+        className="absolute inset-0"
+        style={{
+          background:
+            "linear-gradient(180deg, #d4553a 0%, #e87840 25%, #c2444d 50%, #6b2040 80%, transparent 100%)",
+        }}
+        animate={{
+          opacity: [0.5, 0.25, 0, 0, 0, 0.25, 0.5, 0.25, 0, 0, 0, 0.25, 0.5],
+        }}
+        transition={{
+          duration: CYCLE,
+          times:   [0, 0.08, 0.17, 0.25, 0.33, 0.42, 0.50, 0.58, 0.67, 0.75, 0.83, 0.92, 1],
+          repeat: Infinity,
+          ease: "linear",
+        }}
+      />
+
+      {/* Horizon glow — warm pulse at sunrise / sunset */}
+      <motion.div
+        className="absolute left-0 right-0 pointer-events-none"
+        style={{
+          top: "65%",
+          height: "25%",
+          background:
+            "radial-gradient(ellipse 80% 60% at 50% 50%, rgba(255,140,50,0.25), transparent 70%)",
+        }}
+        animate={{
+          opacity: [0.7, 0.35, 0, 0, 0, 0.35, 0.7, 0.35, 0, 0, 0, 0.35, 0.7],
+        }}
+        transition={{
+          duration: CYCLE,
+          times:   [0, 0.08, 0.17, 0.25, 0.33, 0.42, 0.50, 0.58, 0.67, 0.75, 0.83, 0.92, 1],
+          repeat: Infinity,
+          ease: "linear",
+        }}
+      />
+
+      {/* ═══════════════════════════════════════
+          LAYER D — STARS (fade in at night)
+      ═══════════════════════════════════════ */}
+      <motion.div
+        className="absolute inset-0"
+        aria-hidden="true"
+        animate={{
+          opacity: [0.2, 0.05, 0, 0, 0, 0.05, 0.2, 0.5, 0.8, 1, 0.8, 0.5, 0.2],
+        }}
+        transition={{
+          duration: CYCLE,
+          times:   [0, 0.08, 0.15, 0.25, 0.35, 0.42, 0.50, 0.58, 0.67, 0.75, 0.83, 0.92, 1],
+          repeat: Infinity,
+          ease: "linear",
+        }}
+      >
+        {stars.map((s) => (
+          <motion.div
+            key={s.id}
+            className="absolute rounded-full bg-white"
+            style={{ left: s.left, top: s.top, width: s.size, height: s.size }}
+            animate={{ opacity: [0.3, 1, 0.3] }}
+            transition={{
+              duration: 2.5 + (s.id % 4),
+              delay: (s.id % 7) * 0.5,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
+          />
+        ))}
+      </motion.div>
+
     </div>
   );
 }
