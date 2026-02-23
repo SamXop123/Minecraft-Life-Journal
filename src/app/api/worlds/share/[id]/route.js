@@ -33,7 +33,7 @@ export async function POST(req, { params }) {
     // that can silently drop newly-added schema fields when using .save()
     await World.findByIdAndUpdate(
       id,
-      { $set: { shareEnabled: true, shareToken } },
+      { $set: { isPublic: true, shareToken } },
       { new: true }
     );
 
