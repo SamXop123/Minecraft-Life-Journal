@@ -532,3 +532,147 @@ export default function WorldDetailPage({ params }) {
             </div>
           )}
 
+          {/* Share Link */}
+          {world.isPublic && (
+            <div
+              className="mt-5 pt-5"
+              style={{ borderTop: "1px solid rgba(218,165,32,0.12)" }}
+            >
+              <p
+                className="text-sm mb-2"
+                style={{ color: "rgba(255,224,176,0.4)" }}
+              >
+                Public Share Link
+              </p>
+              <div className="flex items-center gap-2">
+                <code
+                  className="flex-1 px-3 py-2 rounded-lg text-sm truncate"
+                  style={{
+                    backgroundColor: "rgba(0,0,0,0.35)",
+                    border: "1px solid rgba(218,165,32,0.12)",
+                    color: "#6ee7b7",
+                  }}
+                >
+                  {typeof window !== "undefined"
+                    ? `${window.location.origin}/public/world/${worldId}`
+                    : `/public/world/${worldId}`}
+                </code>
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(
+                      `${window.location.origin}/public/world/${worldId}`
+                    );
+                    setCopied(true);
+                    setTimeout(() => setCopied(false), 2000);
+                  }}
+                  className="shrink-0 px-3 py-2 text-white text-sm rounded-lg transition-colors"
+                  style={{
+                    backgroundColor: "rgba(16,185,129,0.6)",
+                    border: "1px solid rgba(16,185,129,0.3)",
+                  }}
+                >
+                  {copied ? "Copied!" : "Copy"}
+                </button>
+              </div>
+            </div>
+          )}
+        </motion.div>
+
+        {/* Memories Section */}
+        <motion.div
+          className="backdrop-blur-lg rounded-xl p-6"
+          style={{
+            backgroundColor: "rgba(0,0,0,0.45)",
+            border: "1px solid rgba(218,165,32,0.15)",
+            boxShadow:
+              "0 8px 40px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,200,100,0.03)",
+          }}
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+        >
+          <div className="flex items-center justify-between mb-6">
+            <h2
+              className="text-xl font-semibold"
+              style={{
+                color: "rgba(255,224,176,0.95)",
+                textShadow:
+                  "0 0 15px rgba(218,165,32,0.4), 0 2px 6px rgba(0,0,0,0.7)",
+              }}
+            >
+              Memories
+            </h2>
+            <div className="flex items-center gap-2">
+              {memories.length > 0 && (
+                <button
+                  onClick={() => setShowCinematic(true)}
+                  className="px-4 py-2 text-sm font-medium rounded-lg transition-colors border"
+                  style={{
+                    backgroundColor: "rgba(160,100,30,0.25)",
+                    borderColor: "rgba(218,165,32,0.3)",
+                    color: "#ffd896",
+                    textShadow: "0 1px 4px rgba(0,0,0,0.5)",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = "rgba(160,100,30,0.45)";
+                    e.currentTarget.style.borderColor = "rgba(218,165,32,0.5)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = "rgba(160,100,30,0.25)";
+                    e.currentTarget.style.borderColor = "rgba(218,165,32,0.3)";
+                  }}
+                >
+                  ▶ Cinematic Mode
+                </button>
+              )}
+              <button
+                onClick={() => setShowMemoryForm(!showMemoryForm)}
+                className="px-4 py-2 text-white text-sm font-medium rounded-lg transition-all"
+                style={{
+                  backgroundColor: "rgba(16,185,129,0.6)",
+                  border: "1px solid rgba(16,185,129,0.3)",
+                  boxShadow: "0 2px 10px rgba(16,185,129,0.25)",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = "rgba(16,185,129,0.75)";
+                  e.currentTarget.style.transform = "translateY(-1px)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = "rgba(16,185,129,0.6)";
+                  e.currentTarget.style.transform = "translateY(0)";
+                }}
+              >
+                {showMemoryForm ? "Cancel" : "+ Add Memory"}
+              </button>
+            </div>
+          </div>
+
+          {/* Add Memory Form */}
+          {showMemoryForm && (
+            <div
+              className="mb-6 p-5 rounded-xl"
+              style={{
+                backgroundColor: "rgba(0,0,0,0.35)",
+                border: "1px solid rgba(218,165,32,0.12)",
+              }}
+            >
+              <h3
+                className="text-sm font-medium mb-4"
+                style={{ color: "rgba(255,224,176,0.8)" }}
+              >
+                New Memory
+              </h3>
+
+              {memoryFormError && (
+                <div
+                  className="mb-4 p-3 rounded-lg text-sm"
+                  style={{
+                    backgroundColor: "rgba(239,68,68,0.1)",
+                    border: "1px solid rgba(239,68,68,0.3)",
+                    color: "#fca5a5",
+                  }}
+                >
+                  {memoryFormError}
+                </div>
+              )}
+
