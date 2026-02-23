@@ -73,3 +73,118 @@ export default function EditProfileModal({ profile, onClose, onSaved }) {
         avatarUrl = upData.imageUrl;
       }
 
+      /* Parse comma-separated tags */
+      const parseList = (str) =>
+        str
+          .split(",")
+          .map((s) => s.trim())
+          .filter(Boolean);
+
+      const body = {
+        displayName: form.displayName.trim(),
+        realName: form.realName.trim(),
+        age: form.age !== "" ? Number(form.age) : null,
+        country: form.country.trim(),
+        experienceLevel: form.experienceLevel,
+        bio: form.bio.trim(),
+        favoriteGameModes: parseList(form.favoriteGameModes),
+        favoriteActivities: parseList(form.favoriteActivities),
+        avatarUrl: avatarUrl ?? "",
+      };
+
+      console.log("[EditProfileModal] submitting body:", JSON.stringify(body));
+
+      const res = await fetch("/api/profile", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(body),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Update failed");
+
+      onSaved(data.profile);
+      onClose();
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  const inputStyle = {
+    backgroundColor: "rgba(0,0,0,0.4)",
+    border: "1px solid rgba(218,165,32,0.18)",
+    color: "rgba(255,224,176,0.92)",
+    borderRadius: "0.5rem",
+  };
+
+  const focusRing =
+    "focus:outline-none focus:ring-2 focus:ring-amber-400/20 focus:border-amber-500/40";
+
+  return (
+    <AnimatePresence>
+      {/* Backdrop */}
+      <motion.div
+        className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.2 }}
+        onClick={(e) => {
+          if (e.target === e.currentTarget) onClose();
+        }}
+        style={{
+          backgroundColor: "rgba(0,0,0,0.72)",
+          backdropFilter: "blur(4px)",
+        }}
+      >
+        {/* Card */}
+        <motion.div
+          className="w-full max-w-lg rounded-2xl overflow-hidden my-8"
+          initial={{ opacity: 0, scale: 0.93, y: 20 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.93, y: 20 }}
+          transition={{ duration: 0.25, ease: "easeOut" }}
+          style={{
+            backgroundColor: "rgba(12,8,2,0.95)",
+            border: "1px solid rgba(218,165,32,0.2)",
+            boxShadow:
+              "0 20px 60px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,200,100,0.04), inset 0 1px 0 rgba(255,200,100,0.06)",
+          }}
+        >
+          {/* Header */}
+          <div
+            className="flex items-center justify-between px-6 py-4"
+            style={{ borderBottom: "1px solid rgba(218,165,32,0.1)" }}
+          >
+            <h2
+              className="text-base font-semibold"
+              style={{
+                color: "rgba(255,224,176,0.95)",
+                textShadow: "0 0 20px rgba(218,165,32,0.3)",
+              }}
+            >
+              Edit Profile
+            </h2>
+            <button
+              onClick={onClose}
+              className="w-7 h-7 flex items-center justify-center rounded-md text-sm transition-all"
+              style={{ color: "rgba(255,224,176,0.5)" }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.color = "rgba(255,224,176,0.9)";
+                e.currentTarget.style.backgroundColor =
+                  "rgba(255,255,255,0.06)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.color = "rgba(255,224,176,0.5)";
+                e.currentTarget.style.backgroundColor = "transparent";
+              }}
+            >
+              ✕
+            </button>
+          </div>
+
