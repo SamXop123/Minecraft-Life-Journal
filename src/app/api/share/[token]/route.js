@@ -9,12 +9,12 @@ export async function GET(req, { params }) {
 
     const { token } = await params;
 
-    // No .select() — we need all fields including shareEnabled to check access
+    // No .select() — we need all fields including isPublic to check access
     const world = await World.findOne({ shareToken: token });
 
-    console.log(`[share] lookup token=${token} →`, world ? `id=${world._id} shareEnabled=${world.shareEnabled}` : "not found");
+    console.log(`[share] lookup token=${token} →`, world ? `id=${world._id} isPublic=${world.isPublic}` : "not found");
 
-    if (!world || !world.shareEnabled) {
+    if (!world || !world.isPublic) {
       return NextResponse.json(
         { message: "Shared world not found" },
         { status: 404 }
