@@ -254,3 +254,179 @@ export default function WorldDetailPage({ params }) {
     );
   }
 
+  return (
+    <div className="relative min-h-screen">
+
+      {/* ═══════════════════════════════════════
+          LAYER 0 — BREATHING BACKGROUND IMAGE
+      ═══════════════════════════════════════ */}
+      <motion.div
+        className="fixed inset-0"
+        animate={{ scale: [1, 1.02, 1] }}
+        transition={{ duration: 14, repeat: Infinity, ease: "easeInOut" }}
+        style={{ transformOrigin: "50% 40%", zIndex: 0 }}
+      >
+        <img
+          src="/hd-treehouse-bg.jpg"
+          alt=""
+          className="absolute inset-0 w-full h-full object-cover"
+          draggable={false}
+        />
+      </motion.div>
+
+      {/* ═══════════════════════════════════════
+          LAYER 1 — DARK GRADIENT OVERLAY
+      ═══════════════════════════════════════ */}
+      <div
+        className="fixed inset-0"
+        style={{
+          zIndex: 1,
+          background: `
+            linear-gradient(
+              180deg,
+              rgba(8,4,1,0.75) 0%,
+              rgba(12,7,2,0.5) 30%,
+              rgba(10,6,2,0.45) 60%,
+              rgba(8,4,1,0.8) 100%
+            )
+          `,
+        }}
+      />
+
+      {/* ═══════════════════════════════════════
+          LAYER 2 — WARM AMBIENT GLOW
+      ═══════════════════════════════════════ */}
+      <motion.div
+        className="fixed inset-0 pointer-events-none"
+        style={{
+          zIndex: 2,
+          background:
+            "radial-gradient(ellipse 60% 50% at 50% 30%, rgba(255,180,60,0.08) 0%, rgba(255,140,30,0.03) 40%, transparent 70%)",
+        }}
+        animate={{ opacity: [1, 0.75, 1] }}
+        transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
+      />
+
+      {/* ═══════════════════════════════════════
+          LAYER 3 — VIGNETTE (DARK EDGES)
+      ═══════════════════════════════════════ */}
+      <div
+        className="fixed inset-0 pointer-events-none"
+        style={{
+          zIndex: 3,
+          background:
+            "radial-gradient(ellipse 70% 65% at 50% 45%, transparent 30%, rgba(0,0,0,0.6) 100%)",
+        }}
+      />
+
+      {/* ═══════════════════════════════════════
+          LAYER 4 — PIXEL PARTICLES
+      ═══════════════════════════════════════ */}
+      <div className="fixed inset-0 pointer-events-none opacity-40" style={{ zIndex: 4 }}>
+        <PixelParticles count={16} />
+      </div>
+
+      {/* ═══════════════════════════════════════
+          CONTENT
+      ═══════════════════════════════════════ */}
+      <div className="relative px-4 py-10 min-h-screen" style={{ zIndex: 10 }}>
+      <div className="max-w-3xl mx-auto">
+        {/* Back Link */}
+        <Link
+          href="/dashboard"
+          className="inline-block mb-6 text-sm transition-colors"
+          style={{
+            color: "rgba(255,224,176,0.5)",
+            textShadow: "0 1px 6px rgba(0,0,0,0.6)",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.color = "rgba(255,224,176,0.8)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.color = "rgba(255,224,176,0.5)";
+          }}
+        >
+          ← Back to Dashboard
+        </Link>
+
+        {/* World Header */}
+        <motion.div
+          className="backdrop-blur-lg rounded-xl p-6 mb-6"
+          style={{
+            backgroundColor: "rgba(0,0,0,0.45)",
+            border: "1px solid rgba(218,165,32,0.15)",
+            boxShadow:
+              "0 8px 40px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,200,100,0.03)",
+          }}
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <div className="flex items-start justify-between mb-4">
+            <h1
+              className="text-2xl font-bold text-amber-100"
+              style={{
+                textShadow:
+                  "0 2px 16px rgba(0,0,0,0.8), 0 0 30px rgba(255,170,60,0.08)",
+              }}
+            >
+              {world.name}
+            </h1>
+            {world.endedAt && (
+              <span className="px-2.5 py-1 bg-red-500/10 border border-red-500/30 rounded text-xs text-red-400">
+                Ended
+              </span>
+            )}
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 text-sm">
+            <div>
+              <p
+                className="mb-0.5"
+                style={{ color: "rgba(255,224,176,0.4)" }}
+              >
+                Version
+              </p>
+              <p
+                style={{
+                  color: "rgba(255,224,176,0.8)",
+                  textShadow: "0 1px 4px rgba(0,0,0,0.6)",
+                }}
+              >
+                {world.mcVersion}
+              </p>
+            </div>
+            <div>
+              <p
+                className="mb-0.5"
+                style={{ color: "rgba(255,224,176,0.4)" }}
+              >
+                Mode
+              </p>
+              <p
+                className="capitalize"
+                style={{
+                  color: "rgba(255,224,176,0.8)",
+                  textShadow: "0 1px 4px rgba(0,0,0,0.6)",
+                }}
+              >
+                {world.mode}
+              </p>
+            </div>
+            <div>
+              <p
+                className="mb-0.5"
+                style={{ color: "rgba(255,224,176,0.4)" }}
+              >
+                Type
+              </p>
+              <p
+                className="capitalize"
+                style={{
+                  color: "rgba(255,224,176,0.8)",
+                  textShadow: "0 1px 4px rgba(0,0,0,0.6)",
+                }}
+              >
+                {world.type}
+              </p>
+            </div>
