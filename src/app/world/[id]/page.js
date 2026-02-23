@@ -40,6 +40,8 @@ export default function WorldDetailPage({ params }) {
   const [copied, setCopied] = useState(false);
   const [showCinematic, setShowCinematic] = useState(false);
   const [editingMemory, setEditingMemory] = useState(null);
+  const [shareUrl, setShareUrl] = useState("");
+  const [sharingLoading, setSharingLoading] = useState(false);
 
   function getToken() {
     return localStorage.getItem("accessToken");
@@ -532,50 +534,110 @@ export default function WorldDetailPage({ params }) {
             </div>
           )}
 
-          {/* Share Link */}
-          {world.isPublic && (
-            <div
-              className="mt-5 pt-5"
-              style={{ borderTop: "1px solid rgba(218,165,32,0.12)" }}
-            >
-              <p
-                className="text-sm mb-2"
-                style={{ color: "rgba(255,224,176,0.4)" }}
+          {/* Share Section */}
+          <div
+            className="mt-5 pt-5"
+            style={{ borderTop: "1px solid rgba(218,165,32,0.12)" }}
+          >
+            {world.shareEnabled && world.shareToken ? (
+              <>
+                <p
+                  className="text-sm mb-2"
+                  style={{ color: "rgba(255,224,176,0.4)" }}
+                >
+                  Share Link
+                </p>
+                <div className="flex items-center gap-2">
+                  <code
+                    className="flex-1 px-3 py-2 rounded-lg text-sm truncate"
+                    style={{
+                      backgroundColor: "rgba(0,0,0,0.35)",
+                      border: "1px solid rgba(218,165,32,0.12)",
+                      color: "#6ee7b7",
+                    }}
+                  >
+                    {typeof window !== "undefined"
+                      ? `${window.location.origin}/share/${world.shareToken}`
+                      : `/share/${world.shareToken}`}
+                  </code>
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(
+                        `${window.location.origin}/share/${world.shareToken}`
+                      );
+                      setCopied(true);
+                      setTimeout(() => setCopied(false), 2000);
+                    }}
+                    className="shrink-0 px-3 py-2 text-sm rounded-lg transition-all"
+                    style={{
+                      color: "#fff",
+                      backgroundColor: "rgba(16,185,129,0.6)",
+                      border: "1px solid rgba(16,185,129,0.3)",
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = "rgba(16,185,129,0.8)";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = "rgba(16,185,129,0.6)";
+                    }}
+                  >
+                    {copied ? "Copied!" : "Copy Link"}
+                  </button>
+                </div>
+              </>
+            ) : (
+              <button
+                disabled={sharingLoading}
+                onClick={async () => {
+                  setSharingLoading(true);
+                  try {
+                    const token = getToken();
+                    const res = await fetch(`/api/worlds/share/${worldId}`, {
+                      method: "POST",
+                      headers: { Authorization: `Bearer ${token}` },
+                    });
+                    const data = await res.json();
+                    if (!res.ok) throw new Error(data.message || "Failed");
+                    // Refresh world data to show the link
+                    setWorld((prev) => ({
+                      ...prev,
+                      shareEnabled: true,
+                      shareToken: data.shareUrl.replace("/share/", ""),
+                    }));
+                    setShareUrl(data.shareUrl);
+                  } catch (err) {
+                    console.error("Enable sharing failed:", err.message);
+                  } finally {
+                    setSharingLoading(false);
+                  }
+                }}
+                className="px-5 py-2.5 text-sm font-medium rounded-lg transition-all disabled:opacity-50"
+                style={{
+                  color: "#ffd896",
+                  backgroundColor: "rgba(218,165,32,0.15)",
+                  border: "1px solid rgba(218,165,32,0.25)",
+                  boxShadow:
+                    "0 2px 8px rgba(218,165,32,0.15), inset 0 1px 0 rgba(255,200,100,0.08)",
+                  textShadow: "0 1px 4px rgba(0,0,0,0.5)",
+                }}
+                onMouseEnter={(e) => {
+                  if (sharingLoading) return;
+                  e.currentTarget.style.backgroundColor = "rgba(218,165,32,0.25)";
+                  e.currentTarget.style.transform = "translateY(-1px)";
+                  e.currentTarget.style.boxShadow =
+                    "0 4px 12px rgba(218,165,32,0.25), inset 0 1px 0 rgba(255,200,100,0.12)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = "rgba(218,165,32,0.15)";
+                  e.currentTarget.style.transform = "translateY(0)";
+                  e.currentTarget.style.boxShadow =
+                    "0 2px 8px rgba(218,165,32,0.15), inset 0 1px 0 rgba(255,200,100,0.08)";
+                }}
               >
-                Public Share Link
-              </p>
-              <div className="flex items-center gap-2">
-                <code
-                  className="flex-1 px-3 py-2 rounded-lg text-sm truncate"
-                  style={{
-                    backgroundColor: "rgba(0,0,0,0.35)",
-                    border: "1px solid rgba(218,165,32,0.12)",
-                    color: "#6ee7b7",
-                  }}
-                >
-                  {typeof window !== "undefined"
-                    ? `${window.location.origin}/public/world/${worldId}`
-                    : `/public/world/${worldId}`}
-                </code>
-                <button
-                  onClick={() => {
-                    navigator.clipboard.writeText(
-                      `${window.location.origin}/public/world/${worldId}`
-                    );
-                    setCopied(true);
-                    setTimeout(() => setCopied(false), 2000);
-                  }}
-                  className="shrink-0 px-3 py-2 text-white text-sm rounded-lg transition-colors"
-                  style={{
-                    backgroundColor: "rgba(16,185,129,0.6)",
-                    border: "1px solid rgba(16,185,129,0.3)",
-                  }}
-                >
-                  {copied ? "Copied!" : "Copy"}
-                </button>
-              </div>
-            </div>
-          )}
+                {sharingLoading ? "Generating…" : "Enable Sharing"}
+              </button>
+            )}
+          </div>
         </motion.div>
 
         {/* Memories Section */}
