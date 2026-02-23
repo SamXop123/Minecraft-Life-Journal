@@ -188,3 +188,65 @@ export default function EditProfileModal({ profile, onClose, onSaved }) {
             </button>
           </div>
 
+          {/* Body */}
+          <form
+            onSubmit={handleSubmit}
+            className="px-6 py-5 space-y-4 max-h-[70vh] overflow-y-auto"
+          >
+            {error && (
+              <div
+                className="px-4 py-3 rounded-lg text-sm"
+                style={{
+                  backgroundColor: "rgba(239,68,68,0.1)",
+                  border: "1px solid rgba(239,68,68,0.3)",
+                  color: "#fca5a5",
+                }}
+              >
+                {error}
+              </div>
+            )}
+
+            {/* Avatar Upload */}
+            <div className="flex flex-col items-center">
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="w-20 h-20 rounded-full overflow-hidden flex items-center justify-center transition-all hover:opacity-80"
+                style={{
+                  border: "3px solid rgba(218,165,32,0.35)",
+                  backgroundColor: "rgba(0,0,0,0.4)",
+                  boxShadow: "0 0 14px rgba(218,165,32,0.12)",
+                }}
+              >
+                {avatarPreview ? (
+                  <img
+                    src={avatarPreview}
+                    alt="Avatar"
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <span
+                    className="text-xs text-center leading-tight"
+                    style={{ color: "rgba(255,224,176,0.4)" }}
+                  >
+                    Upload
+                    <br />
+                    Avatar
+                  </span>
+                )}
+              </button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleAvatarChange}
+                className="hidden"
+              />
+              <p
+                className="text-[10px] mt-1.5"
+                style={{ color: "rgba(255,224,176,0.3)" }}
+              >
+                Click to change avatar
+              </p>
+            </div>
+
