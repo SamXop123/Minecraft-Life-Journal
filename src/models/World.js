@@ -45,6 +45,15 @@ const WorldSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  shareEnabled: {
+    type: Boolean,
+    default: false,
+  },
+  shareToken: {
+    type: String,
+    unique: true,
+    sparse: true,
+  },
   createdAt: {
     type: Date,
     default: Date.now,
