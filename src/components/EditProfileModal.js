@@ -250,3 +250,188 @@ export default function EditProfileModal({ profile, onClose, onSaved }) {
               </p>
             </div>
 
+            {/* Display Name */}
+            <Field label="Display Name">
+              <input
+                name="displayName"
+                type="text"
+                value={form.displayName}
+                onChange={handleChange}
+                placeholder="e.g. Steve the Builder"
+                className={`w-full px-3 py-2 text-sm placeholder-amber-200/20 ${focusRing}`}
+                style={inputStyle}
+              />
+            </Field>
+
+            {/* Two-column row */}
+            <div className="grid grid-cols-2 gap-3">
+              <Field label="Real Name">
+                <input
+                  name="realName"
+                  type="text"
+                  value={form.realName}
+                  onChange={handleChange}
+                  className={`w-full px-3 py-2 text-sm placeholder-amber-200/20 ${focusRing}`}
+                  style={inputStyle}
+                />
+              </Field>
+              <Field label="Age">
+                <input
+                  name="age"
+                  type="number"
+                  min="1"
+                  max="120"
+                  value={form.age}
+                  onChange={handleChange}
+                  className={`w-full px-3 py-2 text-sm placeholder-amber-200/20 ${focusRing}`}
+                  style={inputStyle}
+                />
+              </Field>
+            </div>
+
+            {/* Two-column row */}
+            <div className="grid grid-cols-2 gap-3">
+              <Field label="Country">
+                <input
+                  name="country"
+                  type="text"
+                  value={form.country}
+                  onChange={handleChange}
+                  className={`w-full px-3 py-2 text-sm placeholder-amber-200/20 ${focusRing}`}
+                  style={inputStyle}
+                />
+              </Field>
+              <Field label="Experience Level">
+                <select
+                  name="experienceLevel"
+                  value={form.experienceLevel}
+                  onChange={handleChange}
+                  className={`w-full px-3 py-2 text-sm ${focusRing}`}
+                  style={inputStyle}
+                >
+                  {EXPERIENCE_OPTIONS.map((o) => (
+                    <option key={o.value} value={o.value}>
+                      {o.label}
+                    </option>
+                  ))}
+                </select>
+              </Field>
+            </div>
+
+            {/* Game Modes */}
+            <Field label="Favorite Game Modes" hint="Comma-separated (e.g. Survival, Creative, Hardcore)">
+              <input
+                name="favoriteGameModes"
+                type="text"
+                value={form.favoriteGameModes}
+                onChange={handleChange}
+                placeholder="Survival, Creative, Hardcore"
+                className={`w-full px-3 py-2 text-sm placeholder-amber-200/20 ${focusRing}`}
+                style={inputStyle}
+              />
+            </Field>
+
+            {/* Activities */}
+            <Field label="Favorite Activities" hint="Comma-separated (e.g. Building, Redstone, Exploring)">
+              <input
+                name="favoriteActivities"
+                type="text"
+                value={form.favoriteActivities}
+                onChange={handleChange}
+                placeholder="Building, Redstone, Exploring"
+                className={`w-full px-3 py-2 text-sm placeholder-amber-200/20 ${focusRing}`}
+                style={inputStyle}
+              />
+            </Field>
+
+            {/* Bio */}
+            <Field label="Bio">
+              <textarea
+                name="bio"
+                rows={3}
+                value={form.bio}
+                onChange={handleChange}
+                placeholder="Tell us about your Minecraft journey…"
+                className={`w-full px-3 py-2 text-sm placeholder-amber-200/20 resize-none ${focusRing}`}
+                style={inputStyle}
+              />
+            </Field>
+
+            {/* Footer */}
+            <div className="flex items-center justify-end gap-3 pt-2">
+              <button
+                type="button"
+                onClick={onClose}
+                className="px-4 py-2 text-sm rounded-lg transition-all"
+                style={{
+                  color: "rgba(255,224,176,0.5)",
+                  border: "1px solid rgba(255,224,176,0.1)",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor =
+                    "rgba(255,255,255,0.04)";
+                  e.currentTarget.style.color = "rgba(255,224,176,0.7)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = "transparent";
+                  e.currentTarget.style.color = "rgba(255,224,176,0.5)";
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={submitting}
+                className="px-5 py-2 text-sm font-medium rounded-lg transition-all disabled:opacity-50"
+                style={{
+                  color: "#ffd896",
+                  backgroundColor: "rgba(218,165,32,0.2)",
+                  border: "1px solid rgba(218,165,32,0.3)",
+                  boxShadow:
+                    "0 2px 8px rgba(218,165,32,0.15), inset 0 1px 0 rgba(255,200,100,0.08)",
+                  textShadow: "0 1px 4px rgba(0,0,0,0.5)",
+                }}
+                onMouseEnter={(e) => {
+                  if (submitting) return;
+                  e.currentTarget.style.backgroundColor =
+                    "rgba(218,165,32,0.3)";
+                  e.currentTarget.style.transform = "translateY(-1px)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor =
+                    "rgba(218,165,32,0.2)";
+                  e.currentTarget.style.transform = "translateY(0)";
+                }}
+              >
+                {submitting ? "Saving…" : "Save Changes"}
+              </button>
+            </div>
+          </form>
+        </motion.div>
+      </motion.div>
+    </AnimatePresence>
+  );
+}
+
+/* ── Reusable field wrapper ── */
+function Field({ label, hint, children }) {
+  return (
+    <div>
+      <label
+        className="block text-xs mb-1.5"
+        style={{ color: "rgba(255,224,176,0.55)" }}
+      >
+        {label}
+      </label>
+      {children}
+      {hint && (
+        <p
+          className="text-[10px] mt-1"
+          style={{ color: "rgba(255,224,176,0.3)" }}
+        >
+          {hint}
+        </p>
+      )}
+    </div>
+  );
+}
