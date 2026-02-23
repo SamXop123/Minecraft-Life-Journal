@@ -45,14 +45,14 @@ const WorldSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
-  shareEnabled: {
-    type: Boolean,
-    default: false,
-  },
   shareToken: {
     type: String,
     unique: true,
     sparse: true,
+  },
+  postedToCommunity: {
+    type: Boolean,
+    default: false,
   },
   createdAt: {
     type: Date,
