@@ -78,10 +78,11 @@ export default function Navbar() {
     router.push("/login");
   }
 
-  // Hide navbar on public/landing/auth routes
+  // Hide navbar on public/landing/auth/share routes
   if (
     HIDDEN_ROUTES.includes(pathname) ||
-    pathname.startsWith("/public/")
+    pathname.startsWith("/public/") ||
+    pathname.startsWith("/share/")
   ) {
     return null;
   }
