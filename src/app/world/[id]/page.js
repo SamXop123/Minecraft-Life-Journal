@@ -40,7 +40,6 @@ export default function WorldDetailPage({ params }) {
   const [copied, setCopied] = useState(false);
   const [showCinematic, setShowCinematic] = useState(false);
   const [editingMemory, setEditingMemory] = useState(null);
-  const [shareUrl, setShareUrl] = useState("");
   const [sharingLoading, setSharingLoading] = useState(false);
 
   function getToken() {
@@ -534,109 +533,128 @@ export default function WorldDetailPage({ params }) {
             </div>
           )}
 
-          {/* Share Section */}
+          {/* Visibility Toggle */}
           <div
             className="mt-5 pt-5"
             style={{ borderTop: "1px solid rgba(218,165,32,0.12)" }}
           >
-            {world.shareEnabled && world.shareToken ? (
-              <>
-                <p
-                  className="text-sm mb-2"
-                  style={{ color: "rgba(255,224,176,0.4)" }}
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-3">
+                <span
+                  className="text-sm font-medium"
+                  style={{ color: "rgba(255,224,176,0.6)" }}
                 >
-                  Share Link
-                </p>
-                <div className="flex items-center gap-2">
-                  <code
-                    className="flex-1 px-3 py-2 rounded-lg text-sm truncate"
+                  {world.isPublic ? "Public" : "Private"}
+                </span>
+
+                {/* Toggle Switch */}
+                <button
+                  disabled={sharingLoading}
+                  onClick={async () => {
+                    setSharingLoading(true);
+                    try {
+                      const token = getToken();
+                      const res = await fetch(`/api/worlds/toggle-public/${worldId}`, {
+                        method: "PATCH",
+                        headers: { Authorization: `Bearer ${token}` },
+                      });
+                      const data = await res.json();
+                      if (!res.ok) throw new Error(data.message || "Failed");
+                      setWorld((prev) => ({
+                        ...prev,
+                        isPublic: data.isPublic,
+                        shareToken: data.shareUrl
+                          ? data.shareUrl.replace("/share/", "")
+                          : prev.shareToken,
+                      }));
+                    } catch (err) {
+                      console.error("Toggle failed:", err.message);
+                    } finally {
+                      setSharingLoading(false);
+                    }
+                  }}
+                  className="relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-300 focus:outline-none disabled:opacity-50"
+                  style={{
+                    backgroundColor: world.isPublic
+                      ? "rgba(34,197,94,0.5)"
+                      : "rgba(255,255,255,0.12)",
+                    border: world.isPublic
+                      ? "1px solid rgba(34,197,94,0.4)"
+                      : "1px solid rgba(255,255,255,0.15)",
+                  }}
+                  aria-label="Toggle world visibility"
+                >
+                  <span
+                    className="inline-block h-4 w-4 rounded-full transition-transform duration-300"
                     style={{
-                      backgroundColor: "rgba(0,0,0,0.35)",
-                      border: "1px solid rgba(218,165,32,0.12)",
-                      color: "#6ee7b7",
+                      backgroundColor: world.isPublic ? "#22c55e" : "rgba(255,255,255,0.45)",
+                      transform: world.isPublic ? "translateX(22px)" : "translateX(4px)",
+                      boxShadow: world.isPublic
+                        ? "0 0 8px rgba(34,197,94,0.5)"
+                        : "none",
                     }}
-                  >
-                    {typeof window !== "undefined"
-                      ? `${window.location.origin}/share/${world.shareToken}`
-                      : `/share/${world.shareToken}`}
-                  </code>
-                  <button
-                    onClick={() => {
-                      navigator.clipboard.writeText(
-                        `${window.location.origin}/share/${world.shareToken}`
-                      );
-                      setCopied(true);
-                      setTimeout(() => setCopied(false), 2000);
-                    }}
-                    className="shrink-0 px-3 py-2 text-sm rounded-lg transition-all"
-                    style={{
-                      color: "#fff",
-                      backgroundColor: "rgba(16,185,129,0.6)",
-                      border: "1px solid rgba(16,185,129,0.3)",
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.backgroundColor = "rgba(16,185,129,0.8)";
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.backgroundColor = "rgba(16,185,129,0.6)";
-                    }}
-                  >
-                    {copied ? "Copied!" : "Copy Link"}
-                  </button>
-                </div>
-              </>
-            ) : (
-              <button
-                disabled={sharingLoading}
-                onClick={async () => {
-                  setSharingLoading(true);
-                  try {
-                    const token = getToken();
-                    const res = await fetch(`/api/worlds/share/${worldId}`, {
-                      method: "POST",
-                      headers: { Authorization: `Bearer ${token}` },
-                    });
-                    const data = await res.json();
-                    if (!res.ok) throw new Error(data.message || "Failed");
-                    // Refresh world data to show the link
-                    setWorld((prev) => ({
-                      ...prev,
-                      shareEnabled: true,
-                      shareToken: data.shareUrl.replace("/share/", ""),
-                    }));
-                    setShareUrl(data.shareUrl);
-                  } catch (err) {
-                    console.error("Enable sharing failed:", err.message);
-                  } finally {
-                    setSharingLoading(false);
-                  }
-                }}
-                className="px-5 py-2.5 text-sm font-medium rounded-lg transition-all disabled:opacity-50"
-                style={{
-                  color: "#ffd896",
-                  backgroundColor: "rgba(218,165,32,0.15)",
-                  border: "1px solid rgba(218,165,32,0.25)",
-                  boxShadow:
-                    "0 2px 8px rgba(218,165,32,0.15), inset 0 1px 0 rgba(255,200,100,0.08)",
-                  textShadow: "0 1px 4px rgba(0,0,0,0.5)",
-                }}
-                onMouseEnter={(e) => {
-                  if (sharingLoading) return;
-                  e.currentTarget.style.backgroundColor = "rgba(218,165,32,0.25)";
-                  e.currentTarget.style.transform = "translateY(-1px)";
-                  e.currentTarget.style.boxShadow =
-                    "0 4px 12px rgba(218,165,32,0.25), inset 0 1px 0 rgba(255,200,100,0.12)";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = "rgba(218,165,32,0.15)";
-                  e.currentTarget.style.transform = "translateY(0)";
-                  e.currentTarget.style.boxShadow =
-                    "0 2px 8px rgba(218,165,32,0.15), inset 0 1px 0 rgba(255,200,100,0.08)";
-                }}
+                  />
+                </button>
+              </div>
+
+              <p
+                className="text-xs"
+                style={{ color: "rgba(255,224,176,0.3)" }}
               >
-                {sharingLoading ? "Generating…" : "Enable Sharing"}
-              </button>
-            )}
+                Public worlds are accessible only via link.
+              </p>
+            </div>
+
+            {/* Share Link (visible only when public) */}
+            <AnimatePresence>
+              {world.isPublic && world.shareToken && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.25 }}
+                  className="overflow-hidden"
+                >
+                  <div className="flex items-center gap-2 mt-1">
+                    <code
+                      className="flex-1 px-3 py-2 rounded-lg text-sm truncate"
+                      style={{
+                        backgroundColor: "rgba(0,0,0,0.35)",
+                        border: "1px solid rgba(218,165,32,0.12)",
+                        color: "#6ee7b7",
+                      }}
+                    >
+                      {typeof window !== "undefined"
+                        ? `${window.location.origin}/share/${world.shareToken}`
+                        : `/share/${world.shareToken}`}
+                    </code>
+                    <button
+                      onClick={() => {
+                        navigator.clipboard.writeText(
+                          `${window.location.origin}/share/${world.shareToken}`
+                        );
+                        setCopied(true);
+                        setTimeout(() => setCopied(false), 2000);
+                      }}
+                      className="shrink-0 px-3 py-2 text-sm rounded-lg transition-all"
+                      style={{
+                        color: "#fff",
+                        backgroundColor: "rgba(16,185,129,0.6)",
+                        border: "1px solid rgba(16,185,129,0.3)",
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = "rgba(16,185,129,0.8)";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = "rgba(16,185,129,0.6)";
+                      }}
+                    >
+                      {copied ? "Copied!" : "Copy Link"}
+                    </button>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </motion.div>
 
