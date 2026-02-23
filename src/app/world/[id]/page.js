@@ -430,3 +430,105 @@ export default function WorldDetailPage({ params }) {
                 {world.type}
               </p>
             </div>
+            {world.seed && (
+              <div>
+                <p
+                  className="mb-0.5"
+                  style={{ color: "rgba(255,224,176,0.4)" }}
+                >
+                  Seed
+                </p>
+                <p
+                  className="font-mono text-xs"
+                  style={{
+                    color: "rgba(255,224,176,0.8)",
+                    textShadow: "0 1px 4px rgba(0,0,0,0.6)",
+                  }}
+                >
+                  {world.seed}
+                </p>
+              </div>
+            )}
+            <div>
+              <p
+                className="mb-0.5"
+                style={{ color: "rgba(255,224,176,0.4)" }}
+              >
+                Started
+              </p>
+              <p
+                style={{
+                  color: "rgba(255,224,176,0.8)",
+                  textShadow: "0 1px 4px rgba(0,0,0,0.6)",
+                }}
+              >
+                {formatDate(world.startedAt)}
+              </p>
+            </div>
+            {world.endedAt && (
+              <div>
+                <p
+                  className="mb-0.5"
+                  style={{ color: "rgba(255,224,176,0.4)" }}
+                >
+                  Ended
+                </p>
+                <p
+                  style={{
+                    color: "rgba(255,224,176,0.8)",
+                    textShadow: "0 1px 4px rgba(0,0,0,0.6)",
+                  }}
+                >
+                  {formatDate(world.endedAt)}
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/* End Details */}
+          {world.endedAt && (world.endReason || world.finalMessage) && (
+            <div
+              className="mt-5 pt-5 space-y-3"
+              style={{ borderTop: "1px solid rgba(218,165,32,0.12)" }}
+            >
+              {world.endReason && (
+                <div>
+                  <p
+                    className="text-sm mb-1"
+                    style={{ color: "rgba(255,224,176,0.4)" }}
+                  >
+                    End Reason
+                  </p>
+                  <p
+                    className="text-sm"
+                    style={{
+                      color: "rgba(255,224,176,0.8)",
+                      textShadow: "0 1px 4px rgba(0,0,0,0.6)",
+                    }}
+                  >
+                    {world.endReason}
+                  </p>
+                </div>
+              )}
+              {world.finalMessage && (
+                <div>
+                  <p
+                    className="text-sm mb-1"
+                    style={{ color: "rgba(255,224,176,0.4)" }}
+                  >
+                    Final Message
+                  </p>
+                  <p
+                    className="text-sm italic"
+                    style={{
+                      color: "rgba(255,224,176,0.8)",
+                      textShadow: "0 1px 4px rgba(0,0,0,0.6)",
+                    }}
+                  >
+                    &ldquo;{world.finalMessage}&rdquo;
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
+
