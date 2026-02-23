@@ -140,6 +140,24 @@ export default function SharedWorldPage({ params }) {
       <div className="relative px-4 py-10 min-h-screen" style={{ zIndex: 10 }}>
         <div className="max-w-3xl mx-auto">
 
+          {/* Back Link */}
+          <a
+            href="/"
+            className="inline-block mb-6 text-sm transition-colors"
+            style={{
+              color: "rgba(255,224,176,0.5)",
+              textShadow: "0 1px 6px rgba(0,0,0,0.6)",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.color = "rgba(255,224,176,0.8)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.color = "rgba(255,224,176,0.5)";
+            }}
+          >
+            ← Back Home
+          </a>
+
           {/* Shared badge */}
           <motion.div
             className="flex items-center gap-2 mb-6"
