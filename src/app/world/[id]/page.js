@@ -676,3 +676,357 @@ export default function WorldDetailPage({ params }) {
                 </div>
               )}
 
+              <form onSubmit={handleAddMemory} className="space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label
+                      htmlFor="title"
+                      className="block text-sm mb-1"
+                      style={{ color: "rgba(255,224,176,0.6)" }}
+                    >
+                      Title *
+                    </label>
+                    <input
+                      id="title"
+                      name="title"
+                      type="text"
+                      required
+                      value={memoryForm.title}
+                      onChange={handleMemoryFormChange}
+                      className="w-full px-4 py-2.5 rounded-lg transition-all focus:outline-none focus:ring-2"
+                      style={{
+                        backgroundColor: "rgba(0,0,0,0.35)",
+                        border: "1px solid rgba(218,165,32,0.15)",
+                        color: "rgba(255,224,176,0.9)",
+                      }}
+                      placeholder="First diamond!"
+                      onFocus={(e) => {
+                        e.target.style.borderColor = "rgba(16,185,129,0.5)";
+                        e.target.style.boxShadow = "0 0 0 3px rgba(16,185,129,0.1)";
+                      }}
+                      onBlur={(e) => {
+                        e.target.style.borderColor = "rgba(218,165,32,0.15)";
+                        e.target.style.boxShadow = "none";
+                      }}
+                    />
+                  </div>
+
+                  <div>
+                    <label
+                      htmlFor="category"
+                      className="block text-sm mb-1"
+                      style={{ color: "rgba(255,224,176,0.6)" }}
+                    >
+                      Category *
+                    </label>
+                    <select
+                      id="category"
+                      name="category"
+                      required
+                      value={memoryForm.category}
+                      onChange={handleMemoryFormChange}
+                      className="w-full px-4 py-2.5 rounded-lg transition-all focus:outline-none focus:ring-2 capitalize"
+                      style={{
+                        backgroundColor: "rgba(0,0,0,0.35)",
+                        border: "1px solid rgba(218,165,32,0.15)",
+                        color: "rgba(255,224,176,0.9)",
+                      }}
+                      onFocus={(e) => {
+                        e.target.style.borderColor = "rgba(16,185,129,0.5)";
+                        e.target.style.boxShadow = "0 0 0 3px rgba(16,185,129,0.1)";
+                      }}
+                      onBlur={(e) => {
+                        e.target.style.borderColor = "rgba(218,165,32,0.15)";
+                        e.target.style.boxShadow = "none";
+                      }}
+                    >
+                      {CATEGORIES.map((cat) => (
+                        <option key={cat} value={cat}>
+                          {cat.charAt(0).toUpperCase() + cat.slice(1)}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label
+                      htmlFor="memoryDate"
+                      className="block text-sm mb-1"
+                      style={{ color: "rgba(255,224,176,0.6)" }}
+                    >
+                      Date *
+                    </label>
+                    <input
+                      id="memoryDate"
+                      name="memoryDate"
+                      type="date"
+                      required
+                      value={memoryForm.memoryDate}
+                      onChange={handleMemoryFormChange}
+                      className="w-full px-4 py-2.5 rounded-lg transition-all focus:outline-none focus:ring-2"
+                      style={{
+                        backgroundColor: "rgba(0,0,0,0.35)",
+                        border: "1px solid rgba(218,165,32,0.15)",
+                        color: "rgba(255,224,176,0.9)",
+                      }}
+                      onFocus={(e) => {
+                        e.target.style.borderColor = "rgba(16,185,129,0.5)";
+                        e.target.style.boxShadow = "0 0 0 3px rgba(16,185,129,0.1)";
+                      }}
+                      onBlur={(e) => {
+                        e.target.style.borderColor = "rgba(218,165,32,0.15)";
+                        e.target.style.boxShadow = "none";
+                      }}
+                    />
+                  </div>
+
+                  <div>
+                    <label
+                      htmlFor="imageFile"
+                      className="block text-sm mb-1"
+                      style={{ color: "rgba(255,224,176,0.6)" }}
+                    >
+                      Screenshot (optional)
+                    </label>
+                    <input
+                      id="imageFile"
+                      name="imageFile"
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFileChange}
+                      className="w-full text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:cursor-pointer cursor-pointer"
+                      style={{
+                        color: "rgba(255,224,176,0.7)",
+                      }}
+                    />
+                  </div>
+                </div>
+
+                {imagePreview && (
+                  <div>
+                    <p
+                      className="text-sm mb-1"
+                      style={{ color: "rgba(255,224,176,0.6)" }}
+                    >
+                      Preview
+                    </p>
+                    <img
+                      src={imagePreview}
+                      alt="Preview"
+                      className="max-h-48 rounded-lg object-cover"
+                      style={{ border: "1px solid rgba(218,165,32,0.2)" }}
+                    />
+                  </div>
+                )}
+
+                <div>
+                  <label
+                    htmlFor="description"
+                    className="block text-sm mb-1"
+                    style={{ color: "rgba(255,224,176,0.6)" }}
+                  >
+                    Description (optional)
+                  </label>
+                  <textarea
+                    id="description"
+                    name="description"
+                    rows={3}
+                    value={memoryForm.description}
+                    onChange={handleMemoryFormChange}
+                    className="w-full px-4 py-2.5 rounded-lg transition-all focus:outline-none focus:ring-2 resize-none"
+                    style={{
+                      backgroundColor: "rgba(0,0,0,0.35)",
+                      border: "1px solid rgba(218,165,32,0.15)",
+                      color: "rgba(255,224,176,0.9)",
+                    }}
+                    placeholder="What happened?"
+                    onFocus={(e) => {
+                      e.target.style.borderColor = "rgba(16,185,129,0.5)";
+                      e.target.style.boxShadow = "0 0 0 3px rgba(16,185,129,0.1)";
+                    }}
+                    onBlur={(e) => {
+                      e.target.style.borderColor = "rgba(218,165,32,0.15)";
+                      e.target.style.boxShadow = "none";
+                    }}
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="px-6 py-2.5 text-white font-medium rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  style={{
+                    backgroundColor: "rgba(16,185,129,0.6)",
+                    border: "1px solid rgba(16,185,129,0.3)",
+                    boxShadow: "0 2px 10px rgba(16,185,129,0.25)",
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!submitting) {
+                      e.currentTarget.style.backgroundColor = "rgba(16,185,129,0.75)";
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = "rgba(16,185,129,0.6)";
+                  }}
+                >
+                  {submitting ? (imageFile ? "Uploading..." : "Adding...") : "Add Memory"}
+                </button>
+              </form>
+            </div>
+          )}
+
+          {/* Timeline */}
+          {memories.length === 0 ? (
+            <p className="text-sm" style={{ color: "rgba(255,224,176,0.5)" }}>
+              No memories yet. Add your first memory to start the timeline.
+            </p>
+          ) : (
+            <div
+              className="relative ml-3 pl-6 space-y-6"
+              style={{ borderLeft: "2px solid rgba(218,165,32,0.15)" }}
+            >
+              {memories.map((memory) => (
+                <div key={memory._id} className="relative group">
+                  {/* Timeline dot */}
+                  <div
+                    className="absolute -left-8.25 top-1 w-3 h-3 rounded-full transition-all"
+                    style={{
+                      backgroundColor: "rgba(0,0,0,0.5)",
+                      border: "2px solid rgba(218,165,32,0.4)",
+                    }}
+                  />
+
+                  <div
+                    className="backdrop-blur-sm rounded-xl p-4 transition-all"
+                    style={{
+                      backgroundColor: "rgba(0,0,0,0.35)",
+                      border: "1px solid rgba(218,165,32,0.12)",
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.borderColor = "rgba(218,165,32,0.25)";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.borderColor = "rgba(218,165,32,0.12)";
+                    }}
+                  >
+                    {/* Header */}
+                    <div className="flex items-start justify-between gap-3 mb-2">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <h3
+                          className="font-medium"
+                          style={{
+                            color: "rgba(255,224,176,0.9)",
+                            textShadow: "0 1px 4px rgba(0,0,0,0.6)",
+                          }}
+                        >
+                          {memory.title}
+                        </h3>
+                        <span
+                          className={`inline-block px-2 py-0.5 border rounded text-xs capitalize ${
+                            CATEGORY_COLORS[memory.category] ||
+                            "bg-gray-500/10 border-gray-500/30 text-gray-400"
+                          }`}
+                        >
+                          {memory.category}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <button
+                          onClick={() => setEditingMemory(memory)}
+                          disabled={deletingId === memory._id}
+                          className="shrink-0 px-2 py-1 text-xs rounded transition-all disabled:opacity-50"
+                          style={{ color: "rgba(255,224,176,0.5)" }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.color = "#93c5fd";
+                            e.currentTarget.style.backgroundColor = "rgba(59,130,246,0.1)";
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.color = "rgba(255,224,176,0.5)";
+                            e.currentTarget.style.backgroundColor = "transparent";
+                          }}
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleDeleteMemory(memory._id)}
+                          disabled={deletingId === memory._id}
+                          className="shrink-0 px-2 py-1 text-xs rounded transition-all disabled:opacity-50"
+                          style={{ color: "rgba(255,224,176,0.5)" }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.color = "#fca5a5";
+                            e.currentTarget.style.backgroundColor = "rgba(239,68,68,0.1)";
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.color = "rgba(255,224,176,0.5)";
+                            e.currentTarget.style.backgroundColor = "transparent";
+                          }}
+                        >
+                          {deletingId === memory._id ? "..." : "Delete"}
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Date */}
+                    <p
+                      className="text-xs mb-2"
+                      style={{ color: "rgba(255,224,176,0.5)" }}
+                    >
+                      {formatDate(memory.memoryDate)}
+                    </p>
+
+                    {/* Description */}
+                    {memory.description && (
+                      <p
+                        className="text-sm mb-3"
+                        style={{ color: "rgba(255,224,176,0.7)" }}
+                      >
+                        {memory.description}
+                      </p>
+                    )}
+
+                    {/* Image */}
+                    {memory.imageUrl && (
+                      <img
+                        src={memory.imageUrl}
+                        alt={memory.title}
+                        className="w-full max-h-64 object-cover rounded-lg"
+                        style={{ border: "1px solid rgba(218,165,32,0.2)" }}
+                      />
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </motion.div>
+      </div>
+      </div>
+
+      {/* Edit Memory Modal */}
+      <AnimatePresence>
+        {editingMemory && (
+          <EditMemoryModal
+            memory={editingMemory}
+            onClose={() => setEditingMemory(null)}
+            onSaved={(updated) => {
+              setMemories((prev) =>
+                prev.map((m) => (m._id === updated._id ? updated : m))
+              );
+              setEditingMemory(null);
+            }}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Cinematic Mode Overlay */}
+      <AnimatePresence>
+        {showCinematic && memories.length > 0 && (
+          <CinematicMode
+            memories={memories}
+            onClose={() => setShowCinematic(false)}
+          />
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
