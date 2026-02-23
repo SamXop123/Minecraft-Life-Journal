@@ -296,17 +296,46 @@ export default function Home() {
           {/* ── Sun ── */}
           <motion.div
             className="absolute"
-            style={{ width: 72, height: 72, marginLeft: -36, marginTop: -36 }}
+            style={{ width: 80, height: 80, marginLeft: -40, marginTop: -40 }}
             animate={{ x: sunX, y: sunY }}
             transition={orbitTransition}
           >
-            <div
-              className="w-[72px] h-[72px] rounded-full"
+            {/* Outer corona — slow pulse */}
+            <motion.div
+              className="absolute inset-0 rounded-sm pointer-events-none"
               style={{
-                background:
-                  "radial-gradient(circle, #ffe082 20%, #ffb300 70%, #ff8f00 100%)",
+                background: "transparent",
                 boxShadow:
-                  "0 0 60px 16px rgba(255,183,0,0.4), 0 0 120px 40px rgba(255,183,0,0.15)",
+                  "0 0 80px 36px rgba(255,200,40,0.35), 0 0 180px 80px rgba(255,160,0,0.15)",
+              }}
+              animate={{ opacity: [0.75, 1, 0.75], scale: [0.97, 1.03, 0.97] }}
+              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+            />
+            {/* Inner warm haze */}
+            <div
+              className="absolute"
+              style={{
+                inset: -16,
+                borderRadius: 4,
+                background:
+                  "radial-gradient(circle, rgba(255,230,120,0.28) 0%, rgba(255,160,0,0.12) 50%, transparent 75%)",
+                pointerEvents: "none",
+              }}
+            />
+            {/* The actual pixel-art sun image */}
+            <img
+              src="/sun.png"
+              alt="Sun"
+              width={80}
+              height={80}
+              draggable={false}
+              style={{
+                imageRendering: "pixelated",
+                width: 80,
+                height: 80,
+                display: "block",
+                filter:
+                  "drop-shadow(0 0 12px rgba(255,200,60,0.9)) drop-shadow(0 0 28px rgba(255,140,0,0.6)) brightness(1.08)",
               }}
             />
           </motion.div>
@@ -314,17 +343,47 @@ export default function Home() {
           {/* ── Moon ── */}
           <motion.div
             className="absolute"
-            style={{ width: 52, height: 52, marginLeft: -26, marginTop: -26 }}
+            style={{ width: 64, height: 64, marginLeft: -32, marginTop: -32 }}
             animate={{ x: moonX, y: moonY }}
             transition={orbitTransition}
           >
-            <div
-              className="w-[52px] h-[52px] rounded-full"
+            {/* Outer moonlight halo — slow pulse */}
+            <motion.div
+              className="absolute inset-0 pointer-events-none"
               style={{
-                background:
-                  "radial-gradient(circle, #e8eaf0 25%, #c8ccd8 70%, #a0a8b8 100%)",
+                borderRadius: 4,
+                background: "transparent",
                 boxShadow:
-                  "0 0 40px 12px rgba(200,215,255,0.2), 0 0 80px 28px rgba(200,215,255,0.08)",
+                  "0 0 60px 24px rgba(180,210,255,0.22), 0 0 130px 60px rgba(160,200,255,0.09)",
+              }}
+              animate={{ opacity: [0.6, 1, 0.6], scale: [0.96, 1.04, 0.96] }}
+              transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+            />
+            {/* Cool blue ambient haze */}
+            <div
+              className="absolute"
+              style={{
+                inset: -14,
+                borderRadius: 4,
+                background:
+                  "radial-gradient(circle, rgba(200,225,255,0.18) 0%, rgba(160,200,255,0.07) 55%, transparent 75%)",
+                pointerEvents: "none",
+              }}
+            />
+            {/* The actual pixel-art moon image */}
+            <img
+              src="/moon.png"
+              alt="Moon"
+              width={64}
+              height={64}
+              draggable={false}
+              style={{
+                imageRendering: "pixelated",
+                width: 64,
+                height: 64,
+                display: "block",
+                filter:
+                  "drop-shadow(0 0 10px rgba(180,215,255,0.85)) drop-shadow(0 0 24px rgba(140,190,255,0.5)) brightness(1.05)",
               }}
             />
           </motion.div>
