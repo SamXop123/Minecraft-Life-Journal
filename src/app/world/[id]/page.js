@@ -331,755 +331,765 @@ export default function WorldDetailPage({ params }) {
           CONTENT
       ═══════════════════════════════════════ */}
       <div className="relative px-4 py-10 min-h-screen" style={{ zIndex: 10 }}>
-      <div className="max-w-3xl mx-auto">
-        {/* Back Link */}
-        <Link
-          href="/dashboard"
-          className="inline-block mb-6 text-sm transition-colors"
-          style={{
-            color: "rgba(255,224,176,0.5)",
-            textShadow: "0 1px 6px rgba(0,0,0,0.6)",
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.color = "rgba(255,224,176,0.8)";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.color = "rgba(255,224,176,0.5)";
-          }}
-        >
-          ← Back to Dashboard
-        </Link>
-
-        {/* World Header */}
-        <motion.div
-          className="backdrop-blur-lg rounded-xl p-6 mb-6"
-          style={{
-            backgroundColor: "rgba(0,0,0,0.45)",
-            border: "1px solid rgba(218,165,32,0.15)",
-            boxShadow:
-              "0 8px 40px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,200,100,0.03)",
-          }}
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          <div className="flex items-start justify-between mb-4">
-            <h1
-              className="text-2xl font-bold text-amber-100"
-              style={{
-                textShadow:
-                  "0 2px 16px rgba(0,0,0,0.8), 0 0 30px rgba(255,170,60,0.08)",
-              }}
-            >
-              {world.name}
-            </h1>
-            {world.endedAt && (
-              <span className="px-2.5 py-1 bg-red-500/10 border border-red-500/30 rounded text-xs text-red-400">
-                Ended
-              </span>
-            )}
-          </div>
-
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 text-sm">
-            <div>
-              <p
-                className="mb-0.5"
-                style={{ color: "rgba(255,224,176,0.4)" }}
-              >
-                Version
-              </p>
-              <p
-                style={{
-                  color: "rgba(255,224,176,0.8)",
-                  textShadow: "0 1px 4px rgba(0,0,0,0.6)",
-                }}
-              >
-                {world.mcVersion}
-              </p>
-            </div>
-            <div>
-              <p
-                className="mb-0.5"
-                style={{ color: "rgba(255,224,176,0.4)" }}
-              >
-                Mode
-              </p>
-              <p
-                className="capitalize"
-                style={{
-                  color: "rgba(255,224,176,0.8)",
-                  textShadow: "0 1px 4px rgba(0,0,0,0.6)",
-                }}
-              >
-                {world.mode}
-              </p>
-            </div>
-            <div>
-              <p
-                className="mb-0.5"
-                style={{ color: "rgba(255,224,176,0.4)" }}
-              >
-                Type
-              </p>
-              <p
-                className="capitalize"
-                style={{
-                  color: "rgba(255,224,176,0.8)",
-                  textShadow: "0 1px 4px rgba(0,0,0,0.6)",
-                }}
-              >
-                {world.type}
-              </p>
-            </div>
-            {world.seed && (
-              <div>
-                <p
-                  className="mb-0.5"
-                  style={{ color: "rgba(255,224,176,0.4)" }}
-                >
-                  Seed
-                </p>
-                <p
-                  className="font-mono text-xs"
-                  style={{
-                    color: "rgba(255,224,176,0.8)",
-                    textShadow: "0 1px 4px rgba(0,0,0,0.6)",
-                  }}
-                >
-                  {world.seed}
-                </p>
-              </div>
-            )}
-            <div>
-              <p
-                className="mb-0.5"
-                style={{ color: "rgba(255,224,176,0.4)" }}
-              >
-                Started
-              </p>
-              <p
-                style={{
-                  color: "rgba(255,224,176,0.8)",
-                  textShadow: "0 1px 4px rgba(0,0,0,0.6)",
-                }}
-              >
-                {formatDate(world.startedAt)}
-              </p>
-            </div>
-            {world.endedAt && (
-              <div>
-                <p
-                  className="mb-0.5"
-                  style={{ color: "rgba(255,224,176,0.4)" }}
-                >
-                  Ended
-                </p>
-                <p
-                  style={{
-                    color: "rgba(255,224,176,0.8)",
-                    textShadow: "0 1px 4px rgba(0,0,0,0.6)",
-                  }}
-                >
-                  {formatDate(world.endedAt)}
-                </p>
-              </div>
-            )}
-          </div>
-
-          {/* End Details */}
-          {world.endedAt && (world.endReason || world.finalMessage) && (
-            <div
-              className="mt-5 pt-5 space-y-3"
-              style={{ borderTop: "1px solid rgba(218,165,32,0.12)" }}
-            >
-              {world.endReason && (
-                <div>
-                  <p
-                    className="text-sm mb-1"
-                    style={{ color: "rgba(255,224,176,0.4)" }}
-                  >
-                    End Reason
-                  </p>
-                  <p
-                    className="text-sm"
-                    style={{
-                      color: "rgba(255,224,176,0.8)",
-                      textShadow: "0 1px 4px rgba(0,0,0,0.6)",
-                    }}
-                  >
-                    {world.endReason}
-                  </p>
-                </div>
-              )}
-              {world.finalMessage && (
-                <div>
-                  <p
-                    className="text-sm mb-1"
-                    style={{ color: "rgba(255,224,176,0.4)" }}
-                  >
-                    Final Message
-                  </p>
-                  <p
-                    className="text-sm italic"
-                    style={{
-                      color: "rgba(255,224,176,0.8)",
-                      textShadow: "0 1px 4px rgba(0,0,0,0.6)",
-                    }}
-                  >
-                    &ldquo;{world.finalMessage}&rdquo;
-                  </p>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Visibility Toggle */}
-          <div
-            className="mt-5 pt-5"
-            style={{ borderTop: "1px solid rgba(218,165,32,0.12)" }}
+        <div className="max-w-7xl mx-auto">
+          {/* Back Link */}
+          <Link
+            href="/dashboard"
+            className="inline-block mb-6 text-sm transition-colors"
+            style={{
+              color: "rgba(255,224,176,0.5)",
+              textShadow: "0 1px 6px rgba(0,0,0,0.6)",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.color = "rgba(255,224,176,0.8)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.color = "rgba(255,224,176,0.5)";
+            }}
           >
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-3">
-                <span
-                  className="text-sm font-medium"
-                  style={{ color: "rgba(255,224,176,0.6)" }}
-                >
-                  {world.isPublic ? "Public" : "Private"}
-                </span>
+            ← Back to Dashboard
+          </Link>
 
-                {/* Toggle Switch */}
-                <button
-                  disabled={sharingLoading}
-                  onClick={async () => {
-                    setSharingLoading(true);
-                    try {
-                      const token = getToken();
-                      const res = await fetch(`/api/worlds/toggle-public/${worldId}`, {
-                        method: "PATCH",
-                        headers: { Authorization: `Bearer ${token}` },
-                      });
-                      const data = await res.json();
-                      if (!res.ok) throw new Error(data.message || "Failed");
-                      setWorld((prev) => ({
-                        ...prev,
-                        isPublic: data.isPublic,
-                        shareToken: data.shareUrl
-                          ? data.shareUrl.replace("/share/", "")
-                          : prev.shareToken,
-                      }));
-                    } catch (err) {
-                      console.error("Toggle failed:", err.message);
-                    } finally {
-                      setSharingLoading(false);
-                    }
-                  }}
-                  className="relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-300 focus:outline-none disabled:opacity-50"
-                  style={{
-                    backgroundColor: world.isPublic
-                      ? "rgba(34,197,94,0.5)"
-                      : "rgba(255,255,255,0.12)",
-                    border: world.isPublic
-                      ? "1px solid rgba(34,197,94,0.4)"
-                      : "1px solid rgba(255,255,255,0.15)",
-                  }}
-                  aria-label="Toggle world visibility"
-                >
-                  <span
-                    className="inline-block h-4 w-4 rounded-full transition-transform duration-300"
-                    style={{
-                      backgroundColor: world.isPublic ? "#22c55e" : "rgba(255,255,255,0.45)",
-                      transform: world.isPublic ? "translateX(22px)" : "translateX(4px)",
-                      boxShadow: world.isPublic
-                        ? "0 0 8px rgba(34,197,94,0.5)"
-                        : "none",
-                    }}
-                  />
-                </button>
-              </div>
+          <div className="flex gap-6 items-start">
+            {/* ════════ LEFT PANEL (40%) — World Details ════════ */}
+            <div style={{ width: "40%" }} className="sticky top-10 self-start">
 
-              <p
-                className="text-xs"
-                style={{ color: "rgba(255,224,176,0.3)" }}
-              >
-                Public worlds are accessible only via link.
-              </p>
-            </div>
-
-            {/* Share Link (visible only when public) */}
-            <AnimatePresence>
-              {world.isPublic && world.shareToken && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: "auto" }}
-                  exit={{ opacity: 0, height: 0 }}
-                  transition={{ duration: 0.25 }}
-                  className="overflow-hidden"
-                >
-                  <div className="flex items-center gap-2 mt-1">
-                    <code
-                      className="flex-1 px-3 py-2 rounded-lg text-sm truncate"
-                      style={{
-                        backgroundColor: "rgba(0,0,0,0.35)",
-                        border: "1px solid rgba(218,165,32,0.12)",
-                        color: "#6ee7b7",
-                      }}
-                    >
-                      {typeof window !== "undefined"
-                        ? `${window.location.origin}/share/${world.shareToken}`
-                        : `/share/${world.shareToken}`}
-                    </code>
-                    <button
-                      onClick={() => {
-                        navigator.clipboard.writeText(
-                          `${window.location.origin}/share/${world.shareToken}`
-                        );
-                        setCopied(true);
-                        setTimeout(() => setCopied(false), 2000);
-                      }}
-                      className="shrink-0 px-3 py-2 text-sm rounded-lg transition-all"
-                      style={{
-                        color: "#fff",
-                        backgroundColor: "rgba(16,185,129,0.6)",
-                        border: "1px solid rgba(16,185,129,0.3)",
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.backgroundColor = "rgba(16,185,129,0.8)";
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.backgroundColor = "rgba(16,185,129,0.6)";
-                      }}
-                    >
-                      {copied ? "Copied!" : "Copy Link"}
-                    </button>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-        </motion.div>
-
-        {/* Memories Section */}
-        <motion.div
-          className="backdrop-blur-lg rounded-xl p-6"
-          style={{
-            backgroundColor: "rgba(0,0,0,0.45)",
-            border: "1px solid rgba(218,165,32,0.15)",
-            boxShadow:
-              "0 8px 40px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,200,100,0.03)",
-          }}
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-        >
-          <div className="flex items-center justify-between mb-6">
-            <h2
-              className="text-xl font-semibold"
-              style={{
-                color: "rgba(255,224,176,0.95)",
-                textShadow:
-                  "0 0 15px rgba(218,165,32,0.4), 0 2px 6px rgba(0,0,0,0.7)",
-              }}
-            >
-              Memories
-            </h2>
-            <div className="flex items-center gap-2">
-              {memories.length > 0 && (
-                <button
-                  onClick={() => setShowCinematic(true)}
-                  className="px-4 py-2 text-sm font-medium rounded-lg transition-colors border"
-                  style={{
-                    backgroundColor: "rgba(160,100,30,0.25)",
-                    borderColor: "rgba(218,165,32,0.3)",
-                    color: "#ffd896",
-                    textShadow: "0 1px 4px rgba(0,0,0,0.5)",
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = "rgba(160,100,30,0.45)";
-                    e.currentTarget.style.borderColor = "rgba(218,165,32,0.5)";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = "rgba(160,100,30,0.25)";
-                    e.currentTarget.style.borderColor = "rgba(218,165,32,0.3)";
-                  }}
-                >
-                  ▶ Cinematic Mode
-                </button>
-              )}
-              <button
-                onClick={() => setShowMemoryForm(!showMemoryForm)}
-                className="px-4 py-2 text-white text-sm font-medium rounded-lg transition-all"
+              {/* World Header */}
+              <motion.div
+                className="backdrop-blur-lg rounded-xl p-6"
                 style={{
-                  backgroundColor: "rgba(16,185,129,0.6)",
-                  border: "1px solid rgba(16,185,129,0.3)",
-                  boxShadow: "0 2px 10px rgba(16,185,129,0.25)",
+                  backgroundColor: "rgba(0,0,0,0.45)",
+                  border: "1px solid rgba(218,165,32,0.15)",
+                  boxShadow:
+                    "0 8px 40px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,200,100,0.03)",
                 }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = "rgba(16,185,129,0.75)";
-                  e.currentTarget.style.transform = "translateY(-1px)";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = "rgba(16,185,129,0.6)";
-                  e.currentTarget.style.transform = "translateY(0)";
-                }}
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
               >
-                {showMemoryForm ? "Cancel" : "+ Add Memory"}
-              </button>
-            </div>
-          </div>
-
-          {/* Add Memory Form */}
-          {showMemoryForm && (
-            <div
-              className="mb-6 p-5 rounded-xl"
-              style={{
-                backgroundColor: "rgba(0,0,0,0.35)",
-                border: "1px solid rgba(218,165,32,0.12)",
-              }}
-            >
-              <h3
-                className="text-sm font-medium mb-4"
-                style={{ color: "rgba(255,224,176,0.8)" }}
-              >
-                New Memory
-              </h3>
-
-              {memoryFormError && (
-                <div
-                  className="mb-4 p-3 rounded-lg text-sm"
-                  style={{
-                    backgroundColor: "rgba(239,68,68,0.1)",
-                    border: "1px solid rgba(239,68,68,0.3)",
-                    color: "#fca5a5",
-                  }}
-                >
-                  {memoryFormError}
-                </div>
-              )}
-
-              <form onSubmit={handleAddMemory} className="space-y-4">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label
-                      htmlFor="title"
-                      className="block text-sm mb-1"
-                      style={{ color: "rgba(255,224,176,0.6)" }}
-                    >
-                      Title *
-                    </label>
-                    <input
-                      id="title"
-                      name="title"
-                      type="text"
-                      required
-                      value={memoryForm.title}
-                      onChange={handleMemoryFormChange}
-                      className="w-full px-4 py-2.5 rounded-lg transition-all focus:outline-none focus:ring-2"
-                      style={{
-                        backgroundColor: "rgba(0,0,0,0.35)",
-                        border: "1px solid rgba(218,165,32,0.15)",
-                        color: "rgba(255,224,176,0.9)",
-                      }}
-                      placeholder="First diamond!"
-                      onFocus={(e) => {
-                        e.target.style.borderColor = "rgba(16,185,129,0.5)";
-                        e.target.style.boxShadow = "0 0 0 3px rgba(16,185,129,0.1)";
-                      }}
-                      onBlur={(e) => {
-                        e.target.style.borderColor = "rgba(218,165,32,0.15)";
-                        e.target.style.boxShadow = "none";
-                      }}
-                    />
-                  </div>
-
-                  <div>
-                    <label
-                      htmlFor="category"
-                      className="block text-sm mb-1"
-                      style={{ color: "rgba(255,224,176,0.6)" }}
-                    >
-                      Category *
-                    </label>
-                    <select
-                      id="category"
-                      name="category"
-                      required
-                      value={memoryForm.category}
-                      onChange={handleMemoryFormChange}
-                      className="w-full px-4 py-2.5 rounded-lg transition-all focus:outline-none focus:ring-2 capitalize"
-                      style={{
-                        backgroundColor: "rgba(0,0,0,0.35)",
-                        border: "1px solid rgba(218,165,32,0.15)",
-                        color: "rgba(255,224,176,0.9)",
-                      }}
-                      onFocus={(e) => {
-                        e.target.style.borderColor = "rgba(16,185,129,0.5)";
-                        e.target.style.boxShadow = "0 0 0 3px rgba(16,185,129,0.1)";
-                      }}
-                      onBlur={(e) => {
-                        e.target.style.borderColor = "rgba(218,165,32,0.15)";
-                        e.target.style.boxShadow = "none";
-                      }}
-                    >
-                      {CATEGORIES.map((cat) => (
-                        <option key={cat} value={cat}>
-                          {cat.charAt(0).toUpperCase() + cat.slice(1)}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div>
-                    <label
-                      htmlFor="memoryDate"
-                      className="block text-sm mb-1"
-                      style={{ color: "rgba(255,224,176,0.6)" }}
-                    >
-                      Date *
-                    </label>
-                    <input
-                      id="memoryDate"
-                      name="memoryDate"
-                      type="date"
-                      required
-                      value={memoryForm.memoryDate}
-                      onChange={handleMemoryFormChange}
-                      className="w-full px-4 py-2.5 rounded-lg transition-all focus:outline-none focus:ring-2"
-                      style={{
-                        backgroundColor: "rgba(0,0,0,0.35)",
-                        border: "1px solid rgba(218,165,32,0.15)",
-                        color: "rgba(255,224,176,0.9)",
-                      }}
-                      onFocus={(e) => {
-                        e.target.style.borderColor = "rgba(16,185,129,0.5)";
-                        e.target.style.boxShadow = "0 0 0 3px rgba(16,185,129,0.1)";
-                      }}
-                      onBlur={(e) => {
-                        e.target.style.borderColor = "rgba(218,165,32,0.15)";
-                        e.target.style.boxShadow = "none";
-                      }}
-                    />
-                  </div>
-
-                  <div>
-                    <label
-                      htmlFor="imageFile"
-                      className="block text-sm mb-1"
-                      style={{ color: "rgba(255,224,176,0.6)" }}
-                    >
-                      Screenshot (optional)
-                    </label>
-                    <input
-                      id="imageFile"
-                      name="imageFile"
-                      type="file"
-                      accept="image/*"
-                      onChange={handleFileChange}
-                      className="w-full text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:cursor-pointer cursor-pointer"
-                      style={{
-                        color: "rgba(255,224,176,0.7)",
-                      }}
-                    />
-                  </div>
+                <div className="flex items-start justify-between mb-4">
+                  <h1
+                    className="text-2xl font-bold text-amber-100"
+                    style={{
+                      textShadow:
+                        "0 2px 16px rgba(0,0,0,0.8), 0 0 30px rgba(255,170,60,0.08)",
+                    }}
+                  >
+                    {world.name}
+                  </h1>
+                  {world.endedAt && (
+                    <span className="px-2.5 py-1 bg-red-500/10 border border-red-500/30 rounded text-xs text-red-400">
+                      Ended
+                    </span>
+                  )}
                 </div>
 
-                {imagePreview && (
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 text-sm">
                   <div>
                     <p
-                      className="text-sm mb-1"
-                      style={{ color: "rgba(255,224,176,0.6)" }}
+                      className="mb-0.5"
+                      style={{ color: "rgba(255,224,176,0.4)" }}
                     >
-                      Preview
+                      Version
                     </p>
-                    <img
-                      src={imagePreview}
-                      alt="Preview"
-                      className="max-h-48 rounded-lg object-cover"
-                      style={{ border: "1px solid rgba(218,165,32,0.2)" }}
-                    />
+                    <p
+                      style={{
+                        color: "rgba(255,224,176,0.8)",
+                        textShadow: "0 1px 4px rgba(0,0,0,0.6)",
+                      }}
+                    >
+                      {world.mcVersion}
+                    </p>
+                  </div>
+                  <div>
+                    <p
+                      className="mb-0.5"
+                      style={{ color: "rgba(255,224,176,0.4)" }}
+                    >
+                      Mode
+                    </p>
+                    <p
+                      className="capitalize"
+                      style={{
+                        color: "rgba(255,224,176,0.8)",
+                        textShadow: "0 1px 4px rgba(0,0,0,0.6)",
+                      }}
+                    >
+                      {world.mode}
+                    </p>
+                  </div>
+                  <div>
+                    <p
+                      className="mb-0.5"
+                      style={{ color: "rgba(255,224,176,0.4)" }}
+                    >
+                      Type
+                    </p>
+                    <p
+                      className="capitalize"
+                      style={{
+                        color: "rgba(255,224,176,0.8)",
+                        textShadow: "0 1px 4px rgba(0,0,0,0.6)",
+                      }}
+                    >
+                      {world.type}
+                    </p>
+                  </div>
+                  {world.seed && (
+                    <div>
+                      <p
+                        className="mb-0.5"
+                        style={{ color: "rgba(255,224,176,0.4)" }}
+                      >
+                        Seed
+                      </p>
+                      <p
+                        className="font-mono text-xs"
+                        style={{
+                          color: "rgba(255,224,176,0.8)",
+                          textShadow: "0 1px 4px rgba(0,0,0,0.6)",
+                        }}
+                      >
+                        {world.seed}
+                      </p>
+                    </div>
+                  )}
+                  <div>
+                    <p
+                      className="mb-0.5"
+                      style={{ color: "rgba(255,224,176,0.4)" }}
+                    >
+                      Started
+                    </p>
+                    <p
+                      style={{
+                        color: "rgba(255,224,176,0.8)",
+                        textShadow: "0 1px 4px rgba(0,0,0,0.6)",
+                      }}
+                    >
+                      {formatDate(world.startedAt)}
+                    </p>
+                  </div>
+                  {world.endedAt && (
+                    <div>
+                      <p
+                        className="mb-0.5"
+                        style={{ color: "rgba(255,224,176,0.4)" }}
+                      >
+                        Ended
+                      </p>
+                      <p
+                        style={{
+                          color: "rgba(255,224,176,0.8)",
+                          textShadow: "0 1px 4px rgba(0,0,0,0.6)",
+                        }}
+                      >
+                        {formatDate(world.endedAt)}
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                {/* End Details */}
+                {world.endedAt && (world.endReason || world.finalMessage) && (
+                  <div
+                    className="mt-5 pt-5 space-y-3"
+                    style={{ borderTop: "1px solid rgba(218,165,32,0.12)" }}
+                  >
+                    {world.endReason && (
+                      <div>
+                        <p
+                          className="text-sm mb-1"
+                          style={{ color: "rgba(255,224,176,0.4)" }}
+                        >
+                          End Reason
+                        </p>
+                        <p
+                          className="text-sm"
+                          style={{
+                            color: "rgba(255,224,176,0.8)",
+                            textShadow: "0 1px 4px rgba(0,0,0,0.6)",
+                          }}
+                        >
+                          {world.endReason}
+                        </p>
+                      </div>
+                    )}
+                    {world.finalMessage && (
+                      <div>
+                        <p
+                          className="text-sm mb-1"
+                          style={{ color: "rgba(255,224,176,0.4)" }}
+                        >
+                          Final Message
+                        </p>
+                        <p
+                          className="text-sm italic"
+                          style={{
+                            color: "rgba(255,224,176,0.8)",
+                            textShadow: "0 1px 4px rgba(0,0,0,0.6)",
+                          }}
+                        >
+                          &ldquo;{world.finalMessage}&rdquo;
+                        </p>
+                      </div>
+                    )}
                   </div>
                 )}
 
-                <div>
-                  <label
-                    htmlFor="description"
-                    className="block text-sm mb-1"
-                    style={{ color: "rgba(255,224,176,0.6)" }}
-                  >
-                    Description (optional)
-                  </label>
-                  <textarea
-                    id="description"
-                    name="description"
-                    rows={3}
-                    value={memoryForm.description}
-                    onChange={handleMemoryFormChange}
-                    className="w-full px-4 py-2.5 rounded-lg transition-all focus:outline-none focus:ring-2 resize-none"
+                {/* Visibility Toggle */}
+                <div
+                  className="mt-5 pt-5"
+                  style={{ borderTop: "1px solid rgba(218,165,32,0.12)" }}
+                >
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-3">
+                      <span
+                        className="text-sm font-medium"
+                        style={{ color: "rgba(255,224,176,0.6)" }}
+                      >
+                        {world.isPublic ? "Public" : "Private"}
+                      </span>
+
+                      {/* Toggle Switch */}
+                      <button
+                        disabled={sharingLoading}
+                        onClick={async () => {
+                          setSharingLoading(true);
+                          try {
+                            const token = getToken();
+                            const res = await fetch(`/api/worlds/toggle-public/${worldId}`, {
+                              method: "PATCH",
+                              headers: { Authorization: `Bearer ${token}` },
+                            });
+                            const data = await res.json();
+                            if (!res.ok) throw new Error(data.message || "Failed");
+                            setWorld((prev) => ({
+                              ...prev,
+                              isPublic: data.isPublic,
+                              shareToken: data.shareUrl
+                                ? data.shareUrl.replace("/share/", "")
+                                : prev.shareToken,
+                            }));
+                          } catch (err) {
+                            console.error("Toggle failed:", err.message);
+                          } finally {
+                            setSharingLoading(false);
+                          }
+                        }}
+                        className="relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-300 focus:outline-none disabled:opacity-50"
+                        style={{
+                          backgroundColor: world.isPublic
+                            ? "rgba(34,197,94,0.5)"
+                            : "rgba(255,255,255,0.12)",
+                          border: world.isPublic
+                            ? "1px solid rgba(34,197,94,0.4)"
+                            : "1px solid rgba(255,255,255,0.15)",
+                        }}
+                        aria-label="Toggle world visibility"
+                      >
+                        <span
+                          className="inline-block h-4 w-4 rounded-full transition-transform duration-300"
+                          style={{
+                            backgroundColor: world.isPublic ? "#22c55e" : "rgba(255,255,255,0.45)",
+                            transform: world.isPublic ? "translateX(22px)" : "translateX(4px)",
+                            boxShadow: world.isPublic
+                              ? "0 0 8px rgba(34,197,94,0.5)"
+                              : "none",
+                          }}
+                        />
+                      </button>
+                    </div>
+
+                    <p
+                      className="text-xs"
+                      style={{ color: "rgba(255,224,176,0.3)" }}
+                    >
+                      Public worlds are accessible only via link.
+                    </p>
+                  </div>
+
+                  {/* Share Link (visible only when public) */}
+                  <AnimatePresence>
+                    {world.isPublic && world.shareToken && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto" }}
+                        exit={{ opacity: 0, height: 0 }}
+                        transition={{ duration: 0.25 }}
+                        className="overflow-hidden"
+                      >
+                        <div className="flex items-center gap-2 mt-1">
+                          <code
+                            className="flex-1 px-3 py-2 rounded-lg text-sm truncate"
+                            style={{
+                              backgroundColor: "rgba(0,0,0,0.35)",
+                              border: "1px solid rgba(218,165,32,0.12)",
+                              color: "#6ee7b7",
+                            }}
+                          >
+                            {typeof window !== "undefined"
+                              ? `${window.location.origin}/share/${world.shareToken}`
+                              : `/share/${world.shareToken}`}
+                          </code>
+                          <button
+                            onClick={() => {
+                              navigator.clipboard.writeText(
+                                `${window.location.origin}/share/${world.shareToken}`
+                              );
+                              setCopied(true);
+                              setTimeout(() => setCopied(false), 2000);
+                            }}
+                            className="shrink-0 px-3 py-2 text-sm rounded-lg transition-all"
+                            style={{
+                              color: "#fff",
+                              backgroundColor: "rgba(16,185,129,0.6)",
+                              border: "1px solid rgba(16,185,129,0.3)",
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.backgroundColor = "rgba(16,185,129,0.8)";
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.backgroundColor = "rgba(16,185,129,0.6)";
+                            }}
+                          >
+                            {copied ? "Copied!" : "Copy Link"}
+                          </button>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              </motion.div>
+
+            </div>
+            {/* ════════ RIGHT PANEL (60%) — Memories ════════ */}
+            <div style={{ width: "60%" }}>
+
+              {/* Memories Section */}
+              <motion.div
+                className="backdrop-blur-lg rounded-xl p-6"
+                style={{
+                  backgroundColor: "rgba(0,0,0,0.45)",
+                  border: "1px solid rgba(218,165,32,0.15)",
+                  boxShadow:
+                    "0 8px 40px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,200,100,0.03)",
+                }}
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.1 }}
+              >
+                <div className="flex items-center justify-between mb-6">
+                  <h2
+                    className="text-xl font-semibold"
                     style={{
-                      backgroundColor: "rgba(0,0,0,0.35)",
-                      border: "1px solid rgba(218,165,32,0.15)",
-                      color: "rgba(255,224,176,0.9)",
+                      color: "rgba(255,224,176,0.95)",
+                      textShadow:
+                        "0 0 15px rgba(218,165,32,0.4), 0 2px 6px rgba(0,0,0,0.7)",
                     }}
-                    placeholder="What happened?"
-                    onFocus={(e) => {
-                      e.target.style.borderColor = "rgba(16,185,129,0.5)";
-                      e.target.style.boxShadow = "0 0 0 3px rgba(16,185,129,0.1)";
-                    }}
-                    onBlur={(e) => {
-                      e.target.style.borderColor = "rgba(218,165,32,0.15)";
-                      e.target.style.boxShadow = "none";
-                    }}
-                  />
+                  >
+                    Memories
+                  </h2>
+                  <div className="flex items-center gap-2">
+                    {memories.length > 0 && (
+                      <button
+                        onClick={() => setShowCinematic(true)}
+                        className="px-4 py-2 text-sm font-medium rounded-lg transition-colors border"
+                        style={{
+                          backgroundColor: "rgba(160,100,30,0.25)",
+                          borderColor: "rgba(218,165,32,0.3)",
+                          color: "#ffd896",
+                          textShadow: "0 1px 4px rgba(0,0,0,0.5)",
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.backgroundColor = "rgba(160,100,30,0.45)";
+                          e.currentTarget.style.borderColor = "rgba(218,165,32,0.5)";
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.backgroundColor = "rgba(160,100,30,0.25)";
+                          e.currentTarget.style.borderColor = "rgba(218,165,32,0.3)";
+                        }}
+                      >
+                        ▶ Cinematic Mode
+                      </button>
+                    )}
+                    <button
+                      onClick={() => setShowMemoryForm(!showMemoryForm)}
+                      className="px-4 py-2 text-white text-sm font-medium rounded-lg transition-all"
+                      style={{
+                        backgroundColor: "rgba(16,185,129,0.6)",
+                        border: "1px solid rgba(16,185,129,0.3)",
+                        boxShadow: "0 2px 10px rgba(16,185,129,0.25)",
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = "rgba(16,185,129,0.75)";
+                        e.currentTarget.style.transform = "translateY(-1px)";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = "rgba(16,185,129,0.6)";
+                        e.currentTarget.style.transform = "translateY(0)";
+                      }}
+                    >
+                      {showMemoryForm ? "Cancel" : "+ Add Memory"}
+                    </button>
+                  </div>
                 </div>
 
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  className="px-6 py-2.5 text-white font-medium rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                  style={{
-                    backgroundColor: "rgba(16,185,129,0.6)",
-                    border: "1px solid rgba(16,185,129,0.3)",
-                    boxShadow: "0 2px 10px rgba(16,185,129,0.25)",
-                  }}
-                  onMouseEnter={(e) => {
-                    if (!submitting) {
-                      e.currentTarget.style.backgroundColor = "rgba(16,185,129,0.75)";
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = "rgba(16,185,129,0.6)";
-                  }}
-                >
-                  {submitting ? (imageFile ? "Uploading..." : "Adding...") : "Add Memory"}
-                </button>
-              </form>
-            </div>
-          )}
-
-          {/* Timeline */}
-          {memories.length === 0 ? (
-            <p className="text-sm" style={{ color: "rgba(255,224,176,0.5)" }}>
-              No memories yet. Add your first memory to start the timeline.
-            </p>
-          ) : (
-            <div
-              className="relative ml-3 pl-6 space-y-6"
-              style={{ borderLeft: "2px solid rgba(218,165,32,0.15)" }}
-            >
-              {memories.map((memory) => (
-                <div key={memory._id} className="relative group">
-                  {/* Timeline dot */}
+                {/* Add Memory Form */}
+                {showMemoryForm && (
                   <div
-                    className="absolute -left-8.25 top-1 w-3 h-3 rounded-full transition-all"
-                    style={{
-                      backgroundColor: "rgba(0,0,0,0.5)",
-                      border: "2px solid rgba(218,165,32,0.4)",
-                    }}
-                  />
-
-                  <div
-                    className="backdrop-blur-sm rounded-xl p-4 transition-all"
+                    className="mb-6 p-5 rounded-xl"
                     style={{
                       backgroundColor: "rgba(0,0,0,0.35)",
                       border: "1px solid rgba(218,165,32,0.12)",
                     }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.borderColor = "rgba(218,165,32,0.25)";
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.borderColor = "rgba(218,165,32,0.12)";
-                    }}
                   >
-                    {/* Header */}
-                    <div className="flex items-start justify-between gap-3 mb-2">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <h3
-                          className="font-medium"
-                          style={{
-                            color: "rgba(255,224,176,0.9)",
-                            textShadow: "0 1px 4px rgba(0,0,0,0.6)",
-                          }}
-                        >
-                          {memory.title}
-                        </h3>
-                        <span
-                          className={`inline-block px-2 py-0.5 border rounded text-xs capitalize ${
-                            CATEGORY_COLORS[memory.category] ||
-                            "bg-gray-500/10 border-gray-500/30 text-gray-400"
-                          }`}
-                        >
-                          {memory.category}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <button
-                          onClick={() => setEditingMemory(memory)}
-                          disabled={deletingId === memory._id}
-                          className="shrink-0 px-2 py-1 text-xs rounded transition-all disabled:opacity-50"
-                          style={{ color: "rgba(255,224,176,0.5)" }}
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.color = "#93c5fd";
-                            e.currentTarget.style.backgroundColor = "rgba(59,130,246,0.1)";
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.color = "rgba(255,224,176,0.5)";
-                            e.currentTarget.style.backgroundColor = "transparent";
-                          }}
-                        >
-                          Edit
-                        </button>
-                        <button
-                          onClick={() => handleDeleteMemory(memory._id)}
-                          disabled={deletingId === memory._id}
-                          className="shrink-0 px-2 py-1 text-xs rounded transition-all disabled:opacity-50"
-                          style={{ color: "rgba(255,224,176,0.5)" }}
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.color = "#fca5a5";
-                            e.currentTarget.style.backgroundColor = "rgba(239,68,68,0.1)";
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.color = "rgba(255,224,176,0.5)";
-                            e.currentTarget.style.backgroundColor = "transparent";
-                          }}
-                        >
-                          {deletingId === memory._id ? "..." : "Delete"}
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* Date */}
-                    <p
-                      className="text-xs mb-2"
-                      style={{ color: "rgba(255,224,176,0.5)" }}
+                    <h3
+                      className="text-sm font-medium mb-4"
+                      style={{ color: "rgba(255,224,176,0.8)" }}
                     >
-                      {formatDate(memory.memoryDate)}
-                    </p>
+                      New Memory
+                    </h3>
 
-                    {/* Description */}
-                    {memory.description && (
-                      <p
-                        className="text-sm mb-3"
-                        style={{ color: "rgba(255,224,176,0.7)" }}
+                    {memoryFormError && (
+                      <div
+                        className="mb-4 p-3 rounded-lg text-sm"
+                        style={{
+                          backgroundColor: "rgba(239,68,68,0.1)",
+                          border: "1px solid rgba(239,68,68,0.3)",
+                          color: "#fca5a5",
+                        }}
                       >
-                        {memory.description}
-                      </p>
+                        {memoryFormError}
+                      </div>
                     )}
 
-                    {/* Image */}
-                    {memory.imageUrl && (
-                      <img
-                        src={memory.imageUrl}
-                        alt={memory.title}
-                        className="w-full max-h-64 object-cover rounded-lg"
-                        style={{ border: "1px solid rgba(218,165,32,0.2)" }}
-                      />
-                    )}
+                    <form onSubmit={handleAddMemory} className="space-y-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                          <label
+                            htmlFor="title"
+                            className="block text-sm mb-1"
+                            style={{ color: "rgba(255,224,176,0.6)" }}
+                          >
+                            Title *
+                          </label>
+                          <input
+                            id="title"
+                            name="title"
+                            type="text"
+                            required
+                            value={memoryForm.title}
+                            onChange={handleMemoryFormChange}
+                            className="w-full px-4 py-2.5 rounded-lg transition-all focus:outline-none focus:ring-2"
+                            style={{
+                              backgroundColor: "rgba(0,0,0,0.35)",
+                              border: "1px solid rgba(218,165,32,0.15)",
+                              color: "rgba(255,224,176,0.9)",
+                            }}
+                            placeholder="First diamond!"
+                            onFocus={(e) => {
+                              e.target.style.borderColor = "rgba(16,185,129,0.5)";
+                              e.target.style.boxShadow = "0 0 0 3px rgba(16,185,129,0.1)";
+                            }}
+                            onBlur={(e) => {
+                              e.target.style.borderColor = "rgba(218,165,32,0.15)";
+                              e.target.style.boxShadow = "none";
+                            }}
+                          />
+                        </div>
+
+                        <div>
+                          <label
+                            htmlFor="category"
+                            className="block text-sm mb-1"
+                            style={{ color: "rgba(255,224,176,0.6)" }}
+                          >
+                            Category *
+                          </label>
+                          <select
+                            id="category"
+                            name="category"
+                            required
+                            value={memoryForm.category}
+                            onChange={handleMemoryFormChange}
+                            className="w-full px-4 py-2.5 rounded-lg transition-all focus:outline-none focus:ring-2 capitalize"
+                            style={{
+                              backgroundColor: "rgba(0,0,0,0.35)",
+                              border: "1px solid rgba(218,165,32,0.15)",
+                              color: "rgba(255,224,176,0.9)",
+                            }}
+                            onFocus={(e) => {
+                              e.target.style.borderColor = "rgba(16,185,129,0.5)";
+                              e.target.style.boxShadow = "0 0 0 3px rgba(16,185,129,0.1)";
+                            }}
+                            onBlur={(e) => {
+                              e.target.style.borderColor = "rgba(218,165,32,0.15)";
+                              e.target.style.boxShadow = "none";
+                            }}
+                          >
+                            {CATEGORIES.map((cat) => (
+                              <option key={cat} value={cat}>
+                                {cat.charAt(0).toUpperCase() + cat.slice(1)}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+
+                        <div>
+                          <label
+                            htmlFor="memoryDate"
+                            className="block text-sm mb-1"
+                            style={{ color: "rgba(255,224,176,0.6)" }}
+                          >
+                            Date *
+                          </label>
+                          <input
+                            id="memoryDate"
+                            name="memoryDate"
+                            type="date"
+                            required
+                            value={memoryForm.memoryDate}
+                            onChange={handleMemoryFormChange}
+                            className="w-full px-4 py-2.5 rounded-lg transition-all focus:outline-none focus:ring-2"
+                            style={{
+                              backgroundColor: "rgba(0,0,0,0.35)",
+                              border: "1px solid rgba(218,165,32,0.15)",
+                              color: "rgba(255,224,176,0.9)",
+                            }}
+                            onFocus={(e) => {
+                              e.target.style.borderColor = "rgba(16,185,129,0.5)";
+                              e.target.style.boxShadow = "0 0 0 3px rgba(16,185,129,0.1)";
+                            }}
+                            onBlur={(e) => {
+                              e.target.style.borderColor = "rgba(218,165,32,0.15)";
+                              e.target.style.boxShadow = "none";
+                            }}
+                          />
+                        </div>
+
+                        <div>
+                          <label
+                            htmlFor="imageFile"
+                            className="block text-sm mb-1"
+                            style={{ color: "rgba(255,224,176,0.6)" }}
+                          >
+                            Screenshot (optional)
+                          </label>
+                          <input
+                            id="imageFile"
+                            name="imageFile"
+                            type="file"
+                            accept="image/*"
+                            onChange={handleFileChange}
+                            className="w-full text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:cursor-pointer cursor-pointer"
+                            style={{
+                              color: "rgba(255,224,176,0.7)",
+                            }}
+                          />
+                        </div>
+                      </div>
+
+                      {imagePreview && (
+                        <div>
+                          <p
+                            className="text-sm mb-1"
+                            style={{ color: "rgba(255,224,176,0.6)" }}
+                          >
+                            Preview
+                          </p>
+                          <img
+                            src={imagePreview}
+                            alt="Preview"
+                            className="max-h-48 rounded-lg object-cover"
+                            style={{ border: "1px solid rgba(218,165,32,0.2)" }}
+                          />
+                        </div>
+                      )}
+
+                      <div>
+                        <label
+                          htmlFor="description"
+                          className="block text-sm mb-1"
+                          style={{ color: "rgba(255,224,176,0.6)" }}
+                        >
+                          Description (optional)
+                        </label>
+                        <textarea
+                          id="description"
+                          name="description"
+                          rows={3}
+                          value={memoryForm.description}
+                          onChange={handleMemoryFormChange}
+                          className="w-full px-4 py-2.5 rounded-lg transition-all focus:outline-none focus:ring-2 resize-none"
+                          style={{
+                            backgroundColor: "rgba(0,0,0,0.35)",
+                            border: "1px solid rgba(218,165,32,0.15)",
+                            color: "rgba(255,224,176,0.9)",
+                          }}
+                          placeholder="What happened?"
+                          onFocus={(e) => {
+                            e.target.style.borderColor = "rgba(16,185,129,0.5)";
+                            e.target.style.boxShadow = "0 0 0 3px rgba(16,185,129,0.1)";
+                          }}
+                          onBlur={(e) => {
+                            e.target.style.borderColor = "rgba(218,165,32,0.15)";
+                            e.target.style.boxShadow = "none";
+                          }}
+                        />
+                      </div>
+
+                      <button
+                        type="submit"
+                        disabled={submitting}
+                        className="px-6 py-2.5 text-white font-medium rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                        style={{
+                          backgroundColor: "rgba(16,185,129,0.6)",
+                          border: "1px solid rgba(16,185,129,0.3)",
+                          boxShadow: "0 2px 10px rgba(16,185,129,0.25)",
+                        }}
+                        onMouseEnter={(e) => {
+                          if (!submitting) {
+                            e.currentTarget.style.backgroundColor = "rgba(16,185,129,0.75)";
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.backgroundColor = "rgba(16,185,129,0.6)";
+                        }}
+                      >
+                        {submitting ? (imageFile ? "Uploading..." : "Adding...") : "Add Memory"}
+                      </button>
+                    </form>
                   </div>
-                </div>
-              ))}
+                )}
+
+                {/* Timeline */}
+                {memories.length === 0 ? (
+                  <p className="text-sm" style={{ color: "rgba(255,224,176,0.5)" }}>
+                    No memories yet. Add your first memory to start the timeline.
+                  </p>
+                ) : (
+                  <div
+                    className="relative ml-3 pl-6 space-y-6"
+                    style={{ borderLeft: "2px solid rgba(218,165,32,0.15)" }}
+                  >
+                    {memories.map((memory) => (
+                      <div key={memory._id} className="relative group">
+                        {/* Timeline dot */}
+                        <div
+                          className="absolute -left-8.25 top-1 w-3 h-3 rounded-full transition-all"
+                          style={{
+                            backgroundColor: "rgba(0,0,0,0.5)",
+                            border: "2px solid rgba(218,165,32,0.4)",
+                          }}
+                        />
+
+                        <div
+                          className="backdrop-blur-sm rounded-xl p-4 transition-all"
+                          style={{
+                            backgroundColor: "rgba(0,0,0,0.35)",
+                            border: "1px solid rgba(218,165,32,0.12)",
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.borderColor = "rgba(218,165,32,0.25)";
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.borderColor = "rgba(218,165,32,0.12)";
+                          }}
+                        >
+                          {/* Header */}
+                          <div className="flex items-start justify-between gap-3 mb-2">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <h3
+                                className="font-medium"
+                                style={{
+                                  color: "rgba(255,224,176,0.9)",
+                                  textShadow: "0 1px 4px rgba(0,0,0,0.6)",
+                                }}
+                              >
+                                {memory.title}
+                              </h3>
+                              <span
+                                className={`inline-block px-2 py-0.5 border rounded text-xs capitalize ${CATEGORY_COLORS[memory.category] ||
+                                  "bg-gray-500/10 border-gray-500/30 text-gray-400"
+                                  }`}
+                              >
+                                {memory.category}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <button
+                                onClick={() => setEditingMemory(memory)}
+                                disabled={deletingId === memory._id}
+                                className="shrink-0 px-2 py-1 text-xs rounded transition-all disabled:opacity-50"
+                                style={{ color: "rgba(255,224,176,0.5)" }}
+                                onMouseEnter={(e) => {
+                                  e.currentTarget.style.color = "#93c5fd";
+                                  e.currentTarget.style.backgroundColor = "rgba(59,130,246,0.1)";
+                                }}
+                                onMouseLeave={(e) => {
+                                  e.currentTarget.style.color = "rgba(255,224,176,0.5)";
+                                  e.currentTarget.style.backgroundColor = "transparent";
+                                }}
+                              >
+                                Edit
+                              </button>
+                              <button
+                                onClick={() => handleDeleteMemory(memory._id)}
+                                disabled={deletingId === memory._id}
+                                className="shrink-0 px-2 py-1 text-xs rounded transition-all disabled:opacity-50"
+                                style={{ color: "rgba(255,224,176,0.5)" }}
+                                onMouseEnter={(e) => {
+                                  e.currentTarget.style.color = "#fca5a5";
+                                  e.currentTarget.style.backgroundColor = "rgba(239,68,68,0.1)";
+                                }}
+                                onMouseLeave={(e) => {
+                                  e.currentTarget.style.color = "rgba(255,224,176,0.5)";
+                                  e.currentTarget.style.backgroundColor = "transparent";
+                                }}
+                              >
+                                {deletingId === memory._id ? "..." : "Delete"}
+                              </button>
+                            </div>
+                          </div>
+
+                          {/* Date */}
+                          <p
+                            className="text-xs mb-2"
+                            style={{ color: "rgba(255,224,176,0.5)" }}
+                          >
+                            {formatDate(memory.memoryDate)}
+                          </p>
+
+                          {/* Description */}
+                          {memory.description && (
+                            <p
+                              className="text-sm mb-3"
+                              style={{ color: "rgba(255,224,176,0.7)" }}
+                            >
+                              {memory.description}
+                            </p>
+                          )}
+
+                          {/* Image */}
+                          {memory.imageUrl && (
+                            <img
+                              src={memory.imageUrl}
+                              alt={memory.title}
+                              className="w-full max-h-64 object-cover rounded-lg"
+                              style={{ border: "1px solid rgba(218,165,32,0.2)" }}
+                            />
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </motion.div>
+
             </div>
-          )}
-        </motion.div>
-      </div>
+          </div>
+        </div>
       </div>
 
       {/* Edit Memory Modal */}
