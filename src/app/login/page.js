@@ -34,13 +34,15 @@ const mcKeyframes = `
 
 /* ── tiny pixel-spark particles for login (warm sunrise sparks) ── */
 function SunriseSparks() {
-  const sparks = Array.from({ length: 18 }, (_, i) => ({
-    id: i,
-    left: `${Math.random() * 100}%`,
-    size: 3 + Math.random() * 5,
-    delay: Math.random() * 6,
-    duration: 4 + Math.random() * 5,
-  }));
+  const [sparks] = useState(() =>
+    Array.from({ length: 18 }, (_, i) => ({
+      id: i,
+      left: `${Math.random() * 100}%`,
+      size: 3 + Math.random() * 5,
+      delay: Math.random() * 6,
+      duration: 4 + Math.random() * 5,
+    }))
+  );
 
   return (
     <div className="pointer-events-none absolute inset-0 overflow-hidden z-[1]">

@@ -34,13 +34,16 @@ const mcKeyframes = `
 
 /* ── cherry petal particles for register page ── */
 function CherryPetals() {
-  const petals = Array.from({ length: 20 }, (_, i) => ({
-    id: i,
-    left: `${Math.random() * 100}%`,
-    size: 4 + Math.random() * 6,
-    delay: Math.random() * 8,
-    duration: 6 + Math.random() * 6,
-  }));
+  const [petals] = useState(() =>
+    Array.from({ length: 20 }, (_, i) => ({
+      id: i,
+      left: `${Math.random() * 100}%`,
+      size: 4 + Math.random() * 6,
+      delay: Math.random() * 8,
+      duration: 6 + Math.random() * 6,
+      color: `hsl(${330 + Math.random() * 20}, 80%, ${70 + Math.random() * 15}%)`,
+    }))
+  );
 
   return (
     <div className="pointer-events-none absolute inset-0 overflow-hidden z-[1]">
@@ -53,7 +56,7 @@ function CherryPetals() {
             left: p.left,
             width: p.size,
             height: p.size,
-            background: `hsl(${330 + Math.random() * 20}, 80%, ${70 + Math.random() * 15}%)`,
+            background: p.color,
             borderRadius: "50% 0 50% 50%",
             animation: `mc-petal-fall ${p.duration}s ${p.delay}s linear infinite`,
             imageRendering: "pixelated",
