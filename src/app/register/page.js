@@ -309,8 +309,8 @@ export default function RegisterPage() {
                     style={{
                       background: "rgba(20,10,18,0.8)",
                       border: "2px solid rgba(236,72,153,0.2)",
-                      fontFamily: "'Silkscreen', cursive",
-                      fontSize: "0.75rem",
+                      fontFamily: "'VT323', monospace",
+                      fontSize: "1.15rem",
                       boxShadow: "inset 0 2px 8px rgba(0,0,0,0.4)",
                     }}
                     onFocus={(e) => {
@@ -350,8 +350,8 @@ export default function RegisterPage() {
                     style={{
                       background: "rgba(20,10,18,0.8)",
                       border: "2px solid rgba(236,72,153,0.2)",
-                      fontFamily: "'Silkscreen', cursive",
-                      fontSize: "0.75rem",
+                      fontFamily: "'VT323', monospace",
+                      fontSize: "1.15rem",
                       boxShadow: "inset 0 2px 8px rgba(0,0,0,0.4)",
                     }}
                     onFocus={(e) => {
@@ -392,8 +392,8 @@ export default function RegisterPage() {
                     style={{
                       background: "rgba(20,10,18,0.8)",
                       border: "2px solid rgba(236,72,153,0.2)",
-                      fontFamily: "'Silkscreen', cursive",
-                      fontSize: "0.75rem",
+                      fontFamily: "'VT323', monospace",
+                      fontSize: "1.15rem",
                       boxShadow: "inset 0 2px 8px rgba(0,0,0,0.4)",
                     }}
                     onFocus={(e) => {
