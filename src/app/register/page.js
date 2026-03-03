@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -72,6 +72,17 @@ export default function RegisterPage() {
   const [form, setForm] = useState({ username: "", email: "", password: "" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [compact, setCompact] = useState(false);
+
+  useEffect(() => {
+    function checkZoom() {
+      const ratio = window.outerWidth / window.innerWidth;
+      setCompact(ratio >= 0.99);
+    }
+    checkZoom();
+    window.addEventListener("resize", checkZoom);
+    return () => window.removeEventListener("resize", checkZoom);
+  }, []);
 
   function handleChange(e) {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -108,7 +119,7 @@ export default function RegisterPage() {
   return (
     <>
       <style dangerouslySetInnerHTML={{ __html: mcKeyframes }} />
-      <div className="relative min-h-screen flex overflow-hidden bg-[#1a1a2e]">
+      <div className="relative h-screen flex overflow-hidden bg-[#1a1a2e]">
         {/* ── LEFT: Cherry Blossom Image Panel ── */}
         <div
           className="hidden lg:block relative w-[55%] overflow-hidden"
@@ -202,7 +213,7 @@ export default function RegisterPage() {
         </div>
 
         {/* ── RIGHT: Register Form Panel ── */}
-        <div className="relative flex-1 flex items-center justify-center px-6 py-12 lg:px-16">
+        <div className={`relative flex-1 flex flex-col px-6 ${compact ? "py-6" : "py-12"} lg:px-16 overflow-y-auto`}>
           {/* Cherry petal particles */}
           <CherryPetals />
 
@@ -221,11 +232,11 @@ export default function RegisterPage() {
             initial={{ opacity: 0, x: 60 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.7, ease: "easeOut" }}
-            className="relative z-10 w-full max-w-md"
+            className="relative z-10 w-full max-w-md mx-auto my-auto"
           >
             {/* Minecraft-style card */}
             <div
-              className="relative rounded-sm p-8 md:p-10"
+              className={`relative rounded-sm ${compact ? "p-6" : "p-8"}`}
               style={{
                 background:
                   "linear-gradient(145deg, rgba(50,30,45,0.95) 0%, rgba(30,20,28,0.98) 100%)",
@@ -249,7 +260,7 @@ export default function RegisterPage() {
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
-                className="text-center mb-2"
+                className={`text-center ${compact ? "mb-1" : "mb-2"}`}
                 style={{
                   fontFamily: "'Press Start 2P', cursive",
                   fontSize: "0.85rem",
@@ -262,7 +273,7 @@ export default function RegisterPage() {
                 Join the Adventure
               </motion.h1>
               <p
-                className="text-center mb-7 text-pink-200/40"
+                className={`text-center ${compact ? "mb-3" : "mb-7"} text-pink-200/40`}
                 style={{
                   fontFamily: "'Silkscreen', cursive",
                   fontSize: "0.7rem",
@@ -288,7 +299,7 @@ export default function RegisterPage() {
                 </motion.div>
               )}
 
-              <form onSubmit={handleSubmit} className="space-y-4">
+              <form onSubmit={handleSubmit} className={compact ? "space-y-3" : "space-y-4"}>
                 <div>
                   <label
                     htmlFor="username"
@@ -437,7 +448,7 @@ export default function RegisterPage() {
               </form>
 
               {/* Divider */}
-              <div className="flex items-center my-6 gap-3">
+              <div className={`flex items-center ${compact ? "my-3" : "my-6"} gap-3`}>
                 <div className="flex-1 h-px bg-pink-900/30" />
                 <span
                   style={{

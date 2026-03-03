@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -71,6 +71,18 @@ export default function LoginPage() {
   const [form, setForm] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [compact, setCompact] = useState(false);
+
+  useEffect(() => {
+    function checkZoom() {
+      // outerWidth / innerWidth gives the browser zoom ratio independent of display DPI
+      const ratio = window.outerWidth / window.innerWidth;
+      setCompact(ratio >= 0.99);
+    }
+    checkZoom();
+    window.addEventListener("resize", checkZoom);
+    return () => window.removeEventListener("resize", checkZoom);
+  }, []);
 
   function handleChange(e) {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -107,7 +119,7 @@ export default function LoginPage() {
   return (
     <>
       <style dangerouslySetInnerHTML={{ __html: mcKeyframes }} />
-      <div className="relative min-h-screen flex overflow-hidden bg-[#1a1a2e]">
+      <div className="relative h-screen flex overflow-hidden bg-[#1a1a2e]">
         {/* ── LEFT: Sunrise Image Panel ── */}
         <div
           className="hidden lg:block relative w-[55%] overflow-hidden"
@@ -201,7 +213,7 @@ export default function LoginPage() {
         </div>
 
         {/* ── RIGHT: Login Form Panel ── */}
-        <div className="relative flex-1 flex items-center justify-center px-6 py-12 lg:px-16">
+        <div className={`relative flex-1 flex flex-col px-6 ${compact ? "py-6" : "py-12"} lg:px-16 overflow-y-auto`}>
           {/* Particle sparks */}
           <SunriseSparks />
 
@@ -220,11 +232,11 @@ export default function LoginPage() {
             initial={{ opacity: 0, x: 60 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.7, ease: "easeOut" }}
-            className="relative z-10 w-full max-w-md"
+            className="relative z-10 w-full max-w-md mx-auto my-auto"
           >
             {/* Minecraft-style card */}
             <div
-              className="relative rounded-sm p-8 md:p-10"
+              className={`relative rounded-sm ${compact ? "p-6" : "p-8"}`}
               style={{
                 background:
                   "linear-gradient(145deg, rgba(50,40,30,0.95) 0%, rgba(30,25,20,0.98) 100%)",
@@ -248,7 +260,7 @@ export default function LoginPage() {
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
-                className="text-center mb-2"
+                className={`text-center ${compact ? "mb-1" : "mb-2"}`}
                 style={{
                   fontFamily: "'Press Start 2P', cursive",
                   fontSize: "0.95rem",
@@ -261,7 +273,7 @@ export default function LoginPage() {
                 Welcome Back
               </motion.h1>
               <p
-                className="text-center mb-8 text-amber-200/40"
+                className={`text-center ${compact ? "mb-4" : "mb-8"} text-amber-200/40`}
                 style={{
                   fontFamily: "'Silkscreen', cursive",
                   fontSize: "0.7rem",
@@ -287,7 +299,7 @@ export default function LoginPage() {
                 </motion.div>
               )}
 
-              <form onSubmit={handleSubmit} className="space-y-5">
+              <form onSubmit={handleSubmit} className={compact ? "space-y-4" : "space-y-5"}>
                 <div>
                   <label
                     htmlFor="email"
@@ -394,7 +406,7 @@ export default function LoginPage() {
               </form>
 
               {/* Divider */}
-              <div className="flex items-center my-6 gap-3">
+              <div className={`flex items-center ${compact ? "my-4" : "my-6"} gap-3`}>
                 <div className="flex-1 h-px bg-amber-900/30" />
                 <span
                   style={{
