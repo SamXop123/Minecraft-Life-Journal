@@ -3,6 +3,8 @@ import { connectDB } from "@/lib/db";
 import { requireAuth } from "@/lib/requireAuth";
 import World from "@/models/World";
 import Memory from "@/models/Memory";
+import WorldActivity from "@/models/WorldActivity";
+import { normalizeDate } from "@/lib/utils/normalizeDate";
 
 export async function POST(req) {
   try {
@@ -47,6 +49,23 @@ export async function POST(req) {
       memoryDate,
       source: "manual",
     });
+
+    // Record activity for this day
+    const date = normalizeDate();
+    const existingActivity = await WorldActivity.findOne({ worldId, date });
+
+    if (existingActivity) {
+      existingActivity.memoryCount += 1;
+      existingActivity.played = true;
+      await existingActivity.save();
+    } else {
+      await WorldActivity.create({
+        worldId,
+        date,
+        played: true,
+        memoryCount: 1,
+      });
+    }
 
     return NextResponse.json(
       {
