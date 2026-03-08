@@ -1,14 +1,11 @@
 "use client";
 
-import { useRef, useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 
 /* ─── Constants ─── */
 const CYCLE = 60; // Full day-night cycle in seconds
-const AUDIO_KEY = "mlj-ambient-audio";
-const AUDIO_VOLUME = 0.2;
-
 /* ─── Pre-computed data (module-level, zero re-render cost) ─── */
 const stars = Array.from({ length: 60 }, (_, i) => ({
   id: i,
@@ -62,125 +59,9 @@ const orbitTransition = {
 };
 
 export default function Home() {
-  const audioRef = useRef(null);
-  const [playing, setPlaying] = useState(false);
-
-  // Lazily create the Audio element once (avoids SSR issues)
-  const getAudio = useCallback(() => {
-    if (!audioRef.current) {
-      const a = new Audio("/ambient.mp3");
-      a.loop = true;
-      a.volume = AUDIO_VOLUME;
-      
-      // Add error handler
-      a.addEventListener("error", (e) => {
-        console.error("Audio loading error:", e);
-        console.error("Audio error code:", a.error?.code);
-        console.error("Audio error message:", a.error?.message);
-      });
-      
-      // Track loading state
-      a.addEventListener("loadeddata", () => {
-        console.log("Audio loaded successfully");
-      });
-      
-      a.addEventListener("canplaythrough", () => {
-        console.log("Audio ready to play");
-      });
-      
-      audioRef.current = a;
-      console.log("Audio element created");
-    }
-    return audioRef.current;
-  }, []);
-
-  // On mount: if user previously enabled audio, mark state but do NOT autoplay.
-  // Browsers block play() without user gesture, so we just restore the visual
-  // state and wait for the first click to actually start playback.
-  useEffect(() => {
-    const saved = localStorage.getItem(AUDIO_KEY);
-    if (saved === "on") setPlaying(true);
-
-    return () => {
-      // Cleanup on unmount
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current = null;
-      }
-    };
-  }, []);
-
-  // When the user has interacted and `playing` was restored from localStorage,
-  // the first click will call toggleAudio which handles play. But we also need
-  // to handle the edge-case where state was restored as true — we attempt play
-  // on the first user interaction with the page.
-  useEffect(() => {
-    if (!playing) return;
-
-    const tryPlay = () => {
-      const audio = getAudio();
-      audio.play().catch(() => {});
-      window.removeEventListener("click", tryPlay);
-      window.removeEventListener("keydown", tryPlay);
-    };
-
-    // Attempt immediately (works if already had gesture)
-    const audio = getAudio();
-    const p = audio.play();
-    if (p && p.catch) {
-      p.catch(() => {
-        // Blocked — wait for any user gesture
-        window.addEventListener("click", tryPlay, { once: true });
-        window.addEventListener("keydown", tryPlay, { once: true });
-      });
-    }
-
-    return () => {
-      window.removeEventListener("click", tryPlay);
-      window.removeEventListener("keydown", tryPlay);
-    };
-  }, [playing, getAudio]);
-
-  const toggleAudio = () => {
-    console.log("Toggle clicked, current playing state:", playing);
-    const audio = getAudio();
-    console.log("Audio element:", audio);
-    console.log("Audio src:", audio.src);
-    console.log("Audio readyState:", audio.readyState);
-    
-    if (playing) {
-      audio.pause();
-      setPlaying(false);
-      localStorage.setItem(AUDIO_KEY, "off");
-      console.log("Audio paused");
-    } else {
-      audio.play()
-        .then(() => {
-          console.log("Audio playing successfully");
-        })
-        .catch((error) => {
-          console.error("Audio play error:", error);
-          console.error("Error name:", error.name);
-          console.error("Error message:", error.message);
-        });
-      setPlaying(true);
-      localStorage.setItem(AUDIO_KEY, "on");
-    }
-  };
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#030609]">
-
-      {/* ═══════════════════════════════════════
-          AMBIENT AUDIO TOGGLE
-      ═══════════════════════════════════════ */}
-      <button
-        onClick={toggleAudio}
-        aria-label={playing ? "Mute ambient sound" : "Play ambient sound"}
-        className="fixed top-5 right-5 z-50 w-11 h-11 flex items-center justify-center rounded-full bg-white/10 backdrop-blur-sm border border-white/15 text-lg cursor-pointer select-none hover:bg-white/20 hover:shadow-[0_0_16px_rgba(255,255,255,0.12)] transition-all duration-200"
-      >
-        {playing ? "\uD83D\uDD0A" : "\uD83D\uDD07"}
-      </button>
 
       {/* ═══════════════════════════════════════
           LAYER A — ANIMATED SKY GRADIENTS
