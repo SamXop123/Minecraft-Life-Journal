@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import CinematicMode from "@/components/CinematicMode";
 import PixelParticles from "@/components/PixelParticles";
 import EditMemoryModal from "@/components/EditMemoryModal";
+import ActivityHeatmap from "@/components/ActivityHeatmap";
 
 const CATEGORIES = ["achievement", "build", "death", "funny", "emotional"];
 
@@ -46,12 +47,65 @@ export default function WorldDetailPage({ params }) {
     return localStorage.getItem("accessToken");
   }
 
-  const fetchMemories = useCallback(
-    async (id, token) => {
-      try {
-        const res = await fetch(`/api/memories/${id}`, {
-          headers: { Authorization: `Bearer ${token}` },
+  const refreshAccessToken = useCallback(async () => {
+    const refreshRes = await fetch("/api/auth/refresh", {
+      method: "POST",
+    });
+
+    if (!refreshRes.ok) {
+      localStorage.removeItem("accessToken");
+      router.push("/login");
+      return null;
+    }
+
+    const refreshData = await refreshRes.json();
+    localStorage.setItem("accessToken", refreshData.accessToken);
+    return refreshData.accessToken;
+  }, [router]);
+
+  const fetchWithAuthRetry = useCallback(
+    async (url, options = {}) => {
+      let token = getToken();
+
+      if (!token) {
+        router.push("/login");
+        return null;
+      }
+
+      const request = async (accessToken) =>
+        fetch(url, {
+          ...options,
+          headers: {
+            ...(options.headers || {}),
+            Authorization: `Bearer ${accessToken}`,
+          },
         });
+
+      let res = await request(token);
+
+      if (res.status === 401) {
+        token = await refreshAccessToken();
+
+        if (!token) {
+          return null;
+        }
+
+        res = await request(token);
+      }
+
+      return res;
+    },
+    [refreshAccessToken, router]
+  );
+
+  const fetchMemories = useCallback(
+    async (id) => {
+      try {
+        const res = await fetchWithAuthRetry(`/api/memories/${id}`);
+
+        if (!res) {
+          return;
+        }
 
         if (res.ok) {
           const data = await res.json();
@@ -61,29 +115,18 @@ export default function WorldDetailPage({ params }) {
         console.error("Failed to fetch memories");
       }
     },
-    []
+    [fetchWithAuthRetry]
   );
 
   useEffect(() => {
-    const token = getToken();
-
-    if (!token) {
-      router.push("/login");
-      return;
-    }
-
     async function fetchWorld() {
       try {
         const { id } = await params;
         setWorldId(id);
 
-        const res = await fetch(`/api/worlds/${id}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const res = await fetchWithAuthRetry(`/api/worlds/${id}`);
 
-        if (res.status === 401) {
-          localStorage.removeItem("accessToken");
-          router.push("/login");
+        if (!res) {
           return;
         }
 
@@ -100,7 +143,7 @@ export default function WorldDetailPage({ params }) {
         const data = await res.json();
         setWorld(data.world);
 
-        await fetchMemories(id, token);
+        await fetchMemories(id);
       } catch {
         setError("Something went wrong");
       } finally {
@@ -109,7 +152,7 @@ export default function WorldDetailPage({ params }) {
     }
 
     fetchWorld();
-  }, [params, router, fetchMemories]);
+  }, [params, fetchMemories, fetchWithAuthRetry]);
 
   function formatDate(dateStr) {
     return new Date(dateStr).toLocaleDateString("en-US", {
@@ -139,8 +182,6 @@ export default function WorldDetailPage({ params }) {
     setMemoryFormError("");
     setSubmitting(true);
 
-    const token = getToken();
-
     try {
       let imageUrl = "";
 
@@ -149,11 +190,14 @@ export default function WorldDetailPage({ params }) {
         const formData = new FormData();
         formData.append("file", imageFile);
 
-        const uploadRes = await fetch("/api/upload", {
+        const uploadRes = await fetchWithAuthRetry("/api/upload", {
           method: "POST",
-          headers: { Authorization: `Bearer ${token}` },
           body: formData,
         });
+
+        if (!uploadRes) {
+          return;
+        }
 
         const uploadData = await uploadRes.json();
 
@@ -165,14 +209,17 @@ export default function WorldDetailPage({ params }) {
         imageUrl = uploadData.imageUrl;
       }
 
-      const res = await fetch("/api/memories", {
+      const res = await fetchWithAuthRetry("/api/memories", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ ...memoryForm, worldId, imageUrl: imageUrl || undefined }),
       });
+
+      if (!res) {
+        return;
+      }
 
       const data = await res.json();
 
@@ -190,7 +237,7 @@ export default function WorldDetailPage({ params }) {
       setImageFile(null);
       setImagePreview(null);
       setShowMemoryForm(false);
-      await fetchMemories(worldId, token);
+      await fetchMemories(worldId);
     } catch {
       setMemoryFormError("Something went wrong. Please try again.");
     } finally {
@@ -199,17 +246,19 @@ export default function WorldDetailPage({ params }) {
   }
 
   async function handleDeleteMemory(memoryId) {
-    const token = getToken();
     setDeletingId(memoryId);
 
     try {
-      const res = await fetch(`/api/memories/delete/${memoryId}`, {
+      const res = await fetchWithAuthRetry(`/api/memories/delete/${memoryId}`, {
         method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
       });
 
+      if (!res) {
+        return;
+      }
+
       if (res.ok) {
-        await fetchMemories(worldId, token);
+        await fetchMemories(worldId);
       }
     } catch {
       console.error("Failed to delete memory");
@@ -557,11 +606,10 @@ export default function WorldDetailPage({ params }) {
                         onClick={async () => {
                           setSharingLoading(true);
                           try {
-                            const token = getToken();
-                            const res = await fetch(`/api/worlds/toggle-public/${worldId}`, {
+                            const res = await fetchWithAuthRetry(`/api/worlds/toggle-public/${worldId}`, {
                               method: "PATCH",
-                              headers: { Authorization: `Bearer ${token}` },
                             });
+                            if (!res) return;
                             const data = await res.json();
                             if (!res.ok) throw new Error(data.message || "Failed");
                             setWorld((prev) => ({
@@ -661,6 +709,11 @@ export default function WorldDetailPage({ params }) {
                   </AnimatePresence>
                 </div>
               </motion.div>
+
+              {/* Activity Heatmap */}
+              <div className="mt-5">
+                <ActivityHeatmap worldId={worldId} />
+              </div>
 
             </div>
             {/* ════════ RIGHT PANEL (60%) — Memories ════════ */}
