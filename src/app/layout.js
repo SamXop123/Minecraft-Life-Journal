@@ -1,5 +1,6 @@
 import "./globals.css";
 import Navbar from "@/components/Navbar";
+import MusicButton from "@/components/MusicButton";
 
 export const metadata = {
   title: "Minecraft Life Journal",
@@ -19,6 +20,7 @@ export default function RootLayout({ children }) {
       </head>
       <body className="antialiased bg-gray-950 text-white min-h-screen">
         <Navbar />
+        <MusicButton />
         <main>{children}</main>
       </body>
     </html>
