@@ -67,10 +67,51 @@ export default function Navbar() {
   const router = useRouter();
   const pathname = usePathname();
   const [authenticated, setAuthenticated] = useState(false);
+  const [userProfile, setUserProfile] = useState(null);
 
   useEffect(() => {
     setAuthenticated(!!localStorage.getItem("accessToken"));
   }, [pathname]);
+
+  useEffect(() => {
+    async function fetchUserProfile() {
+      if (!authenticated) return;
+
+      let token = localStorage.getItem("accessToken");
+      if (!token) return;
+
+      try {
+        let res = await fetch("/api/profile", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        if (res.status === 401) {
+          const refreshRes = await fetch("/api/auth/refresh", {
+            method: "POST",
+          });
+
+          if (refreshRes.ok) {
+            const refreshData = await refreshRes.json();
+            token = refreshData.accessToken;
+            localStorage.setItem("accessToken", token);
+
+            res = await fetch("/api/profile", {
+              headers: { Authorization: `Bearer ${token}` },
+            });
+          }
+        }
+
+        if (res.ok) {
+          const data = await res.json();
+          setUserProfile(data.profile);
+        }
+      } catch (err) {
+        console.error("Failed to fetch user profile:", err);
+      }
+    }
+
+    fetchUserProfile();
+  }, [authenticated, pathname]);
 
   async function handleLogout() {
     await fetch("/api/auth/logout", { method: "POST" });
@@ -242,10 +283,10 @@ export default function Navbar() {
               <div className="w-px h-1.5" style={{ backgroundColor: "rgba(218,165,32,0.1)" }} />
             </div>
 
-            {/* Profile Link - Minecraft button style */}
+            {/* Profile Link - Minecraft button style with Avatar */}
             <Link
               href="/profile"
-              className="relative px-4 py-2 text-sm font-medium rounded-md transition-all duration-200"
+              className="relative px-3 py-2 text-sm font-medium rounded-md transition-all duration-200 flex items-center gap-2"
               style={{
                 color: pathname === "/profile" ? "#ffd896" : "#b89868",
                 textShadow: "0 1px 6px rgba(0,0,0,0.8), 0 -1px 0 rgba(0,0,0,0.3)",
@@ -289,7 +330,42 @@ export default function Navbar() {
                   : "0 2px 6px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,200,100,0.03)";
               }}
             >
-              Profile
+              {/* Avatar */}
+              <div
+                className="relative w-8 h-8 rounded overflow-hidden shrink-0"
+                style={{
+                  border: "2px solid rgba(218,165,32,0.3)",
+                  boxShadow: "0 0 8px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,200,100,0.1)",
+                  imageRendering: "pixelated",
+                }}
+              >
+                {userProfile?.avatarUrl ? (
+                  <img
+                    src={userProfile.avatarUrl}
+                    alt="Avatar"
+                    className="w-full h-full object-cover"
+                    style={{ imageRendering: "pixelated" }}
+                  />
+                ) : (
+                  <div
+                    className="w-full h-full flex items-center justify-center"
+                    style={{
+                      background: "linear-gradient(135deg, #8B6914 0%, #A07818 100%)",
+                    }}
+                  >
+                    <svg width="20" height="20" viewBox="0 0 16 16" fill="none">
+                      <rect x="5" y="3" width="6" height="6" fill="#FFE0B0" />
+                      <rect x="4" y="9" width="8" height="4" fill="#B89868" />
+                      <rect x="6" y="5" width="1" height="1" fill="#000" />
+                      <rect x="9" y="5" width="1" height="1" fill="#000" />
+                      <rect x="7" y="7" width="2" height="1" fill="#000" />
+                    </svg>
+                  </div>
+                )}
+              </div>
+
+              <span>{userProfile?.username || "Profile"}</span>
+
               {pathname === "/profile" && (
                 <motion.div
                   className="absolute -bottom-1 left-1 right-1 h-0.5 rounded-full"
