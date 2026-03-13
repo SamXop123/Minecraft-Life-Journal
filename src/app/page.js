@@ -3,6 +3,8 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
+// import WalkingSteve from "@/components/WalkingSteve";
+
 
 /* ─── Constants ─── */
 const CYCLE = 60; // Full day-night cycle in seconds
@@ -292,6 +294,9 @@ export default function Home() {
           background: "linear-gradient(to top, rgba(0,0,0,0.5), transparent)",
         }}
       />
+
+      {/* Walking Steve */}
+      {/* <WalkingSteve /> */}
 
       {/* Pixel-style grass strip */}
       <div
