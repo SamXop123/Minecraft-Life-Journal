@@ -19,6 +19,17 @@ const CATEGORY_COLORS = {
   emotional: "bg-purple-500/10 border-purple-500/30 text-purple-400",
 };
 
+const COORD_CATEGORIES = ["base", "structure", "resource", "portal", "poi", "other"];
+
+const COORD_CATEGORY_COLORS = {
+  base: { bg: "rgba(34,197,94,0.12)", border: "rgba(34,197,94,0.3)", text: "#4ade80", emoji: "🏠" },
+  structure: { bg: "rgba(168,85,247,0.12)", border: "rgba(168,85,247,0.3)", text: "#c084fc", emoji: "🏛️" },
+  resource: { bg: "rgba(234,179,8,0.12)", border: "rgba(234,179,8,0.3)", text: "#facc15", emoji: "⛏️" },
+  portal: { bg: "rgba(139,92,246,0.12)", border: "rgba(139,92,246,0.3)", text: "#a78bfa", emoji: "🌀" },
+  poi: { bg: "rgba(59,130,246,0.12)", border: "rgba(59,130,246,0.3)", text: "#60a5fa", emoji: "📍" },
+  other: { bg: "rgba(156,163,175,0.12)", border: "rgba(156,163,175,0.3)", text: "#9ca3af", emoji: "📌" },
+};
+
 export default function WorldDetailPage({ params }) {
   const router = useRouter();
   const [world, setWorld] = useState(null);
@@ -42,6 +53,22 @@ export default function WorldDetailPage({ params }) {
   const [showCinematic, setShowCinematic] = useState(false);
   const [editingMemory, setEditingMemory] = useState(null);
   const [sharingLoading, setSharingLoading] = useState(false);
+
+  // Coordinate Tracker state
+  const [coordinates, setCoordinates] = useState([]);
+  const [showCoordForm, setShowCoordForm] = useState(false);
+  const [coordForm, setCoordForm] = useState({
+    label: "",
+    x: "",
+    y: "",
+    z: "",
+    category: "base",
+    notes: "",
+  });
+  const [coordFormError, setCoordFormError] = useState("");
+  const [coordSubmitting, setCoordSubmitting] = useState(false);
+  const [coordDeletingId, setCoordDeletingId] = useState(null);
+  const [copiedCoordId, setCopiedCoordId] = useState(null);
 
   function getToken() {
     return localStorage.getItem("accessToken");
@@ -118,6 +145,75 @@ export default function WorldDetailPage({ params }) {
     [fetchWithAuthRetry]
   );
 
+  const fetchCoordinates = useCallback(
+    async (id) => {
+      try {
+        const res = await fetchWithAuthRetry(`/api/coordinates/${id}`);
+        if (!res) return;
+        if (res.ok) {
+          const data = await res.json();
+          setCoordinates(data.coordinates || []);
+        }
+      } catch {
+        console.error("Failed to fetch coordinates");
+      }
+    },
+    [fetchWithAuthRetry]
+  );
+
+  async function handleAddCoordinate(e) {
+    e.preventDefault();
+    setCoordFormError("");
+    setCoordSubmitting(true);
+
+    try {
+      const res = await fetchWithAuthRetry("/api/coordinates", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...coordForm, worldId }),
+      });
+
+      if (!res) return;
+      const data = await res.json();
+
+      if (!res.ok) {
+        setCoordFormError(data.message || "Failed to save coordinate");
+        return;
+      }
+
+      setCoordForm({ label: "", x: "", y: "", z: "", category: "base", notes: "" });
+      setShowCoordForm(false);
+      await fetchCoordinates(worldId);
+    } catch {
+      setCoordFormError("Something went wrong. Please try again.");
+    } finally {
+      setCoordSubmitting(false);
+    }
+  }
+
+  async function handleDeleteCoordinate(coordId) {
+    setCoordDeletingId(coordId);
+    try {
+      const res = await fetchWithAuthRetry(`/api/coordinates/delete/${coordId}`, {
+        method: "DELETE",
+      });
+      if (!res) return;
+      if (res.ok) {
+        await fetchCoordinates(worldId);
+      }
+    } catch {
+      console.error("Failed to delete coordinate");
+    } finally {
+      setCoordDeletingId(null);
+    }
+  }
+
+  function handleCopyCoord(coord) {
+    navigator.clipboard.writeText(`${coord.x} ${coord.y} ${coord.z}`);
+    setCopiedCoordId(coord._id);
+    setTimeout(() => setCopiedCoordId(null), 2000);
+  }
+
   useEffect(() => {
     async function fetchWorld() {
       try {
@@ -144,6 +240,7 @@ export default function WorldDetailPage({ params }) {
         setWorld(data.world);
 
         await fetchMemories(id);
+        await fetchCoordinates(id);
       } catch {
         setError("Something went wrong");
       } finally {
@@ -152,7 +249,7 @@ export default function WorldDetailPage({ params }) {
     }
 
     fetchWorld();
-  }, [params, fetchMemories, fetchWithAuthRetry]);
+  }, [params, fetchMemories, fetchCoordinates, fetchWithAuthRetry]);
 
   function formatDate(dateStr) {
     return new Date(dateStr).toLocaleDateString("en-US", {
@@ -714,6 +811,386 @@ export default function WorldDetailPage({ params }) {
               <div className="mt-5">
                 <ActivityHeatmap worldId={worldId} />
               </div>
+
+              {/* ════════ COORDINATE TRACKER ════════ */}
+              <motion.div
+                className="mt-5 backdrop-blur-lg rounded-xl p-5"
+                style={{
+                  backgroundColor: "rgba(0,0,0,0.45)",
+                  border: "1px solid rgba(218,165,32,0.15)",
+                  boxShadow:
+                    "0 8px 40px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,200,100,0.03)",
+                }}
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+              >
+                {/* Header */}
+                <div className="flex items-center justify-between mb-4">
+                  <h2
+                    className="text-base font-semibold flex items-center gap-2"
+                    style={{
+                      color: "rgba(255,224,176,0.95)",
+                      textShadow:
+                        "0 0 15px rgba(218,165,32,0.4), 0 2px 6px rgba(0,0,0,0.7)",
+                    }}
+                  >
+                    <span>📍</span> Saved Coordinates
+                    {coordinates.length > 0 && (
+                      <span
+                        className="text-xs font-normal px-2 py-0.5 rounded-full"
+                        style={{
+                          backgroundColor: "rgba(218,165,32,0.15)",
+                          color: "rgba(255,224,176,0.6)",
+                        }}
+                      >
+                        {coordinates.length}
+                      </span>
+                    )}
+                  </h2>
+                  <button
+                    onClick={() => setShowCoordForm(!showCoordForm)}
+                    className="px-3 py-1.5 text-xs font-medium rounded-lg transition-all"
+                    style={{
+                      backgroundColor: showCoordForm
+                        ? "rgba(239,68,68,0.3)"
+                        : "rgba(16,185,129,0.5)",
+                      border: showCoordForm
+                        ? "1px solid rgba(239,68,68,0.3)"
+                        : "1px solid rgba(16,185,129,0.3)",
+                      color: "#fff",
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = showCoordForm
+                        ? "rgba(239,68,68,0.5)"
+                        : "rgba(16,185,129,0.7)";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = showCoordForm
+                        ? "rgba(239,68,68,0.3)"
+                        : "rgba(16,185,129,0.5)";
+                    }}
+                  >
+                    {showCoordForm ? "Cancel" : "+ Add"}
+                  </button>
+                </div>
+
+                {/* Add Coordinate Form */}
+                <AnimatePresence>
+                  {showCoordForm && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      exit={{ opacity: 0, height: 0 }}
+                      transition={{ duration: 0.25 }}
+                      className="overflow-hidden"
+                    >
+                      <div
+                        className="mb-4 p-4 rounded-xl"
+                        style={{
+                          backgroundColor: "rgba(0,0,0,0.35)",
+                          border: "1px solid rgba(218,165,32,0.12)",
+                        }}
+                      >
+                        {coordFormError && (
+                          <div
+                            className="mb-3 p-2.5 rounded-lg text-xs"
+                            style={{
+                              backgroundColor: "rgba(239,68,68,0.1)",
+                              border: "1px solid rgba(239,68,68,0.3)",
+                              color: "#fca5a5",
+                            }}
+                          >
+                            {coordFormError}
+                          </div>
+                        )}
+
+                        <form onSubmit={handleAddCoordinate} className="space-y-3">
+                          {/* Label */}
+                          <div>
+                            <label
+                              htmlFor="coordLabel"
+                              className="block text-xs mb-1"
+                              style={{ color: "rgba(255,224,176,0.6)" }}
+                            >
+                              Label *
+                            </label>
+                            <input
+                              id="coordLabel"
+                              type="text"
+                              required
+                              value={coordForm.label}
+                              onChange={(e) =>
+                                setCoordForm({ ...coordForm, label: e.target.value })
+                              }
+                              className="w-full px-3 py-2 rounded-lg text-sm transition-all focus:outline-none focus:ring-2"
+                              style={{
+                                backgroundColor: "rgba(0,0,0,0.35)",
+                                border: "1px solid rgba(218,165,32,0.15)",
+                                color: "rgba(255,224,176,0.9)",
+                              }}
+                              placeholder="My Base"
+                              onFocus={(e) => {
+                                e.target.style.borderColor = "rgba(16,185,129,0.5)";
+                                e.target.style.boxShadow = "0 0 0 3px rgba(16,185,129,0.1)";
+                              }}
+                              onBlur={(e) => {
+                                e.target.style.borderColor = "rgba(218,165,32,0.15)";
+                                e.target.style.boxShadow = "none";
+                              }}
+                            />
+                          </div>
+
+                          {/* X, Y, Z in a row */}
+                          <div className="grid grid-cols-3 gap-2">
+                            {["x", "y", "z"].map((axis) => (
+                              <div key={axis}>
+                                <label
+                                  htmlFor={`coord${axis.toUpperCase()}`}
+                                  className="block text-xs mb-1 uppercase font-mono"
+                                  style={{ color: "rgba(255,224,176,0.5)" }}
+                                >
+                                  {axis}
+                                </label>
+                                <input
+                                  id={`coord${axis.toUpperCase()}`}
+                                  type="number"
+                                  required
+                                  value={coordForm[axis]}
+                                  onChange={(e) =>
+                                    setCoordForm({ ...coordForm, [axis]: e.target.value })
+                                  }
+                                  className="w-full px-3 py-2 rounded-lg text-sm font-mono transition-all focus:outline-none focus:ring-2"
+                                  style={{
+                                    backgroundColor: "rgba(0,0,0,0.35)",
+                                    border: "1px solid rgba(218,165,32,0.15)",
+                                    color: "rgba(255,224,176,0.9)",
+                                  }}
+                                  placeholder="0"
+                                  onFocus={(e) => {
+                                    e.target.style.borderColor = "rgba(16,185,129,0.5)";
+                                    e.target.style.boxShadow =
+                                      "0 0 0 3px rgba(16,185,129,0.1)";
+                                  }}
+                                  onBlur={(e) => {
+                                    e.target.style.borderColor = "rgba(218,165,32,0.15)";
+                                    e.target.style.boxShadow = "none";
+                                  }}
+                                />
+                              </div>
+                            ))}
+                          </div>
+
+                          {/* Category */}
+                          <div>
+                            <label
+                              htmlFor="coordCategory"
+                              className="block text-xs mb-1"
+                              style={{ color: "rgba(255,224,176,0.6)" }}
+                            >
+                              Category *
+                            </label>
+                            <select
+                              id="coordCategory"
+                              required
+                              value={coordForm.category}
+                              onChange={(e) =>
+                                setCoordForm({ ...coordForm, category: e.target.value })
+                              }
+                              className="w-full px-3 py-2 rounded-lg text-sm transition-all focus:outline-none focus:ring-2 capitalize"
+                              style={{
+                                backgroundColor: "rgba(0,0,0,0.35)",
+                                border: "1px solid rgba(218,165,32,0.15)",
+                                color: "rgba(255,224,176,0.9)",
+                              }}
+                              onFocus={(e) => {
+                                e.target.style.borderColor = "rgba(16,185,129,0.5)";
+                                e.target.style.boxShadow = "0 0 0 3px rgba(16,185,129,0.1)";
+                              }}
+                              onBlur={(e) => {
+                                e.target.style.borderColor = "rgba(218,165,32,0.15)";
+                                e.target.style.boxShadow = "none";
+                              }}
+                            >
+                              {COORD_CATEGORIES.map((cat) => (
+                                <option key={cat} value={cat}>
+                                  {COORD_CATEGORY_COLORS[cat].emoji}{" "}
+                                  {cat.charAt(0).toUpperCase() + cat.slice(1)}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+
+                          {/* Notes */}
+                          <div>
+                            <label
+                              htmlFor="coordNotes"
+                              className="block text-xs mb-1"
+                              style={{ color: "rgba(255,224,176,0.6)" }}
+                            >
+                              Notes (optional)
+                            </label>
+                            <textarea
+                              id="coordNotes"
+                              rows={2}
+                              value={coordForm.notes}
+                              onChange={(e) =>
+                                setCoordForm({ ...coordForm, notes: e.target.value })
+                              }
+                              className="w-full px-3 py-2 rounded-lg text-sm transition-all focus:outline-none focus:ring-2 resize-none"
+                              style={{
+                                backgroundColor: "rgba(0,0,0,0.35)",
+                                border: "1px solid rgba(218,165,32,0.15)",
+                                color: "rgba(255,224,176,0.9)",
+                              }}
+                              placeholder="Near the ravine..."
+                              onFocus={(e) => {
+                                e.target.style.borderColor = "rgba(16,185,129,0.5)";
+                                e.target.style.boxShadow = "0 0 0 3px rgba(16,185,129,0.1)";
+                              }}
+                              onBlur={(e) => {
+                                e.target.style.borderColor = "rgba(218,165,32,0.15)";
+                                e.target.style.boxShadow = "none";
+                              }}
+                            />
+                          </div>
+
+                          <button
+                            type="submit"
+                            disabled={coordSubmitting}
+                            className="w-full px-4 py-2 text-white text-sm font-medium rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                            style={{
+                              backgroundColor: "rgba(16,185,129,0.6)",
+                              border: "1px solid rgba(16,185,129,0.3)",
+                              boxShadow: "0 2px 10px rgba(16,185,129,0.25)",
+                            }}
+                            onMouseEnter={(e) => {
+                              if (!coordSubmitting)
+                                e.currentTarget.style.backgroundColor =
+                                  "rgba(16,185,129,0.75)";
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.backgroundColor =
+                                "rgba(16,185,129,0.6)";
+                            }}
+                          >
+                            {coordSubmitting ? "Saving..." : "Save Coordinate"}
+                          </button>
+                        </form>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                {/* Coordinate List */}
+                {coordinates.length === 0 ? (
+                  <p
+                    className="text-xs text-center py-3"
+                    style={{ color: "rgba(255,224,176,0.4)" }}
+                  >
+                    No coordinates saved yet.
+                  </p>
+                ) : (
+                  <div className="space-y-2">
+                    {coordinates.map((coord) => {
+                      const cat = COORD_CATEGORY_COLORS[coord.category] || COORD_CATEGORY_COLORS.other;
+                      return (
+                        <motion.div
+                          key={coord._id}
+                          className="rounded-lg p-3 transition-all"
+                          style={{
+                            backgroundColor: "rgba(0,0,0,0.3)",
+                            border: "1px solid rgba(218,165,32,0.1)",
+                          }}
+                          initial={{ opacity: 0, y: 6 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          whileHover={{
+                            borderColor: "rgba(218,165,32,0.25)",
+                          }}
+                        >
+                          {/* Top row: label + category badge */}
+                          <div className="flex items-center justify-between mb-1.5">
+                            <div className="flex items-center gap-2 min-w-0">
+                              <span
+                                className="font-medium text-sm truncate"
+                                style={{
+                                  color: "rgba(255,224,176,0.9)",
+                                  textShadow: "0 1px 4px rgba(0,0,0,0.5)",
+                                }}
+                              >
+                                {coord.label}
+                              </span>
+                              <span
+                                className="shrink-0 text-xs px-1.5 py-0.5 rounded capitalize"
+                                style={{
+                                  backgroundColor: cat.bg,
+                                  border: `1px solid ${cat.border}`,
+                                  color: cat.text,
+                                }}
+                              >
+                                {cat.emoji} {coord.category}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-1 shrink-0">
+                              <button
+                                onClick={() => handleCopyCoord(coord)}
+                                className="px-2 py-0.5 text-xs rounded transition-all"
+                                style={{ color: "rgba(255,224,176,0.5)" }}
+                                onMouseEnter={(e) => {
+                                  e.currentTarget.style.color = "#6ee7b7";
+                                  e.currentTarget.style.backgroundColor =
+                                    "rgba(16,185,129,0.1)";
+                                }}
+                                onMouseLeave={(e) => {
+                                  e.currentTarget.style.color = "rgba(255,224,176,0.5)";
+                                  e.currentTarget.style.backgroundColor = "transparent";
+                                }}
+                              >
+                                {copiedCoordId === coord._id ? "✓" : "Copy"}
+                              </button>
+                              <button
+                                onClick={() => handleDeleteCoordinate(coord._id)}
+                                disabled={coordDeletingId === coord._id}
+                                className="px-2 py-0.5 text-xs rounded transition-all disabled:opacity-50"
+                                style={{ color: "rgba(255,224,176,0.5)" }}
+                                onMouseEnter={(e) => {
+                                  e.currentTarget.style.color = "#fca5a5";
+                                  e.currentTarget.style.backgroundColor =
+                                    "rgba(239,68,68,0.1)";
+                                }}
+                                onMouseLeave={(e) => {
+                                  e.currentTarget.style.color = "rgba(255,224,176,0.5)";
+                                  e.currentTarget.style.backgroundColor = "transparent";
+                                }}
+                              >
+                                {coordDeletingId === coord._id ? "..." : "Del"}
+                              </button>
+                            </div>
+                          </div>
+
+                          {/* Coordinates in monospace */}
+                          <p
+                            className="font-mono text-xs mb-1"
+                            style={{ color: "rgba(255,224,176,0.7)" }}
+                          >
+                            X: {coord.x} &nbsp; Y: {coord.y} &nbsp; Z: {coord.z}
+                          </p>
+
+                          {/* Notes */}
+                          {coord.notes && (
+                            <p
+                              className="text-xs italic"
+                              style={{ color: "rgba(255,224,176,0.45)" }}
+                            >
+                              {coord.notes}
+                            </p>
+                          )}
+                        </motion.div>
+                      );
+                    })}
+                  </div>
+                )}
+              </motion.div>
 
             </div>
             {/* ════════ RIGHT PANEL (60%) — Memories ════════ */}
