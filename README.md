@@ -11,6 +11,7 @@ A cinematic, immersive web application for documenting and sharing your Minecraf
 - **World Management** — Create, track, and manage multiple Minecraft worlds
 - **Memory Recording** — Log memories with titles, categories, descriptions, and images
 - **Memory Editing** — Update existing memories with new details and images
+- **Coordinate Tracker** — Save important coordinates (X, Y, Z) with labels and categories
 - **Cinematic Slideshow** — View memories in fullscreen slideshow mode with Ken Burns zoom effects
 - **User Profiles** — Customizable profiles with display names, avatars, experience levels, and bio
 
@@ -175,6 +176,11 @@ src/
 - `PATCH /api/memories/edit/[id]` — Update memory
 - `DELETE /api/memories/delete/[id]` — Delete memory
 
+**Coordinates**
+- `POST /api/coordinates` — Create coordinate
+- `GET /api/coordinates/[worldId]` — Get coordinates for world
+- `DELETE /api/coordinates/delete/[id]` — Delete coordinate
+
 **Profile**
 - `GET /api/profile` — Get user profile
 - `PATCH /api/profile` — Update user profile
@@ -282,13 +288,6 @@ To contribute:
 
 ---
 
-## 📞 Support
-
-For issues or questions:
-- Check existing GitHub issues
-- Review the troubleshooting section above
-- Examine server console logs: `npm run dev`
-
----
-
 **Happy Minecrafting! 🎮✨**
+
+~ @SamXop123
