@@ -288,6 +288,13 @@ To contribute:
 
 ---
 
-**Happy Minecrafting! 🎮✨**
 
-~ @SamXop123
+### ✨🎮 **Happy Minecrafting! 🎮✨**
+
+<hr>
+
+**@SamXop123** <br>
+Developer <br>
+Minecraft-Life-Journal
+
+<hr>
