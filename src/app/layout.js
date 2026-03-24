@@ -5,6 +5,9 @@ import MusicButton from "@/components/MusicButton";
 export const metadata = {
   title: "Minecraft Life Journal",
   description: "A Minecraft Life Journal application",
+  icons: {
+    icon: '/favicon.ico',
+  },
 };
 
 export default function RootLayout({ children }) {
