@@ -1,300 +1,93 @@
-# 🎮 Minecraft Life Journal
+<div align="center">
 
-A cinematic, immersive web application for documenting and sharing your Minecraft adventures. Built with Next.js, MongoDB, and crafted with Minecraft-themed aesthetics.
+# ✨ Minecraft Life Journal ✨
 
----
+<img src="./public/mlj-header.png" alt="Minecraft Life Journal Hero" width="100%" /><br>
 
-## 🌟 Features
+[![Next.js](https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white)](https://nextjs.org/)
+[![MongoDB](https://img.shields.io/badge/MongoDB-4EA94B?style=for-the-badge&logo=mongodb&logoColor=white)](https://www.mongodb.com/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
+[![Framer Motion](https://img.shields.io/badge/Framer_Motion-0055FF?style=for-the-badge&logo=framer&logoColor=white)](https://www.framer.com/motion/)
 
-### Core Functionality
-- **User Authentication** — Secure JWT-based auth with access & refresh tokens
-- **World Management** — Create, track, and manage multiple Minecraft worlds
-- **Memory Recording** — Log memories with titles, categories, descriptions, and images
-- **Memory Editing** — Update existing memories with new details and images
-- **Coordinate Tracker** — Save important coordinates (X, Y, Z) with labels and categories
-- **Cinematic Slideshow** — View memories in fullscreen slideshow mode with Ken Burns zoom effects
-- **User Profiles** — Customizable profiles with display names, avatars, experience levels, and bio
+<br>
 
-### Sharing & Collaboration
-- **Shareable World Links** — Generate secure, token-based share links for individual worlds
-- **Public Share Page** — View-only interface for shared worlds (no authentication required)
-- **Copy-to-Clipboard** — One-click sharing of world URLs
-- **Privacy Control** — Toggle sharing on/off per world
+**A cinematic, immersive web application for documenting your Minecraft adventures.**
 
-### Visual Design
-- **Cinematic Backgrounds** — Breathing animated backgrounds with layered depth
-- **Glass-Morphism UI** — Semi-transparent, blurred card-based interface
-- **Pixel-Art Aesthetics** — Minecraft-themed sun/moon with immersive glows
-- **Responsive Layout** — Mobile-friendly, scales beautifully across devices
-- **Smooth Animations** — Framer Motion transitions for polished interactions
-- **Dark Theme** — Warm amber accent colors on dark backgrounds
+[Features](#%EF%B8%8F-the-journey-begins) • [Installation](#%EF%B8%8F-forge-your-instance) • [Tech Stack](#-architectural-blueprints) • [Contributing](#-join-the-guild)
+
+</div>
 
 ---
 
-## 🛠️ Tech Stack
+## 🗺️ The Journey Begins
 
-### Frontend
-- **Framework** — Next.js 16+ (App Router)
-- **UI Library** — Tailwind CSS
-- **Animations** — Framer Motion
-- **Image Handling** — Cloudinary for CDN & optimization
+Minecraft Life Journal isn't just a tracking tool; it's a cinematic vault for your greatest blocky achievements. Built with an uncompromising focus on aesthetics, it features breathing animated backgrounds, glass-morphism UI elements, and a tailored dark mode to make your memories shine.
 
-### Backend
-- **Runtime** — Node.js
-- **API Framework** — Next.js API Routes
-- **Database** — MongoDB with Mongoose ODM
-- **Authentication** — JWT (Access & Refresh tokens)
-- **Crypto** — Built-in Node.js `crypto` for secure token generation
+<br>
 
-### Deployment & DevTools
-- **Development** — `npm run dev` (Next.js Turbopack)
-- **Environment** — `.env.local` for secrets
-- **Package Manager** — npm
-
----
-
-## 📦 Installation
-
-### Prerequisites
-- Node.js 18+
-- MongoDB (local or Atlas URI)
-- Cloudinary account (for image uploads)
-- npm
-
-### Setup
-
-1. **Clone the repository**
-   ```bash
-   git clone <repository-url>
-   cd minecraft-life-journal
-   ```
-
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
-
-3. **Configure environment variables**
-   
-   Create `.env.local` in the project root:
-   ```env
-   MONGODB_URI=mongodb+srv://user:password@cluster.mongodb.net/minecraft-life-journal
-   JWT_ACCESS_SECRET=your-secret-key-min-32-chars
-   JWT_REFRESH_SECRET=your-refresh-secret-key-min-32-chars
-   NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=your_cloudinary_cloud_name
-   CLOUDINARY_API_KEY=your_cloudinary_api_key
-   CLOUDINARY_API_SECRET=your_cloudinary_api_secret
-   ```
-
-4. **Start the development server**
-   ```bash
-   npm run dev
-   ```
-
-   Open [http://localhost:3000](http://localhost:3000) in your browser.
+<table>
+  <tr>
+    <td width="50%" valign="top">
+      <h3>📸 Memories That Last</h3>
+      <p>Log your greatest builds, most hilarious deaths, and proudest achievements with rich descriptions, categories, and high-quality image uploads.</p>
+    </td>
+    <td width="50%" valign="top">
+      <h3>🌍 Your Worlds, Your Rules</h3>
+      <p>Seamlessly create and manage multiple Minecraft worlds, tracking their seed, version, mode, and the memories forged within them.</p>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" valign="top">
+      <h3>🧭 Never Lose Your Way</h3>
+      <p>Our built-in Coordinate Tracker ensures you never lose that perfect village or ancient city again. Save X, Y, Z coordinates with custom labels.</p>
+    </td>
+    <td width="50%" valign="top">
+      <h3>🎬 Cinematic Experience</h3>
+      <p>Relive your adventures in a stunning, fullscreen Ken Burns slideshow mode that turns your screenshots into a breathing narrative.</p>
+    </td>
+  </tr>
+    <tr>
+    <td width="50%" valign="top">
+      <h3>🤝 Share The Legacy</h3>
+      <p>Generate secure, view-only links to broadcast your worlds and memories to friends or the wider community.</p>
+    </td>
+    <td width="50%" valign="top">
+      <h3>👤 Personalize Your Profile</h3>
+      <p>Establish your identity with customizable profiles, avatars, bios, and experience levels.</p>
+    </td>
+  </tr>
+</table>
 
 ---
 
-## 🚀 Usage
+## 🛠️ Forge Your Instance
 
-### For Users
+Ready to host your own journal or contribute to the adventure? 
 
-1. **Register/Login** — Create a new account or sign in at `/login`
-2. **Create a World** — Add a new Minecraft world with version, mode, seed, and dates
-3. **Record Memories** — Click "Add Memory" to log achievements, builds, deaths, and moments
-4. **Manage Memories** — Edit or delete memories; upload screenshots
-5. **Cinematic Mode** — Click the camera icon to view memories as a fullscreen slideshow
-6. **Share Worlds** — Click "Enable Sharing" to generate a unique link for others to view
-7. **View Profile** — Customize your profile with avatar, bio, experience level, etc.
-
-### For Developers
-
-#### Project Structure
-```
-src/
-├── app/
-│   ├── page.js                      # Landing page with cinematic hero
-│   ├── login/page.js                # Login route
-│   ├── register/page.js             # Registration route
-│   ├── dashboard/page.js            # World list & dashboard
-│   ├── profile/page.js              # User profile page
-│   ├── world/[id]/page.js           # World detail & memory timeline
-│   ├── share/[token]/page.js        # Public shared world view
-│   └── api/
-│       ├── auth/
-│       │   ├── login/route.js       # JWT auth endpoint
-│       │   ├── register/route.js    # User registration
-│       │   ├── refresh/route.js     # Token refresh
-│       │   └── logout/route.js      # Logout
-│       ├── worlds/
-│       │   ├── route.js             # List & create worlds
-│       │   ├── [id]/route.js        # Get, update, delete world
-│       │   └── share/[id]/route.js  # Generate share token
-│       ├── memories/
-│       │   ├── route.js             # Create memory
-│       │   ├── [id]/route.js        # Get memories for world
-│       │   ├── edit/[id]/route.js   # Update memory
-│       │   └── delete/[id]/route.js # Delete memory
-│       ├── profile/route.js         # Get & update user profile
-│       ├── share/[token]/route.js   # Public share endpoint
-│       └── upload/route.js          # Cloudinary image upload
-├── components/
-│   ├── Navbar.js                    # Global navigation bar
-│   ├── PixelParticles.js            # Floating pixel animation
-│   ├── CinematicMode.js             # Fullscreen slideshow
-│   ├── EditMemoryModal.js           # Memory edit form
-│   └── EditProfileModal.js          # Profile edit form
-├── models/
-│   ├── User.js                      # User schema
-│   ├── World.js                     # World schema
-│   └── Memory.js                    # Memory schema
-└── lib/
-    ├── db.js                        # MongoDB connection
-    ├── auth.js                      # Password & token utilities
-    └── requireAuth.js               # Auth middleware
-```
-
-#### API Endpoints
-
-**Authentication**
-- `POST /api/auth/register` — Register new user
-- `POST /api/auth/login` — Login & get tokens
-- `POST /api/auth/refresh` — Refresh access token
-- `POST /api/auth/logout` — Clear session
-
-**Worlds**
-- `GET /api/worlds` — List user's worlds
-- `POST /api/worlds` — Create world
-- `GET /api/worlds/[id]` — Get world details
-- `PUT /api/worlds/[id]` — Update world
-- `DELETE /api/worlds/[id]` — Delete world
-- `POST /api/worlds/share/[id]` — Generate share token
-
-**Memories**
-- `POST /api/memories` — Create memory
-- `GET /api/memories/[worldId]` — Get memories for world
-- `PATCH /api/memories/edit/[id]` — Update memory
-- `DELETE /api/memories/delete/[id]` — Delete memory
-
-**Coordinates**
-- `POST /api/coordinates` — Create coordinate
-- `GET /api/coordinates/[worldId]` — Get coordinates for world
-- `DELETE /api/coordinates/delete/[id]` — Delete coordinate
-
-**Profile**
-- `GET /api/profile` — Get user profile
-- `PATCH /api/profile` — Update user profile
-
-**Sharing**
-- `GET /api/share/[token]` — Get shared world (public, no auth)
-
-**Uploads**
-- `POST /api/upload` — Upload image to Cloudinary
-
-#### Authentication Flow
-
-1. **Registration** — Password hashed with bcryptjs, user stored in MongoDB
-2. **Login** — Validate credentials, generate JWT tokens (15min access, 7day refresh)
-3. **Access Token** — Sent in `Authorization: Bearer <token>` header
-4. **Refresh Flow** — On 401, exchange refresh token for new access token
-5. **Protected Routes** — API routes use `requireAuth()` middleware to verify token
-
-#### Key Components
-
-**Navbar.js**
-- Global navigation with animated pickaxe icon
-- Minecraft-style 3D buttons with multi-directional borders
-- Responsive design, hides on public routes
-
-**CinematicMode.js**
-- Fullscreen slideshow with 7-second auto-advance
-- Ken Burns zoom effect on memory images
-- Keyboard controls (ESC, arrows, space)
-
-**EditMemoryModal.js**
-- Modal form for creating/editing memories
-- Optional image upload with preview
-- Category selection (achievement, build, death, funny, emotional)
-
-**PixelParticles.js**
-- Ambient floating pixel animation
-- Four Minecraft colors (grass, gold, diamond, dirt)
-- Configurable count, default 20
+All installation instructions, environment variables setup, and deployment guides can be found in our comprehensive **[Developer Documentation](./DEVELOPERS.md)**.
 
 ---
 
-## 🔐 Security
+## 🧱 Architectural Blueprints
 
-- **Password Hashing** — bcryptjs with 10 salt rounds
-- **JWT Secrets** — Stored in `.env.local`, never exposed
-- **CORS** — Next.js API routes run on same domain
-- **Token Expiry** — Access tokens expire in 15 minutes
-- **Secure Cookies** — Refresh tokens stored as httpOnly, secure cookies
-- **Ownership Checks** — All world/memory routes verify user ownership
-- **Share Token Privacy** — 128-bit random tokens, no user data in URLs
+Curious about the redstone behind the scenes? 
+
+The Minecraft Life Journal is built with a modern stack including **Next.js 16+**, **MongoDB**, **Tailwind CSS**, and **Framer Motion**. 
+
+For a deep dive into our Project Structure, API Endpoints, Security Measures, and Design Philosophy, please consult the **[Developer Documentation](./DEVELOPERS.md)**.
+
 
 ---
 
-## 🎨 Design Philosophy
+## 🤝 Join The Guild
 
-### Cinematic Aesthetics
-- **Breathing Backgrounds** — 14-second scale loop for immersive effect
-- **Layered Depth** — 5 fixed background layers (image, overlay, glow, vignette, particles)
-- **Warm Palette** — Amber (#FFE0B0) accents on dark (#1A1008) backgrounds
-- **Glass-Morphism** — `backdrop-blur-lg` with semi-transparent overlays
-
-### Performance
-- **Image Optimization** — Cloudinary handles resize, format, and CDN
-- **Fixed Backgrounds** — Prevent layout shift and unwanted stretching
-- **Lazy Loading** — Next.js Image component for optimized delivery
-- **Efficient Queries** — MongoDB `.select()` to fetch only needed fields
+We welcome builders and developers of all skill levels! If you're interested in improving the journal, please read our [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines on how to submit pull requests, report bugs, and suggest features.
 
 ---
 
-## 🔄 Development Workflow
-
-### Adding a Feature
-1. Create/update models in `src/models/`
-2. Implement API routes in `src/app/api/`
-3. Add frontend pages/components in `src/app/` or `src/components/`
-4. Test authentication & authorization
-5. Verify responsive design
-
-### Environment Changes
-- Modify `.env.local` and restart dev server: `npm run dev`
-- Turbopack will hot-reload, but watch for console errors
-
-### Database Migrations
-- Mongoose schemas are flexible — add optional fields to existing models
-- Use `findByIdAndUpdate` with `$set` operator to bypass cached model definitions
-- Always use `.select()` filters for public endpoints
-
----
-
-## 📄 License
-
-This project is provided as-is for educational and personal use.
-
----
-
-## 🤝 Contributing
-
-To contribute:
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature/your-feature`
-3. Commit changes: `git commit -m "Add your feature"`
-4. Push to branch: `git push origin feature/your-feature`
-5. Open a Pull Request
-
----
-
-
-### ✨🎮 **Happy Minecrafting! 🎮✨**
-
-<hr>
-
-**@SamXop123** <br>
-Developer <br>
-Minecraft-Life-Journal
-
-<hr>
+<div align="center">
+  <br>
+  ### <b>✨🎮 Happy Minecrafting! 🎮✨</b>
+  <br><br>
+  Developed by <b>@SamXop123</b>
+</div>
