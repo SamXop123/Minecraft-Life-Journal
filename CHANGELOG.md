@@ -11,6 +11,8 @@ All notable changes to this project will be documented in this file.
 - Added `.prettierrc` for automated code formatting.
 - Added `docker-compose.yml` for local MongoDB development.
 - Added `vercel.json` for deployment configuration.
+- Added `DEVELOPERS.md` with extensive technical documentation.
+- Revamped `README.md` with a cinematic hero image, tech badges, and immersive copywriting.
 
 ### Changed
 - Updated `package.json` with Prettier and new scripts.
