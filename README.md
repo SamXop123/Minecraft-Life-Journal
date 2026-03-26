@@ -87,7 +87,7 @@ We welcome builders and developers of all skill levels! If you're interested in 
 
 <div align="center">
   <br>
-  ### <b>✨🎮 Happy Minecrafting! 🎮✨</b>
+  <b>✨🎮 Happy Minecrafting! 🎮✨</b>
   <br><br>
   Developed by <b>@SamXop123</b>
 </div>
