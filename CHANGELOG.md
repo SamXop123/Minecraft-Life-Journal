@@ -7,9 +7,7 @@ All notable changes to this project will be documented in this file.
 ### Added
 - Complete profile redesign with modern **Bento Box** grid layout.
 - Integrated `lucide-react` for high-quality SVG icons throughout the profile.
-- Premium visual effects: glassmorphism, glowing aura rings based on experience, and subtle floating particles.
-- Dynamic backgrounds with smooth scaling and gradient overlays.
-- Smart truncation for long profile data (e.g., email addresses) to maintain layout integrity.
+- Premium visual effects and animations.
 
 ### Changed
 - Improved profile navigation with animated return buttons.
