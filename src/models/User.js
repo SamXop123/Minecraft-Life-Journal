@@ -18,6 +18,26 @@ const UserSchema = new mongoose.Schema({
     type: String,
     required: [true, "Password is required"],
   },
+  isEmailVerified: {
+    type: Boolean,
+    default: false,
+  },
+  emailVerificationCodeHash: {
+    type: String,
+    default: "",
+  },
+  emailVerificationExpiresAt: {
+    type: Date,
+    default: null,
+  },
+  emailVerificationLastSentAt: {
+    type: Date,
+    default: null,
+  },
+  emailVerificationAttempts: {
+    type: Number,
+    default: 0,
+  },
   displayName: { type: String, default: "" },
   realName: { type: String, default: "" },
   age: { type: Number },
