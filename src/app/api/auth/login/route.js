@@ -2,10 +2,13 @@ import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import User from "@/models/User";
 import {
+  attachRefreshTokenCookie,
   comparePassword,
   generateAccessToken,
   generateRefreshToken,
 } from "@/lib/auth";
+
+export const runtime = "nodejs";
 
 export async function POST(req) {
   try {
@@ -39,6 +42,17 @@ export async function POST(req) {
       );
     }
 
+    if (!user.isEmailVerified) {
+      return NextResponse.json(
+        {
+          message: "Please verify your email before logging in.",
+          requiresVerification: true,
+          email: user.email,
+        },
+        { status: 403 }
+      );
+    }
+
     // Generate tokens
     const tokenPayload = { userId: user._id, email: user.email };
     const accessToken = generateAccessToken(tokenPayload);
@@ -57,15 +71,7 @@ export async function POST(req) {
       { status: 200 }
     );
 
-    response.cookies.set("refreshToken", refreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      path: "/",
-      maxAge: 7 * 24 * 60 * 60,
-    });
-
-    return response;
+    return attachRefreshTokenCookie(response, refreshToken);
   } catch (error) {
     console.error("Login error:", error);
     return NextResponse.json(
