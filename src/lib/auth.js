@@ -64,3 +64,21 @@ export function verifyAccessToken(token) {
 export function verifyRefreshToken(token) {
   return jwt.verify(token, process.env.JWT_REFRESH_SECRET);
 }
+
+/**
+ * Attach the refresh token cookie to a NextResponse instance.
+ * @param {import("next/server").NextResponse} response - Response to mutate.
+ * @param {string} refreshToken - Signed refresh token.
+ * @returns {import("next/server").NextResponse} The same response instance.
+ */
+export function attachRefreshTokenCookie(response, refreshToken) {
+  response.cookies.set("refreshToken", refreshToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+    path: "/",
+    maxAge: 7 * 24 * 60 * 60,
+  });
+
+  return response;
+}
