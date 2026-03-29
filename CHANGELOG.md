@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.0] - 2026-03-29
+
+### Added
+- Email OTP verification flow powered by Gmail SMTP and `nodemailer`.
+- Inline registration verification UI with 6-digit code entry and resend support.
+- Verification code hashing, expiry tracking, resend cooldowns, and attempt limits for user accounts.
+
+### Changed
+- Registration now sends a verification code instead of logging users in immediately.
+- Login now blocks unverified accounts until their email is confirmed.
+- Auth verification routes now explicitly run on the Node.js runtime for production deployments.
+
+
 ## [1.2.0] - 2026-03-28
 
 ### Added
@@ -28,6 +41,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 - Updated `package.json` with Prettier and new scripts.
+
 
 ## [1.0.0] - 2026-03-24
 
