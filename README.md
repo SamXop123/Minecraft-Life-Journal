@@ -2,7 +2,7 @@
 
 # ✨ Minecraft Life Journal ✨
 
-<img src="./public/mlj-header.png" alt="Minecraft Life Journal Hero" width="100%" /><br>
+<img src="./public/head-title.png" alt="Minecraft Life Journal Hero" width="100%" /><br>
 
 [![Next.js](https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white)](https://nextjs.org/)
 [![MongoDB](https://img.shields.io/badge/MongoDB-4EA94B?style=for-the-badge&logo=mongodb&logoColor=white)](https://www.mongodb.com/)
