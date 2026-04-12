@@ -38,6 +38,18 @@ const UserSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  passwordResetTokenHash: {
+    type: String,
+    default: "",
+  },
+  passwordResetExpiresAt: {
+    type: Date,
+    default: null,
+  },
+  passwordResetLastSentAt: {
+    type: Date,
+    default: null,
+  },
   displayName: { type: String, default: "" },
   realName: { type: String, default: "" },
   age: { type: Number },
