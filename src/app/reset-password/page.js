@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
@@ -10,7 +10,7 @@ const pageStyles = {
     "radial-gradient(circle at top, rgba(16,185,129,0.16), transparent 35%), linear-gradient(180deg, #111827 0%, #0f172a 100%)",
 };
 
-export default function ResetPasswordPage() {
+function ResetPasswordContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = useMemo(() => searchParams.get("token") || "", [searchParams]);
@@ -268,5 +268,33 @@ export default function ResetPasswordPage() {
         </motion.div>
       </div>
     </div>
+  );
+}
+
+function ResetPasswordFallback() {
+  return (
+    <div
+      className="min-h-screen px-6 py-10 text-white lg:px-12"
+      style={pageStyles}
+    >
+      <div className="mx-auto flex min-h-[calc(100vh-5rem)] max-w-5xl items-center justify-center">
+        <div className="w-full max-w-xl rounded-sm border border-emerald-400/20 bg-black/30 px-6 py-8 text-center shadow-[0_25px_80px_rgba(0,0,0,0.45)] backdrop-blur-md">
+          <p
+            className="text-emerald-100/80"
+            style={{ fontFamily: "'VT323', monospace", fontSize: "1.35rem" }}
+          >
+            Preparing your reset page...
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense fallback={<ResetPasswordFallback />}>
+      <ResetPasswordContent />
+    </Suspense>
   );
 }
