@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.4.0] - 2026-04-12
+
+### Added
+- Forgot-password flow with email-based password reset links.
+- Dedicated reset request and password reset pages.
+- Password reset token hashing, expiry tracking, and resend cooldown support.
+
+### Changed
+- Extended the shared email utilities to send password reset emails.
+- Added a forgot-password entry point to the login screen.
+- Expanded the user model to store password reset metadata.
+
 ## [1.3.0] - 2026-03-29
 
 ### Added
