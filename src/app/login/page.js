@@ -382,6 +382,20 @@ export default function LoginPage() {
                   />
                 </div>
 
+                <div className="flex justify-end">
+                  <Link
+                    href="/forgot-password"
+                    className="transition-colors hover:underline"
+                    style={{
+                      fontFamily: "'Silkscreen', cursive",
+                      fontSize: "0.6rem",
+                      color: "rgba(245,158,11,0.7)",
+                    }}
+                  >
+                    Forgot password?
+                  </Link>
+                </div>
+
                 {/* Emerald-glow submit button */}
                 <motion.button
                   type="submit"
@@ -449,3 +463,4 @@ export default function LoginPage() {
     </>
   );
 }
+
