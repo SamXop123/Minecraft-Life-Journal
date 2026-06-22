@@ -1,6 +1,7 @@
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import MusicButton from "@/components/MusicButton";
+import { Analytics } from "@vercel/analytics/next";
 
 export const metadata = {
   title: "Minecraft Life Journal",
@@ -25,6 +26,7 @@ export default function RootLayout({ children }) {
         <Navbar />
         <MusicButton />
         <main>{children}</main>
+        <Analytics />
       </body>
     </html>
   );
