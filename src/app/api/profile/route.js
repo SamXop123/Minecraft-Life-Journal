@@ -4,7 +4,7 @@ import { requireAuth } from "@/lib/requireAuth";
 import User from "@/models/User";
 
 const PROFILE_FIELDS =
-  "username email displayName realName age country experienceLevel favoriteGameModes favoriteActivities bio avatarUrl joinedAt createdAt";
+  "username email displayName realName age country experienceLevel favoriteGameModes favoriteActivities bio avatarUrl joinedAt createdAt apiKeyHash apiKeyLastUsedAt";
 
 export async function GET(req) {
   try {
