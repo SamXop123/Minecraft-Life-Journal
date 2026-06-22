@@ -17,7 +17,14 @@ import {
   CalendarDays,
   ChevronLeft,
   Sparkles,
-  PenLine
+  PenLine,
+  Key,
+  Copy,
+  Check,
+  Trash2,
+  ShieldAlert,
+  Wifi,
+  Info
 } from "lucide-react";
 
 const LEVEL_LABELS = {
@@ -51,6 +58,11 @@ export default function ProfilePage() {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showEdit, setShowEdit] = useState(false);
+  
+  // Companion Integration State
+  const [rawApiKey, setRawApiKey] = useState("");
+  const [submittingKey, setSubmittingKey] = useState(false);
+  const [copiedKey, setCopiedKey] = useState(false);
 
   async function fetchProfile() {
     let token = localStorage.getItem("accessToken");
@@ -96,6 +108,75 @@ export default function ProfilePage() {
     } finally {
       setLoading(false);
     }
+  }
+
+  async function handleGenerateApiKey() {
+    setSubmittingKey(true);
+    let token = localStorage.getItem("accessToken");
+    if (!token) return;
+
+    try {
+      const res = await fetch("/api/profile/apikey", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        setRawApiKey(data.apiKey);
+        await fetchProfile();
+      } else {
+        alert(data.message || "Failed to generate API Key");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Something went wrong");
+    } finally {
+      setSubmittingKey(false);
+    }
+  }
+
+  async function handleRevokeApiKey() {
+    if (!confirm("Are you sure you want to revoke this API Key? The companion app will stop working immediately.")) {
+      return;
+    }
+
+    setSubmittingKey(true);
+    let token = localStorage.getItem("accessToken");
+    if (!token) return;
+
+    try {
+      const res = await fetch("/api/profile/apikey", {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        setRawApiKey("");
+        await fetchProfile();
+        alert("API Key revoked successfully.");
+      } else {
+        alert(data.message || "Failed to revoke API Key");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Something went wrong");
+    } finally {
+      setSubmittingKey(false);
+    }
+  }
+
+  function handleCopyKey() {
+    if (!rawApiKey) return;
+    navigator.clipboard.writeText(rawApiKey);
+    setCopiedKey(true);
+    setTimeout(() => setCopiedKey(false), 2000);
   }
 
   useEffect(() => {
@@ -408,6 +489,130 @@ export default function ProfilePage() {
                     This user prefers to keep an air of mystery.
                   </p>
                 )}
+              </motion.div>
+
+              {/* Companion App Integration Section */}
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }} 
+                animate={{ opacity: 1, y: 0 }} 
+                transition={{ duration: 0.5, delay: 0.9 }}
+                className="backdrop-blur-xl rounded-2xl p-6 md:p-8 relative overflow-hidden"
+                style={{ 
+                  background: "linear-gradient(180deg, rgba(15,10,5,0.6) 0%, rgba(5,2,0,0.8) 100%)", 
+                  border: "1px solid rgba(255,255,255,0.05)",
+                  borderLeft: "4px solid rgba(139,92,246,0.4)" // purple border accent
+                }}
+              >
+                <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-[0.02] mix-blend-overlay pointer-events-none" />
+                <h3 className="text-sm font-bold uppercase tracking-widest text-amber-200/40 mb-4 flex items-center gap-2">
+                  <Key size={18} className="text-purple-400" />
+                  Companion App Integration
+                </h3>
+
+                <div className="space-y-6">
+                  <p className="text-sm text-amber-100/70 leading-relaxed font-light">
+                    Connect the <strong>Minecraft Life Journal Companion</strong> desktop app to automatically log played activity, achievements, custom timeline journals, and in-game screenshots directly from your Minecraft sessions in real-time.
+                  </p>
+
+                  {/* API Key Panel */}
+                  <div 
+                    className="p-4 rounded-xl backdrop-blur-md"
+                    style={{
+                      backgroundColor: "rgba(0,0,0,0.3)",
+                      border: "1px solid rgba(255,200,100,0.05)"
+                    }}
+                  >
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                      <div>
+                        <p className="text-xs font-bold text-amber-200/30 uppercase tracking-[0.2em] mb-1">
+                          API Authentication Key
+                        </p>
+                        {profile.apiKeyHash ? (
+                          <div className="flex items-center gap-2">
+                            <span className="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse" />
+                            <p className="text-xs text-green-400 font-medium">Active (Hashed in Database)</p>
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-2">
+                            <span className="w-2.5 h-2.5 rounded-full bg-amber-500/40" />
+                            <p className="text-xs text-amber-200/40 font-medium">Not Connected</p>
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="flex gap-2">
+                        {profile.apiKeyHash ? (
+                          <button
+                            onClick={handleRevokeApiKey}
+                            disabled={submittingKey}
+                            className="px-4 py-2 text-xs font-semibold rounded-lg transition-colors border border-red-500/20 bg-red-950/20 text-red-400 hover:bg-red-950/40 cursor-pointer disabled:opacity-50"
+                          >
+                            Revoke Key
+                          </button>
+                        ) : null}
+
+                        <button
+                          onClick={handleGenerateApiKey}
+                          disabled={submittingKey}
+                          className="px-4 py-2 text-xs font-semibold rounded-lg transition-all text-purple-200 bg-purple-900/30 border border-purple-500/30 hover:bg-purple-900/50 hover:border-purple-400 cursor-pointer disabled:opacity-50 flex items-center gap-1.5"
+                        >
+                          {profile.apiKeyHash ? "Regenerate Key" : "Generate API Key"}
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Show Raw Key (Only directly after generation) */}
+                    {rawApiKey && (
+                      <div className="mt-4 pt-4 border-t border-white/5 space-y-3">
+                        <div className="flex items-center gap-2">
+                          <div className="flex-1 font-mono text-sm px-3 py-2 rounded-lg bg-black/60 border border-purple-500/30 text-purple-300 select-all overflow-x-auto whitespace-nowrap scrollbar-thin">
+                            {rawApiKey}
+                          </div>
+                          <button
+                            onClick={handleCopyKey}
+                            className="p-2.5 rounded-lg border bg-white/5 hover:bg-white/10 transition-colors text-amber-100 flex items-center justify-center shrink-0 cursor-pointer"
+                            style={{ borderColor: "rgba(255,255,255,0.08)" }}
+                            title="Copy Key to Clipboard"
+                          >
+                            {copiedKey ? <Check size={16} className="text-green-400" /> : <Copy size={16} />}
+                          </button>
+                        </div>
+                        <div className="p-3 bg-amber-950/20 border border-amber-500/20 rounded-lg flex gap-3 text-amber-200 text-xs">
+                          <ShieldAlert size={18} className="shrink-0 text-amber-400" />
+                          <p className="leading-relaxed font-light">
+                            <strong>Warning:</strong> Copy this API Key now! For security reasons, it will never be displayed again. If you lose it, you will need to regenerate a new one.
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Sync Metadata */}
+                  {profile.apiKeyHash && (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-light text-amber-200/50">
+                      <div className="flex items-center gap-2">
+                        <Wifi size={14} className="text-green-500/70" />
+                        <span>Last Sync: {profile.apiKeyLastUsedAt ? `${formatDate(profile.apiKeyLastUsedAt)} at ${new Date(profile.apiKeyLastUsedAt).toLocaleTimeString()}` : "Never"}</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Setup Instructions */}
+                  <div 
+                    className="p-4 rounded-xl bg-white/5 border border-white/5 space-y-3 text-xs text-amber-100/60 leading-relaxed font-light"
+                  >
+                    <h4 className="font-bold text-amber-100 flex items-center gap-1.5 uppercase tracking-wider text-[10px]">
+                      <Info size={14} className="text-amber-400" />
+                      How to connect the game client
+                    </h4>
+                    <ol className="list-decimal pl-4 space-y-2">
+                      <li>Generate your unique <strong>API Key</strong> above and copy it.</li>
+                      <li>Launch the <strong>Life Journal Companion App</strong> on your PC.</li>
+                      <li>Paste the key into the Companion's configuration settings.</li>
+                      <li>While in-game, type chat messages starting with <code>#journal</code> or <code>#coords</code> (e.g. <code>#journal Built my portal room!</code>) to log them automatically.</li>
+                    </ol>
+                  </div>
+                </div>
               </motion.div>
 
             </div>
