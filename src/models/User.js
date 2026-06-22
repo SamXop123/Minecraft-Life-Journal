@@ -59,6 +59,8 @@ const UserSchema = new mongoose.Schema({
   favoriteActivities: { type: [String], default: [] },
   bio: { type: String, default: "" },
   avatarUrl: { type: String, default: "" },
+  apiKeyHash: { type: String, default: "" },
+  apiKeyLastUsedAt: { type: Date, default: null },
   joinedAt: { type: Date, default: Date.now },
   createdAt: {
     type: Date,

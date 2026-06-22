@@ -18,6 +18,10 @@ const WorldActivitySchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  playtimeMinutes: {
+    type: Number,
+    default: 0,
+  },
   createdAt: {
     type: Date,
     default: Date.now,
