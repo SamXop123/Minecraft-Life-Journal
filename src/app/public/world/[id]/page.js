@@ -60,6 +60,16 @@ export default function PublicWorldPage({ params }) {
     });
   }
 
+  function formatPlaytime(totalMinutes) {
+    if (!totalMinutes || totalMinutes <= 0) return "0m";
+    const hours = Math.floor(totalMinutes / 60);
+    const mins = Math.round(totalMinutes % 60);
+    if (hours > 0) {
+      return `${hours}h ${mins}m`;
+    }
+    return `${mins}m`;
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-950">
@@ -125,6 +135,10 @@ export default function PublicWorldPage({ params }) {
             <div>
               <p className="text-gray-500 mb-0.5">Started</p>
               <p className="text-gray-300">{formatDate(world.startedAt)}</p>
+            </div>
+            <div>
+              <p className="text-gray-500 mb-0.5">Playtime</p>
+              <p className="text-gray-300">{formatPlaytime(world.playtimeMinutes)}</p>
             </div>
             {world.endedAt && (
               <div>
