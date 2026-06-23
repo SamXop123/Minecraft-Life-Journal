@@ -86,7 +86,7 @@ impl LogWatcherManager {
                         }
 
                         // Check if it's a chat message or advancement
-                        let is_chat = trimmed.contains("[CHAT]") || trimmed.contains("<");
+                        let is_chat = trimmed.contains("[CHAT]");
                         let is_advancement = trimmed.contains("has made the advancement");
 
                         if is_chat || is_advancement {
