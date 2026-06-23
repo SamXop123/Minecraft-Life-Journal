@@ -58,6 +58,10 @@ export async function POST(req) {
       );
     }
 
+    const title = formData.get("title") || "Screenshot Captured";
+    const description = formData.get("description") || "Automatically captured in-game screenshot.";
+    const category = formData.get("category") || "achievement";
+
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
@@ -67,9 +71,9 @@ export async function POST(req) {
     // Create the Memory document in database
     const memory = await Memory.create({
       worldId,
-      title: "Screenshot Captured",
-      category: "achievement",
-      description: "Automatically captured in-game screenshot.",
+      title,
+      category,
+      description,
       imageUrl,
       memoryDate: new Date(),
       source: "auto_screenshot",
