@@ -47,6 +47,18 @@ header {
   position: relative;
 }
 
+.logo-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 8px;
+}
+
+.app-logo {
+  height: 48px;
+  width: auto;
+  filter: drop-shadow(0 2px 8px rgba(0,0,0,0.5));
+}
+
 header h1 {
   font-family: 'Press Start 2P', cursive;
   font-size: 1rem;
