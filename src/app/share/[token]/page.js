@@ -21,6 +21,16 @@ function formatDate(d) {
   });
 }
 
+function formatPlaytime(totalMinutes) {
+  if (!totalMinutes || totalMinutes <= 0) return "0m";
+  const hours = Math.floor(totalMinutes / 60);
+  const mins = Math.round(totalMinutes % 60);
+  if (hours > 0) {
+    return `${hours}h ${mins}m`;
+  }
+  return `${mins}m`;
+}
+
 export default function SharedWorldPage({ params }) {
   const [world, setWorld] = useState(null);
   const [memories, setMemories] = useState([]);
@@ -226,6 +236,7 @@ export default function SharedWorldPage({ params }) {
               <InfoItem label="Type" value={world.type} capitalize />
               {world.seed && <InfoItem label="Seed" value={world.seed} mono />}
               <InfoItem label="Started" value={formatDate(world.startedAt)} />
+              <InfoItem label="Playtime" value={formatPlaytime(world.playtimeMinutes)} />
               {world.endedAt && <InfoItem label="Ended" value={formatDate(world.endedAt)} />}
             </div>
 
