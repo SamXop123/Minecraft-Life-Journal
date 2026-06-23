@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import World from "@/models/World";
+import WorldActivity from "@/models/WorldActivity";
 import { requireAuth } from "@/lib/requireAuth";
 
 export async function GET(req) {
@@ -13,7 +14,30 @@ export async function GET(req) {
       createdAt: -1,
     });
 
-    return NextResponse.json({ worlds }, { status: 200 });
+    // Aggregate playtime for all returned worlds
+    const worldIds = worlds.map((w) => w._id);
+    const playtimeAgg = await WorldActivity.aggregate([
+      { $match: { worldId: { $in: worldIds } } },
+      {
+        $group: {
+          _id: "$worldId",
+          totalPlaytime: { $sum: "$playtimeMinutes" },
+        },
+      },
+    ]);
+
+    const playtimeMap = playtimeAgg.reduce((acc, curr) => {
+      acc[curr._id.toString()] = curr.totalPlaytime;
+      return acc;
+    }, {});
+
+    const worldsWithPlaytime = worlds.map((world) => {
+      const worldObj = world.toObject();
+      worldObj.playtimeMinutes = playtimeMap[world._id.toString()] || 0;
+      return worldObj;
+    });
+
+    return NextResponse.json({ worlds: worldsWithPlaytime }, { status: 200 });
   } catch (error) {
     if (
       error.message === "Unauthorized" ||
