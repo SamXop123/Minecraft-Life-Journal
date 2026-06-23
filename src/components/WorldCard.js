@@ -16,6 +16,16 @@ export default function WorldCard({ world, index, onClick }) {
     });
   }
 
+  function formatPlaytime(totalMinutes) {
+    if (!totalMinutes || totalMinutes <= 0) return "0m";
+    const hours = Math.floor(totalMinutes / 60);
+    const mins = Math.round(totalMinutes % 60);
+    if (hours > 0) {
+      return `${hours}h ${mins}m`;
+    }
+    return `${mins}m`;
+  }
+
   return (
     <motion.div
       onClick={onClick}
@@ -90,6 +100,20 @@ export default function WorldCard({ world, index, onClick }) {
             style={{ textShadow: "0 1px 4px rgba(0,0,0,0.5)" }}
           >
             {formatDate(world.startedAt)}
+          </span>
+        </p>
+        <p>
+          <span
+            className="text-amber-700/80"
+            style={{ textShadow: "0 1px 4px rgba(0,0,0,0.5)" }}
+          >
+            Playtime:
+          </span>{" "}
+          <span
+            className="text-amber-100/70"
+            style={{ textShadow: "0 1px 4px rgba(0,0,0,0.5)" }}
+          >
+            {formatPlaytime(world.playtimeMinutes)}
           </span>
         </p>
       </div>
