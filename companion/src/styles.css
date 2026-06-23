@@ -1,0 +1,288 @@
+:root {
+  font-family: 'Inter', Avenir, Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 400;
+
+  color: #ffe0b0;
+  background-color: #0c0805;
+
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  
+  --mc-gold: #e5a93b;
+  --mc-dark-gold: #a0721e;
+  --mc-purple: #925cff;
+  --mc-panel-bg: rgba(22, 14, 8, 0.85);
+  --mc-border: rgba(160, 114, 30, 0.25);
+  --mc-glow: rgba(229, 169, 59, 0.12);
+}
+
+body {
+  margin: 0;
+  padding: 20px;
+  height: 100vh;
+  box-sizing: border-box;
+  overflow: hidden;
+  background: radial-gradient(ellipse at center, #1b120a 0%, #0c0805 100%);
+  user-select: none;
+}
+
+/* ═══════════════════════════════════════
+   CONTAINER & LAYOUT
+   ═══════════════════════════════════════ */
+.app-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  gap: 16px;
+}
+
+/* Header */
+header {
+  text-align: center;
+  border-bottom: 2px solid var(--mc-border);
+  padding-bottom: 12px;
+  position: relative;
+}
+
+header h1 {
+  font-family: 'Press Start 2P', cursive;
+  font-size: 1rem;
+  margin: 0 0 6px 0;
+  color: #fff;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.8), 0 0 20px rgba(146,92,255,0.3);
+  letter-spacing: 1px;
+}
+
+header p {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--mc-gold);
+  opacity: 0.8;
+  font-family: 'Silkscreen', cursive;
+}
+
+/* Form Settings */
+.settings-panel {
+  background: var(--mc-panel-bg);
+  border: 1px solid var(--mc-border);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.03);
+  backdrop-blur: 12px;
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.form-group label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: rgba(255, 224, 176, 0.45);
+}
+
+.input-row {
+  display: flex;
+  gap: 8px;
+}
+
+input, select {
+  flex: 1;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(229, 169, 59, 0.15);
+  border-radius: 8px;
+  padding: 8px 12px;
+  color: #fff;
+  font-family: inherit;
+  font-size: 0.9rem;
+  outline: none;
+  transition: all 0.2s;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
+}
+
+input:focus, select:focus {
+  border-color: var(--mc-gold);
+  box-shadow: 0 0 10px var(--mc-glow), inset 0 2px 4px rgba(0,0,0,0.5);
+}
+
+select {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml;utf8,<svg fill='%23e5a93b' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/><path d='M0 0h24v24H0z' fill='none'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  background-size: 18px;
+  padding-right: 32px;
+}
+
+select option {
+  background: #160e08;
+  color: #ffe0b0;
+}
+
+/* Buttons */
+button {
+  background: linear-gradient(180deg, #a0721e 0%, #7d5412 100%);
+  border: 1px solid #c0913a;
+  border-radius: 8px;
+  padding: 8px 16px;
+  color: #fff;
+  font-family: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.6);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.2);
+}
+
+button:hover {
+  background: linear-gradient(180deg, #c0913a 0%, #a0721e 100%);
+  border-color: #ffd276;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.5), 0 0 12px rgba(229, 169, 59, 0.2);
+}
+
+button:active {
+  transform: translateY(1px);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.6);
+}
+
+.btn-secondary {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+.btn-secondary:hover {
+  background: rgba(255,255,255,0.1);
+  border-color: rgba(255,255,255,0.2);
+  box-shadow: none;
+}
+
+.btn-primary-action {
+  background: linear-gradient(180deg, #925cff 0%, #6f34df 100%);
+  border-color: #a780fa;
+}
+
+.btn-primary-action:hover {
+  background: linear-gradient(180deg, #a780fa 0%, #925cff 100%);
+  border-color: #c084fc;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.5), 0 0 12px rgba(146, 92, 255, 0.3);
+}
+
+/* ═══════════════════════════════════════
+   STATUS BAR
+   ═══════════════════════════════════════ */
+.status-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(0,0,0,0.3);
+  border: 1px solid var(--mc-border);
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+}
+
+.status-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: #ef4444; /* offline default */
+  box-shadow: 0 0 8px #ef4444;
+  transition: all 0.3s;
+}
+
+.status-dot.active {
+  background-color: #22c55e;
+  box-shadow: 0 0 8px #22c55e;
+}
+
+.status-text {
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+}
+
+.mc-status {
+  font-size: 0.8rem;
+  color: rgba(255,224,176,0.5);
+}
+
+/* ═══════════════════════════════════════
+   CONSOLE LOG LOGGER
+   ═══════════════════════════════════════ */
+.console-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: #000;
+  border: 1px solid var(--mc-border);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: inset 0 4px 16px rgba(0,0,0,0.8);
+}
+
+.console-header {
+  background: rgba(16, 10, 6, 0.9);
+  border-bottom: 1px solid var(--mc-border);
+  padding: 6px 12px;
+  font-family: 'Silkscreen', cursive;
+  font-size: 0.65rem;
+  color: var(--mc-gold);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.console-logs {
+  flex: 1;
+  padding: 12px;
+  font-family: 'VT323', monospace;
+  font-size: 1.05rem;
+  overflow-y: auto;
+  color: rgba(255, 255, 255, 0.7);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.log-entry {
+  line-height: 1.25em;
+  word-break: break-all;
+}
+
+.log-entry.info { color: #ffe0b0; }
+.log-entry.success { color: #4ade80; text-shadow: 0 0 4px rgba(34,197,94,0.2); }
+.log-entry.error { color: #f87171; text-shadow: 0 0 4px rgba(239,68,68,0.2); }
+.log-entry.status { color: #a78bfa; }
+
+/* Scrollbar Customization for console */
+.console-logs::-webkit-scrollbar {
+  width: 8px;
+}
+.console-logs::-webkit-scrollbar-track {
+  background: #000;
+}
+.console-logs::-webkit-scrollbar-thumb {
+  background: #3c2814;
+  border: 1px solid #5a3c1e;
+  border-radius: 4px;
+}
+.console-logs::-webkit-scrollbar-thumb:hover {
+  background: #5a3c1e;
+}
