@@ -259,6 +259,16 @@ export default function WorldDetailPage({ params }) {
     });
   }
 
+  function formatPlaytime(totalMinutes) {
+    if (!totalMinutes || totalMinutes <= 0) return "0m";
+    const hours = Math.floor(totalMinutes / 60);
+    const mins = Math.round(totalMinutes % 60);
+    if (hours > 0) {
+      return `${hours}h ${mins}m`;
+    }
+    return `${mins}m`;
+  }
+
   function handleMemoryFormChange(e) {
     setMemoryForm({ ...memoryForm, [e.target.name]: e.target.value });
   }
@@ -614,6 +624,22 @@ export default function WorldDetailPage({ params }) {
                       }}
                     >
                       {formatDate(world.startedAt)}
+                    </p>
+                  </div>
+                  <div>
+                    <p
+                      className="mb-0.5"
+                      style={{ color: "rgba(255,224,176,0.4)" }}
+                    >
+                      Playtime
+                    </p>
+                    <p
+                      style={{
+                        color: "rgba(255,224,176,0.8)",
+                        textShadow: "0 1px 4px rgba(0,0,0,0.6)",
+                      }}
+                    >
+                      {formatPlaytime(world.playtimeMinutes)}
                     </p>
                   </div>
                   {world.endedAt && (
