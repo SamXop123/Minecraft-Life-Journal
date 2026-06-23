@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import World from "@/models/World";
 import Memory from "@/models/Memory";
+import WorldActivity from "@/models/WorldActivity";
 
 export async function GET(req, { params }) {
   try {
@@ -21,11 +22,20 @@ export async function GET(req, { params }) {
       );
     }
 
+    const activities = await WorldActivity.find({ worldId: world._id });
+    const totalPlaytimeMinutes = activities.reduce(
+      (sum, act) => sum + (act.playtimeMinutes || 0),
+      0
+    );
+
+    const worldObj = world.toObject();
+    worldObj.playtimeMinutes = totalPlaytimeMinutes;
+
     const memories = await Memory.find({ worldId: world._id })
       .sort({ memoryDate: 1 })
       .select("title category description imageUrl memoryDate createdAt");
 
-    return NextResponse.json({ world, memories }, { status: 200 });
+    return NextResponse.json({ world: worldObj, memories }, { status: 200 });
   } catch (error) {
     console.error("Public share fetch error:", error);
     return NextResponse.json(
