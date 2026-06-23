@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import World from "@/models/World";
+import WorldActivity from "@/models/WorldActivity";
 import { requireAuth } from "@/lib/requireAuth";
 
 export async function GET(req, { params }) {
@@ -27,7 +28,16 @@ export async function GET(req, { params }) {
       );
     }
 
-    return NextResponse.json({ world }, { status: 200 });
+    const activities = await WorldActivity.find({ worldId: id });
+    const totalPlaytimeMinutes = activities.reduce(
+      (sum, act) => sum + (act.playtimeMinutes || 0),
+      0
+    );
+
+    const worldObj = world.toObject();
+    worldObj.playtimeMinutes = totalPlaytimeMinutes;
+
+    return NextResponse.json({ world: worldObj }, { status: 200 });
   } catch (error) {
     if (
       error.message === "Unauthorized" ||
