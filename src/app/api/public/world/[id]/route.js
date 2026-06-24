@@ -3,6 +3,7 @@ import { connectDB } from "@/lib/db";
 import World from "@/models/World";
 import Memory from "@/models/Memory";
 import WorldActivity from "@/models/WorldActivity";
+import User from "@/models/User";
 
 export async function GET(req, { params }) {
   try {
@@ -10,7 +11,7 @@ export async function GET(req, { params }) {
 
     const { id } = await params;
 
-    const world = await World.findById(id).select("-userId");
+    const world = await World.findById(id).populate("userId", "username displayName");
 
     if (!world) {
       return NextResponse.json(
