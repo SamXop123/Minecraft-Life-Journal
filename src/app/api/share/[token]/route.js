@@ -3,6 +3,7 @@ import { connectDB } from "@/lib/db";
 import World from "@/models/World";
 import Memory from "@/models/Memory";
 import WorldActivity from "@/models/WorldActivity";
+import User from "@/models/User";
 
 export async function GET(req, { params }) {
   try {
@@ -11,7 +12,7 @@ export async function GET(req, { params }) {
     const { token } = await params;
 
     // No .select() — we need all fields including isPublic to check access
-    const world = await World.findOne({ shareToken: token });
+    const world = await World.findOne({ shareToken: token }).populate("userId", "username displayName");
 
     console.log(`[share] lookup token=${token} →`, world ? `id=${world._id} isPublic=${world.isPublic}` : "not found");
 
