@@ -1,8 +1,22 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import PixelParticles from "@/components/PixelParticles";
+import CinematicMode from "@/components/CinematicMode";
+import {
+  Compass,
+  Swords,
+  ShieldAlert,
+  Hammer,
+  Hourglass,
+  Users,
+  User,
+  Calendar,
+  Globe,
+  Play,
+  ArrowLeft,
+} from "lucide-react";
 
 const CATEGORY_STYLES = {
   achievement: { bg: "rgba(234,179,8,0.08)", border: "rgba(234,179,8,0.25)", color: "#facc15" },
@@ -10,6 +24,30 @@ const CATEGORY_STYLES = {
   death: { bg: "rgba(239,68,68,0.08)", border: "rgba(239,68,68,0.25)", color: "#f87171" },
   funny: { bg: "rgba(236,72,153,0.08)", border: "rgba(236,72,153,0.25)", color: "#f472b6" },
   emotional: { bg: "rgba(168,85,247,0.08)", border: "rgba(168,85,247,0.25)", color: "#c084fc" },
+};
+
+const mcGoldButton = {
+  backgroundColor: "#e5a93b",
+  color: "#ffffff",
+  borderTop: "3px solid #ffd896",
+  borderLeft: "3px solid #ffd896",
+  borderBottom: "3px solid #8b6914",
+  borderRight: "3px solid #8b6914",
+  boxShadow: "0 4px 0 #4a360a, 0 6px 12px rgba(0,0,0,0.4)",
+  textShadow: "0 2px 4px rgba(0,0,0,0.8)",
+  borderRadius: "6px",
+};
+
+const mcPrimaryButton = {
+  backgroundColor: "#1b7a43",
+  color: "#ffffff",
+  borderTop: "3px solid #34c759",
+  borderLeft: "3px solid #34c759",
+  borderBottom: "3px solid #0f4c27",
+  borderRight: "3px solid #0f4c27",
+  boxShadow: "0 4px 0 #0c361c, 0 8px 16px rgba(0,0,0,0.5)",
+  textShadow: "0 2px 4px rgba(0,0,0,0.8)",
+  borderRadius: "6px",
 };
 
 function formatDate(d) {
@@ -36,6 +74,7 @@ export default function SharedWorldPage({ params }) {
   const [memories, setMemories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [showCinematic, setShowCinematic] = useState(false);
 
   useEffect(() => {
     async function fetchSharedWorld() {
@@ -91,6 +130,31 @@ export default function SharedWorldPage({ params }) {
   }
 
   if (!world) return null;
+
+  const ownerName = world.userId?.displayName || world.userId?.username || "an Adventurer";
+
+  // Mode Info
+  const mode = world.mode?.toLowerCase() || "survival";
+  let ModeIcon = Swords;
+  let modeColor = "#22c55e"; // green
+  let modeLabel = "Survival";
+
+  if (mode === "hardcore") {
+    ModeIcon = ShieldAlert;
+    modeColor = "#ef4444"; // red
+    modeLabel = "Hardcore";
+  } else if (mode === "creative") {
+    ModeIcon = Hammer;
+    modeColor = "#a855f7"; // purple
+    modeLabel = "Creative";
+  }
+
+  // Type Info
+  const isMulti = world.type?.toLowerCase() === "multiplayer";
+  const TypeIcon = isMulti ? Users : User;
+  const typeLabel = isMulti ? "Multiplayer" : "Solo";
+
+  const vt323 = { fontFamily: "'VT323', monospace" };
 
   return (
     <div className="relative min-h-screen">
@@ -150,118 +214,176 @@ export default function SharedWorldPage({ params }) {
       <div className="relative px-4 py-10 min-h-screen" style={{ zIndex: 10 }}>
         <div className="max-w-3xl mx-auto">
 
-          {/* Back Link */}
-          <a
-            href="/"
-            className="inline-block mb-6 text-sm transition-colors"
-            style={{
-              color: "rgba(255,224,176,0.5)",
-              textShadow: "0 1px 6px rgba(0,0,0,0.6)",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.color = "rgba(255,224,176,0.8)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.color = "rgba(255,224,176,0.5)";
-            }}
-          >
-            ← Back Home
-          </a>
+          {/* Navigation Bar */}
+          <div className="flex justify-between items-center mb-6">
+            <a
+              href="/"
+              className="flex items-center gap-1.5 text-xs text-amber-200/50 hover:text-amber-200 transition-colors bg-black/20 hover:bg-black/40 px-3.5 py-1.5 rounded-full border border-white/5 backdrop-blur-md"
+            >
+              <ArrowLeft size={12} />
+              Main website
+            </a>
+          </div>
 
-          {/* Shared badge */}
-          <motion.div
-            className="flex items-center gap-2 mb-6"
-            initial={{ opacity: 0, y: -8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4 }}
-          >
+          {/* Header Sign */}
+          <div className="text-center mb-8 relative">
             <span
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium"
+              className="text-[10px] uppercase font-mono tracking-widest text-amber-500 bg-amber-500/10 border border-amber-500/20 px-3 py-1 rounded-md inline-block mb-3.5 animate-pulse"
+              style={vt323}
+            >
+              🌍 Public Journal Shared Link
+            </span>
+            <p
+              className="text-xs uppercase tracking-widest text-amber-200/50 mb-1"
+              style={{ fontFamily: "'Silkscreen', sans-serif", textShadow: "0 1px 4px rgba(0,0,0,0.8)" }}
+            >
+              You are viewing <span className="text-amber-300 font-bold">{ownerName}</span>'s world
+            </p>
+            <h1
+              className="text-2xl sm:text-4xl font-extrabold text-amber-100"
               style={{
-                backgroundColor: "rgba(16,185,129,0.1)",
-                border: "1px solid rgba(16,185,129,0.25)",
-                color: "#6ee7b7",
+                fontFamily: "'Silkscreen', sans-serif",
+                textShadow: "3px 3px 0px rgba(0,0,0,0.95), 0 0 30px rgba(255,170,60,0.15)",
+                letterSpacing: "0.05em",
               }}
             >
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
-                <polyline points="16 6 12 2 8 6" />
-                <line x1="12" y1="2" x2="12" y2="15" />
-              </svg>
-              Shared World
-            </span>
-          </motion.div>
+              {world.name}
+            </h1>
+          </div>
 
-          {/* World Header Card */}
+          {/* Action Row - Cinematic Mode */}
+          {memories.length > 0 && (
+            <div className="flex justify-center mb-8">
+              <motion.button
+                onClick={() => setShowCinematic(true)}
+                className="px-6 py-3 font-bold tracking-wider uppercase text-xs transition-transform flex items-center gap-2"
+                style={mcGoldButton}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ y: 2 }}
+              >
+                <Play size={12} className="fill-current text-white" />
+                Cinematic Mode
+              </motion.button>
+            </div>
+          )}
+
+          {/* World Details Card */}
           <motion.div
-            className="backdrop-blur-lg rounded-xl p-6 mb-6"
+            className="backdrop-blur-lg rounded-2xl p-6 mb-8 relative overflow-hidden"
             style={{
-              backgroundColor: "rgba(0,0,0,0.45)",
-              border: "1px solid rgba(218,165,32,0.15)",
-              boxShadow:
-                "0 8px 40px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,200,100,0.03)",
+              backgroundColor: "rgba(33, 27, 22, 0.9)",
+              border: "3px solid #1a1410",
+              outline: "3px solid #7a6652",
+              outlineOffset: "-6px",
+              boxShadow: "0 12px 30px rgba(0,0,0,0.7)",
             }}
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <div className="flex items-start justify-between mb-4">
-              <h1
-                className="text-2xl font-bold"
-                style={{
-                  color: "rgba(255,224,176,0.95)",
-                  textShadow:
-                    "0 2px 16px rgba(0,0,0,0.8), 0 0 30px rgba(255,170,60,0.08)",
-                }}
+            <div className="flex items-start justify-between mb-5 relative z-10">
+              <h2
+                className="text-sm font-bold text-amber-100 uppercase"
+                style={{ fontFamily: "'Silkscreen', sans-serif", textShadow: "1px 1px 0px #000" }}
               >
-                {world.name}
-              </h1>
+                World Specifications
+              </h2>
               {world.endedAt && (
                 <span
-                  className="px-2.5 py-1 rounded text-xs"
-                  style={{
-                    backgroundColor: "rgba(239,68,68,0.1)",
-                    border: "1px solid rgba(239,68,68,0.3)",
-                    color: "#f87171",
-                  }}
+                  className="px-2.5 py-0.5 rounded border text-[10px] font-bold uppercase tracking-wider text-red-400 bg-red-950/20 border-red-500/25 shadow-sm"
+                  style={{ textShadow: "0 1px 4px rgba(0,0,0,0.5)" }}
                 >
                   Ended
                 </span>
               )}
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 text-sm">
-              <InfoItem label="Version" value={world.mcVersion} />
-              <InfoItem label="Mode" value={world.mode} capitalize />
-              <InfoItem label="Type" value={world.type} capitalize />
-              {world.seed && <InfoItem label="Seed" value={world.seed} mono />}
-              <InfoItem label="Started" value={formatDate(world.startedAt)} />
-              <InfoItem label="Playtime" value={formatPlaytime(world.playtimeMinutes)} />
-              {world.endedAt && <InfoItem label="Ended" value={formatDate(world.endedAt)} />}
+            {/* Grid of Capsules */}
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-xs font-light text-amber-100/60 mb-1 relative z-10">
+              {/* Version */}
+              <div className="flex items-center gap-2.5 p-3 rounded-lg bg-black/40 border border-white/5 shadow-inner">
+                <Compass size={16} className="text-amber-500/60 shrink-0" />
+                <div className="min-w-0">
+                  <p className="text-[9px] uppercase tracking-wider text-amber-200/30 font-semibold font-mono">Version</p>
+                  <p className="font-semibold text-amber-100/95 truncate">v{world.mcVersion}</p>
+                </div>
+              </div>
+
+              {/* Mode */}
+              <div className="flex items-center gap-2.5 p-3 rounded-lg bg-black/40 border border-white/5 shadow-inner">
+                <ModeIcon size={16} className="shrink-0" style={{ color: modeColor }} />
+                <div className="min-w-0">
+                  <p className="text-[9px] uppercase tracking-wider text-amber-200/30 font-semibold font-mono">Game Mode</p>
+                  <p className="font-semibold text-amber-100/95 truncate capitalize">{modeLabel}</p>
+                </div>
+              </div>
+
+              {/* Type */}
+              <div className="flex items-center gap-2.5 p-3 rounded-lg bg-black/40 border border-white/5 shadow-inner">
+                <TypeIcon size={16} className="text-amber-500/60 shrink-0" />
+                <div className="min-w-0">
+                  <p className="text-[9px] uppercase tracking-wider text-amber-200/30 font-semibold font-mono">Type</p>
+                  <p className="font-semibold text-amber-100/95 truncate capitalize">{typeLabel}</p>
+                </div>
+              </div>
+
+              {/* Seed */}
+              {world.seed && (
+                <div className="flex items-center gap-2.5 p-3 rounded-lg bg-black/40 border border-white/5 shadow-inner">
+                  <Globe size={16} className="text-amber-500/60 shrink-0" />
+                  <div className="min-w-0 w-full">
+                    <p className="text-[9px] uppercase tracking-wider text-amber-200/30 font-semibold font-mono">World Seed</p>
+                    <p className="font-semibold text-amber-100/95 truncate font-mono text-[10px]" title={world.seed}>{world.seed}</p>
+                  </div>
+                </div>
+              )}
+
+              {/* Started */}
+              <div className="flex items-center gap-2.5 p-3 rounded-lg bg-black/40 border border-white/5 shadow-inner">
+                <Calendar size={16} className="text-amber-500/60 shrink-0" />
+                <div className="min-w-0">
+                  <p className="text-[9px] uppercase tracking-wider text-amber-200/30 font-semibold font-mono">Date Started</p>
+                  <p className="font-semibold text-amber-100/95 truncate">{formatDate(world.startedAt)}</p>
+                </div>
+              </div>
+
+              {/* Playtime */}
+              <div className="flex items-center gap-2.5 p-3 rounded-lg bg-black/40 border border-white/5 shadow-inner">
+                <Hourglass size={16} className="text-amber-500/60 shrink-0" />
+                <div className="min-w-0">
+                  <p className="text-[9px] uppercase tracking-wider text-amber-200/30 font-semibold font-mono">Total Playtime</p>
+                  <p className="font-semibold text-amber-100/95 truncate">{formatPlaytime(world.playtimeMinutes)}</p>
+                </div>
+              </div>
+
+              {/* Ended Date (if any) */}
+              {world.endedAt && (
+                <div className="flex items-center gap-2.5 p-3 rounded-lg bg-black/40 border border-white/5 shadow-inner">
+                  <Calendar size={16} className="text-amber-500/60 shrink-0" />
+                  <div className="min-w-0">
+                    <p className="text-[9px] uppercase tracking-wider text-amber-200/30 font-semibold font-mono">Date Ended</p>
+                    <p className="font-semibold text-amber-100/95 truncate">{formatDate(world.endedAt)}</p>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* End details */}
             {world.endedAt && (world.endReason || world.finalMessage) && (
               <div
-                className="mt-5 pt-5 space-y-3"
+                className="mt-5 pt-5 space-y-3 relative z-10"
                 style={{ borderTop: "1px solid rgba(218,165,32,0.12)" }}
               >
                 {world.endReason && (
                   <div>
-                    <p className="text-sm mb-1" style={{ color: "rgba(255,224,176,0.4)" }}>
-                      End Reason
-                    </p>
-                    <p className="text-sm" style={{ color: "rgba(255,224,176,0.8)", textShadow: "0 1px 4px rgba(0,0,0,0.6)" }}>
-                      {world.endReason}
-                    </p>
+                    <p className="text-[10px] uppercase font-mono tracking-wider font-semibold text-amber-200/30">End Reason</p>
+                    <p className="text-sm text-amber-100/80 leading-relaxed font-light">{world.endReason}</p>
                   </div>
                 )}
                 {world.finalMessage && (
                   <div>
-                    <p className="text-sm mb-1" style={{ color: "rgba(255,224,176,0.4)" }}>
-                      Final Message
-                    </p>
-                    <p className="text-sm italic" style={{ color: "rgba(255,224,176,0.8)", textShadow: "0 1px 4px rgba(0,0,0,0.6)" }}>
+                    <p className="text-[10px] uppercase font-mono tracking-wider font-semibold text-amber-200/30">Final Message</p>
+                    <p className="text-sm text-amber-100/90 italic leading-relaxed font-light">
                       &ldquo;{world.finalMessage}&rdquo;
                     </p>
                   </div>
@@ -270,103 +392,111 @@ export default function SharedWorldPage({ params }) {
             )}
           </motion.div>
 
-          {/* Memories */}
+          {/* Memories Timeline */}
           <motion.div
-            className="backdrop-blur-lg rounded-xl p-6"
+            className="backdrop-blur-lg rounded-2xl p-6 relative overflow-hidden"
             style={{
               backgroundColor: "rgba(0,0,0,0.45)",
               border: "1px solid rgba(218,165,32,0.15)",
-              boxShadow:
-                "0 8px 40px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,200,100,0.03)",
+              boxShadow: "0 8px 40px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,200,100,0.03)",
             }}
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
           >
             <h2
-              className="text-xl font-semibold mb-6"
+              className="text-lg font-bold mb-6 uppercase"
               style={{
+                fontFamily: "'Silkscreen', sans-serif",
                 color: "rgba(255,224,176,0.95)",
-                textShadow:
-                  "0 0 15px rgba(218,165,32,0.4), 0 2px 6px rgba(0,0,0,0.7)",
+                textShadow: "0 0 15px rgba(218,165,32,0.4), 0 2px 6px rgba(0,0,0,0.7)",
               }}
             >
-              Memories ({memories.length})
+              Journal Memories ({memories.length})
             </h2>
 
             {memories.length === 0 ? (
-              <p className="text-center py-10" style={{ color: "rgba(255,224,176,0.35)" }}>
-                No memories recorded yet.
+              <p className="text-center py-12 text-sm italic" style={{ color: "rgba(255,224,176,0.3)" }}>
+                No memories recorded yet in this journal.
               </p>
             ) : (
-              <div className="space-y-4">
+              <div className="relative border-l-2 border-amber-950/40 ml-3 pl-6 space-y-6">
                 {memories.map((memory, idx) => {
                   const cat = CATEGORY_STYLES[memory.category] || CATEGORY_STYLES.achievement;
 
                   return (
                     <motion.div
                       key={memory._id}
-                      className="rounded-lg p-4"
-                      style={{
-                        backgroundColor: "rgba(0,0,0,0.3)",
-                        border: "1px solid rgba(218,165,32,0.1)",
-                      }}
-                      initial={{ opacity: 0, y: 10 }}
+                      className="relative group"
+                      initial={{ opacity: 0, y: 12 }}
                       animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.35, delay: idx * 0.04 }}
+                      transition={{ duration: 0.4, delay: idx * 0.05 }}
                     >
-                      <div className="flex items-start justify-between mb-2">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <h3
-                            className="font-semibold text-sm"
-                            style={{
-                              color: "rgba(255,224,176,0.9)",
-                              textShadow: "0 1px 4px rgba(0,0,0,0.6)",
-                            }}
-                          >
-                            {memory.title}
-                          </h3>
+                      {/* Dot indicator */}
+                      <div
+                        className="absolute -left-[31px] top-1 w-2.5 h-2.5 rounded bg-amber-900 border border-amber-600/60 shadow-[0_0_8px_rgba(218,165,32,0.2)] group-hover:bg-amber-400 group-hover:border-white transition-colors"
+                        style={{ transform: "rotate(45deg)" }}
+                      />
+
+                      {/* Inventory slot card */}
+                      <div
+                        className="p-5 rounded-xl transition-all duration-200 relative overflow-hidden"
+                        style={{
+                          backgroundColor: "rgba(10, 5, 2, 0.45)",
+                          border: "1px solid rgba(255,255,255,0.03)",
+                          boxShadow: "inset 0 1px 0 rgba(255,200,100,0.02), 0 4px 12px rgba(0,0,0,0.25)"
+                        }}
+                      >
+                        <div className="flex items-start justify-between gap-3 mb-2 flex-wrap">
+                          <div className="flex items-center gap-2 flex-wrap min-w-0">
+                            <h3
+                              className="font-bold text-sm text-amber-100 group-hover:text-amber-50 transition-colors truncate"
+                              style={{ textShadow: "0 1px 4px rgba(0,0,0,0.5)" }}
+                            >
+                              {memory.title}
+                            </h3>
+                            <span
+                              className="px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider shrink-0 border"
+                              style={{
+                                backgroundColor: cat.bg,
+                                borderColor: cat.border,
+                                color: cat.color,
+                                textShadow: "0 1px 2px rgba(0,0,0,0.4)"
+                              }}
+                            >
+                              {memory.category}
+                            </span>
+                          </div>
                           <span
-                            className="px-2 py-0.5 rounded text-[10px] font-medium capitalize"
-                            style={{
-                              backgroundColor: cat.bg,
-                              border: `1px solid ${cat.border}`,
-                              color: cat.color,
-                            }}
+                            className="text-[10px] font-mono tracking-wider shrink-0 ml-2"
+                            style={{ color: "rgba(255,224,176,0.3)" }}
                           >
-                            {memory.category}
+                            {formatDate(memory.memoryDate)}
                           </span>
                         </div>
-                        <span className="text-xs shrink-0 ml-2" style={{ color: "rgba(255,224,176,0.35)" }}>
-                          {formatDate(memory.memoryDate)}
-                        </span>
+
+                        {memory.description && (
+                          <p
+                            className="text-xs sm:text-sm mb-4 leading-relaxed font-light whitespace-pre-wrap"
+                            style={{ color: "rgba(255,224,176,0.6)" }}
+                          >
+                            {memory.description}
+                          </p>
+                        )}
+
+                        {memory.imageUrl && (
+                          <div
+                            className="rounded-lg overflow-hidden border border-white/5 bg-black/20 shadow-md max-w-lg"
+                          >
+                            <img
+                              src={memory.imageUrl}
+                              alt={memory.title}
+                              className="w-full max-h-72 object-cover transition-transform duration-300 group-hover:scale-[1.01]"
+                              draggable={false}
+                            />
+                          </div>
+                        )}
                       </div>
-
-                      {memory.description && (
-                        <p
-                          className="text-sm mb-3 whitespace-pre-wrap"
-                          style={{ color: "rgba(255,224,176,0.65)" }}
-                        >
-                          {memory.description}
-                        </p>
-                      )}
-
-                      {memory.imageUrl && (
-                        <div
-                          className="rounded-lg overflow-hidden"
-                          style={{
-                            border: "1px solid rgba(218,165,32,0.1)",
-                            boxShadow: "0 2px 12px rgba(0,0,0,0.4)",
-                          }}
-                        >
-                          <img
-                            src={memory.imageUrl}
-                            alt={memory.title}
-                            className="w-full max-h-72 object-cover"
-                            draggable={false}
-                          />
-                        </div>
-                      )}
                     </motion.div>
                   );
                 })}
@@ -374,26 +504,58 @@ export default function SharedWorldPage({ params }) {
             )}
           </motion.div>
 
+          {/* MLJ Branding Footer CTA */}
+          <motion.div
+            className="mt-12 text-center p-8 rounded-2xl border border-amber-800/15 bg-black/50 backdrop-blur-md max-w-2xl mx-auto space-y-6 shadow-xl relative overflow-hidden"
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+          >
+            {/* Subtle background glow */}
+            <div className="absolute -inset-px bg-gradient-to-r from-amber-500/0 via-amber-500/5 to-amber-500/0 pointer-events-none rounded-2xl" />
+            
+            <div className="space-y-2 relative z-10">
+              <h2
+                className="text-base font-bold text-amber-200 uppercase"
+                style={{ fontFamily: "'Silkscreen', sans-serif", textShadow: "0 1px 4px rgba(0,0,0,0.6)" }}
+              >
+                Record Your Own Quest
+              </h2>
+              <p className="text-xs text-amber-100/50 max-w-md mx-auto leading-relaxed">
+                You are viewing this world's timeline logs because of <span className="text-amber-300 font-semibold">Minecraft Life Journal</span>. Securely log milestones, map coordinate markers, auto-upload screenshots, and share your server adventure chronicles.
+              </p>
+            </div>
+
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.98 }}
+              className="inline-block relative z-10"
+            >
+              <a
+                href="/register"
+                className="inline-flex items-center gap-2 px-6 py-3 font-bold text-xs uppercase tracking-wider text-center"
+                style={mcPrimaryButton}
+              >
+                Create Your Journal
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                </svg>
+              </a>
+            </motion.div>
+          </motion.div>
+
         </div>
       </div>
-    </div>
-  );
-}
 
-/* ── Small info display ── */
-function InfoItem({ label, value, capitalize, mono }) {
-  return (
-    <div>
-      <p className="mb-0.5" style={{ color: "rgba(255,224,176,0.4)" }}>{label}</p>
-      <p
-        className={`${capitalize ? "capitalize" : ""} ${mono ? "font-mono text-xs" : ""}`}
-        style={{
-          color: "rgba(255,224,176,0.8)",
-          textShadow: "0 1px 4px rgba(0,0,0,0.6)",
-        }}
-      >
-        {value}
-      </p>
+      {/* Cinematic Mode Overlay */}
+      <AnimatePresence>
+        {showCinematic && memories.length > 0 && (
+          <CinematicMode
+            memories={memories}
+            onClose={() => setShowCinematic(false)}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }
