@@ -1,14 +1,26 @@
 "use client";
 
 import { motion } from "framer-motion";
+import {
+  Swords,
+  ShieldAlert,
+  Hammer,
+  Hourglass,
+  Users,
+  User,
+  Calendar,
+  Globe,
+  Compass,
+} from "lucide-react";
 
 /**
- * WorldCard — a single world entry with golden border glow,
- * semi-transparent dark overlay, hover lift + shadow.
- * Warm-toned typography with text-shadow.
+ * WorldCard — a redesigned premium Minecraft-themed world card
+ * styled to look like an inventory/advancement slot with game-mode icons,
+ * stats capsules, and a gold playtime badge.
  */
 export default function WorldCard({ world, index, onClick }) {
   function formatDate(dateStr) {
+    if (!dateStr) return "—";
     return new Date(dateStr).toLocaleDateString("en-US", {
       year: "numeric",
       month: "short",
@@ -26,115 +38,135 @@ export default function WorldCard({ world, index, onClick }) {
     return `${mins}m`;
   }
 
+  // Get Mode Info
+  const mode = world.mode?.toLowerCase() || "survival";
+  let ModeIcon = Swords;
+  let modeColor = "#22c55e"; // green
+  let modeBg = "rgba(34,197,94,0.1)";
+  let modeBorder = "rgba(34,197,94,0.25)";
+  let modeLabel = "Survival";
+
+  if (mode === "hardcore") {
+    ModeIcon = ShieldAlert;
+    modeColor = "#ef4444"; // red
+    modeBg = "rgba(239,68,68,0.1)";
+    modeBorder = "rgba(239,68,68,0.25)";
+    modeLabel = "Hardcore";
+  } else if (mode === "creative") {
+    ModeIcon = Hammer;
+    modeColor = "#a855f7"; // purple
+    modeBg = "rgba(168,85,247,0.1)";
+    modeBorder = "rgba(168,85,247,0.25)";
+    modeLabel = "Creative";
+  }
+
+  // Get Type Info
+  const isMulti = world.type?.toLowerCase() === "multiplayer";
+  const TypeIcon = isMulti ? Users : User;
+  const typeLabel = isMulti ? "Multiplayer" : "Solo";
+
+  const vt323 = { fontFamily: "'VT323', monospace" };
+
   return (
     <motion.div
       onClick={onClick}
-      className="relative bg-black/40 backdrop-blur-lg border border-amber-700/25 rounded-xl p-5 cursor-pointer transition-colors duration-200 hover:border-amber-500/50 hover:bg-black/50 group"
+      className="relative bg-black/45 backdrop-blur-md border border-amber-800/15 rounded-2xl p-5 cursor-pointer transition-colors duration-200 hover:border-amber-500/40 group overflow-hidden"
       style={{
         boxShadow:
-          "0 2px 16px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,200,100,0.04)",
+          "0 10px 30px rgba(0,0,0,0.65), inset 0 1px 0 rgba(255,200,100,0.03)",
       }}
       initial={{ opacity: 0, y: 18 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.45, delay: index * 0.07 }}
       whileHover={{
-        y: -5,
+        y: -4,
         boxShadow:
-          "0 8px 32px rgba(0,0,0,0.6), 0 0 20px rgba(218,165,32,0.1), inset 0 1px 0 rgba(255,200,100,0.08)",
+          "0 15px 40px rgba(0,0,0,0.8), 0 0 18px rgba(218,165,32,0.08), inset 0 1px 0 rgba(255,200,100,0.06)",
       }}
     >
-      {/* Subtle golden top-edge highlight */}
-      <div
-        className="absolute top-0 left-4 right-4 h-px rounded-full"
-        style={{
-          background:
-            "linear-gradient(90deg, transparent, rgba(218,165,32,0.3), transparent)",
-        }}
-      />
+      {/* Decorative inner gradient on hover */}
+      <div className="absolute -inset-px bg-gradient-to-r from-amber-500/0 via-amber-500/5 to-amber-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none rounded-2xl" />
 
-      <h2
-        className="text-lg font-semibold text-amber-50 mb-3 truncate"
-        style={{ textShadow: "0 1px 6px rgba(0,0,0,0.7)" }}
-      >
-        {world.name}
-      </h2>
-
-      <div className="space-y-1.5 text-sm">
-        <p>
-          <span
-            className="text-amber-700/80"
-            style={{ textShadow: "0 1px 4px rgba(0,0,0,0.5)" }}
-          >
-            Version:
-          </span>{" "}
-          <span
-            className="text-amber-100/70"
-            style={{ textShadow: "0 1px 4px rgba(0,0,0,0.5)" }}
-          >
-            {world.mcVersion}
-          </span>
-        </p>
-        <p>
-          <span
-            className="text-amber-700/80"
-            style={{ textShadow: "0 1px 4px rgba(0,0,0,0.5)" }}
-          >
-            Mode:
-          </span>{" "}
-          <span
-            className="text-amber-100/70 capitalize"
-            style={{ textShadow: "0 1px 4px rgba(0,0,0,0.5)" }}
-          >
-            {world.mode}
-          </span>
-        </p>
-        <p>
-          <span
-            className="text-amber-700/80"
-            style={{ textShadow: "0 1px 4px rgba(0,0,0,0.5)" }}
-          >
-            Started:
-          </span>{" "}
-          <span
-            className="text-amber-100/70"
-            style={{ textShadow: "0 1px 4px rgba(0,0,0,0.5)" }}
-          >
-            {formatDate(world.startedAt)}
-          </span>
-        </p>
-        <p>
-          <span
-            className="text-amber-700/80"
-            style={{ textShadow: "0 1px 4px rgba(0,0,0,0.5)" }}
-          >
-            Playtime:
-          </span>{" "}
-          <span
-            className="text-amber-100/70"
-            style={{ textShadow: "0 1px 4px rgba(0,0,0,0.5)" }}
-          >
-            {formatPlaytime(world.playtimeMinutes)}
-          </span>
-        </p>
+      {/* Header Row */}
+      <div className="flex items-start justify-between gap-3 mb-4 relative z-10">
+        <h2
+          className="text-lg font-bold text-amber-100 group-hover:text-amber-50 transition-colors truncate"
+          style={{ textShadow: "0 1px 6px rgba(0,0,0,0.8)" }}
+        >
+          {world.name}
+        </h2>
+        {/* Game Mode Badge */}
+        <div
+          className="flex items-center gap-1 px-2.5 py-1 rounded border text-[10px] font-bold uppercase tracking-wider shrink-0"
+          style={{
+            backgroundColor: modeBg,
+            borderColor: modeBorder,
+            color: modeColor,
+            textShadow: "0 1px 4px rgba(0,0,0,0.4)",
+          }}
+        >
+          <ModeIcon size={12} />
+          <span>{modeLabel}</span>
+        </div>
       </div>
 
-      {world.endedAt && (
-        <span
-          className="inline-block mt-3 px-2.5 py-0.5 bg-red-900/30 border border-red-500/30 rounded text-xs text-red-400"
-          style={{ textShadow: "0 1px 4px rgba(0,0,0,0.5)" }}
-        >
-          Ended
-        </span>
-      )}
+      {/* Stats Capsules Grid */}
+      <div className="grid grid-cols-2 gap-2 text-xs font-light text-amber-100/60 mb-5 relative z-10">
+        {/* Version Capsule */}
+        <div className="flex items-center gap-2 p-2 rounded-lg bg-black/35 border border-white/5">
+          <Compass size={14} className="text-amber-500/60 shrink-0" />
+          <span className="truncate">v{world.mcVersion}</span>
+        </div>
 
-      {/* Hover glow flare at bottom */}
-      <div
-        className="absolute bottom-0 left-6 right-6 h-px rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-        style={{
-          background:
-            "linear-gradient(90deg, transparent, rgba(218,165,32,0.2), transparent)",
-        }}
-      />
+        {/* Type Capsule */}
+        <div className="flex items-center gap-2 p-2 rounded-lg bg-black/35 border border-white/5">
+          <TypeIcon size={14} className="text-amber-500/60 shrink-0" />
+          <span className="truncate capitalize">{typeLabel}</span>
+        </div>
+
+        {/* Started Date Capsule (Spans 2 columns) */}
+        <div className="col-span-2 flex items-center gap-2 p-2 rounded-lg bg-black/35 border border-white/5">
+          <Calendar size={14} className="text-amber-500/60 shrink-0" />
+          <span className="truncate">Started {formatDate(world.startedAt)}</span>
+        </div>
+      </div>
+
+      {/* Footer Badges & Playtime */}
+      <div className="flex items-center justify-between gap-3 pt-3 border-t border-white/5 relative z-10">
+        {/* Playtime Badge */}
+        <div
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-300 font-bold"
+          style={{
+            boxShadow: "inset 0 1px 0 rgba(255,200,100,0.03)",
+          }}
+        >
+          <Hourglass size={13} className="text-amber-400" />
+          <span style={vt323} className="text-sm tracking-wider">
+            {formatPlaytime(world.playtimeMinutes)}
+          </span>
+        </div>
+
+        {/* Status Badges (Public / Ended) */}
+        <div className="flex gap-1.5 items-center">
+          {world.isPublic && (
+            <div
+              className="p-1.5 rounded border text-emerald-400 bg-emerald-500/10 border-emerald-500/25 flex items-center justify-center"
+              title="Publicly Shared World"
+            >
+              <Globe size={13} />
+            </div>
+          )}
+
+          {world.endedAt && (
+            <span
+              className="px-2 py-0.5 rounded border text-[9px] font-bold uppercase tracking-wider text-red-400 bg-red-950/20 border-red-500/25"
+              style={{ textShadow: "0 1px 4px rgba(0,0,0,0.5)" }}
+            >
+              Ended
+            </span>
+          )}
+        </div>
+      </div>
     </motion.div>
   );
 }

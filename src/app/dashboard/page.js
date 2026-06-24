@@ -7,6 +7,96 @@ import { motion, AnimatePresence } from "framer-motion";
 import PixelParticles from "@/components/PixelParticles";
 import WorldCard from "@/components/WorldCard";
 
+/* ─── Custom Font and Premium 3D Button Styles ─── */
+const mcGoldButton = {
+  backgroundColor: "#e5a93b",
+  color: "#ffffff",
+  borderTop: "3px solid #ffd896",
+  borderLeft: "3px solid #ffd896",
+  borderBottom: "3px solid #8b6914",
+  borderRight: "3px solid #8b6914",
+  boxShadow: "0 4px 0 #4a360a, 0 6px 12px rgba(0,0,0,0.4)",
+  textShadow: "0 2px 4px rgba(0,0,0,0.8)",
+  borderRadius: "6px",
+};
+
+const mcGrayButton = {
+  backgroundColor: "#4a4a4a",
+  color: "#ffffff",
+  borderTop: "3px solid #7a7a7a",
+  borderLeft: "3px solid #7a7a7a",
+  borderBottom: "3px solid #2d2d2d",
+  borderRight: "3px solid #2d2d2d",
+  boxShadow: "0 4px 0 #1f1f1f, 0 6px 12px rgba(0,0,0,0.4)",
+  textShadow: "0 2px 4px rgba(0,0,0,0.8)",
+  borderRadius: "6px",
+};
+
+const mcGreenButton = {
+  backgroundColor: "#1b7a43",
+  color: "#ffffff",
+  borderTop: "3px solid #34c759",
+  borderLeft: "3px solid #34c759",
+  borderBottom: "3px solid #0f4c27",
+  borderRight: "3px solid #0f4c27",
+  boxShadow: "0 4px 0 #0c361c, 0 6px 12px rgba(0,0,0,0.4)",
+  textShadow: "0 2px 4px rgba(0,0,0,0.8)",
+  borderRadius: "6px",
+};
+
+const mcGuiContainer = {
+  backgroundColor: "rgba(33, 27, 22, 0.96)",
+  border: "4px solid #1a1410",
+  outline: "4px solid #7a6652",
+  outlineOffset: "-8px",
+  boxShadow: "0 20px 50px rgba(0,0,0,0.9)",
+  borderRadius: "4px",
+};
+
+const mcGuiTitle = {
+  fontFamily: "'Silkscreen', sans-serif",
+  color: "#ffd896",
+  textShadow: "2px 2px 0px #4a360a",
+  letterSpacing: "0.05em",
+};
+
+const mcGuiLabel = {
+  fontFamily: "'Silkscreen', sans-serif",
+  color: "#ddc3a5",
+  textShadow: "1px 1px 0px #000000",
+  fontSize: "0.75rem",
+  letterSpacing: "0.05em",
+};
+
+const mcInputStyle = {
+  backgroundColor: "#0f0c0a",
+  color: "#ffffff",
+  fontFamily: "'VT323', monospace",
+  fontSize: "1.25rem",
+  borderTop: "3px solid #2d2620",
+  borderLeft: "3px solid #2d2620",
+  borderBottom: "3px solid #5a4b3f",
+  borderRight: "3px solid #5a4b3f",
+  boxShadow: "inset 0 4px 8px rgba(0,0,0,0.95)",
+  borderRadius: "4px",
+  transition: "all 0.15s ease-in-out",
+};
+
+const mcErrorStyle = {
+  backgroundColor: "#3a0c0c",
+  color: "#ff8888",
+  fontFamily: "'VT323', monospace",
+  fontSize: "1.15rem",
+  borderTop: "3px solid #991b1b",
+  borderLeft: "3px solid #991b1b",
+  borderBottom: "3px solid #1a0505",
+  borderRight: "3px solid #1a0505",
+  padding: "12px",
+  borderRadius: "4px",
+  boxShadow: "0 4px 10px rgba(0,0,0,0.5)",
+  letterSpacing: "0.05em",
+};
+
 export default function DashboardPage() {
   const router = useRouter();
   const [worlds, setWorlds] = useState([]);
@@ -14,6 +104,7 @@ export default function DashboardPage() {
   const [showForm, setShowForm] = useState(false);
   const [formError, setFormError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [focusedInput, setFocusedInput] = useState("");
   const [form, setForm] = useState({
     name: "",
     mcVersion: "",
@@ -103,6 +194,21 @@ export default function DashboardPage() {
       setSubmitting(false);
     }
   }
+
+  const getFieldStyle = (fieldName) => {
+    const isFocused = focusedInput === fieldName;
+    return {
+      ...mcInputStyle,
+      borderTop: isFocused ? "3px solid #ffd896" : "3px solid #2d2620",
+      borderLeft: isFocused ? "3px solid #ffd896" : "3px solid #2d2620",
+      borderBottom: isFocused ? "3px solid #e5a93b" : "3px solid #5a4b3f",
+      borderRight: isFocused ? "3px solid #e5a93b" : "3px solid #5a4b3f",
+      boxShadow: isFocused
+        ? "0 0 12px rgba(255, 216, 150, 0.3), inset 0 4px 8px rgba(0, 0, 0, 0.95)"
+        : "inset 0 4px 8px rgba(0, 0, 0, 0.95)",
+      outline: "none",
+    };
+  };
 
   if (loading) {
     return (
@@ -198,12 +304,13 @@ export default function DashboardPage() {
         <div className="max-w-5xl mx-auto">
 
           {/* Header */}
-          <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center justify-between mb-10 pt-6">
             <motion.h1
-              className="text-3xl font-bold text-amber-100"
+              className="text-2xl sm:text-3xl font-extrabold text-amber-100"
               style={{
-                textShadow:
-                  "0 2px 20px rgba(0,0,0,0.8), 0 0 40px rgba(255,170,60,0.1)",
+                fontFamily: "'Silkscreen', sans-serif",
+                textShadow: "3px 3px 0px rgba(0,0,0,0.95), 0 0 30px rgba(255,170,60,0.15)",
+                letterSpacing: "0.05em",
               }}
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
@@ -211,31 +318,13 @@ export default function DashboardPage() {
             >
               Your Worlds
             </motion.h1>
+
             <motion.button
               onClick={() => setShowForm(!showForm)}
-              className="px-4 py-2 text-sm font-medium rounded-lg transition-colors"
-              style={{
-                backgroundColor: "rgba(160,100,30,0.55)",
-                color: "#ffe0b0",
-                border: "1px solid rgba(218,165,32,0.3)",
-                boxShadow:
-                  "0 2px 14px rgba(0,0,0,0.5), 0 0 10px rgba(255,170,60,0.08)",
-                textShadow: "0 1px 4px rgba(0,0,0,0.6)",
-              }}
-              whileHover={{
-                boxShadow:
-                  "0 4px 20px rgba(0,0,0,0.6), 0 0 18px rgba(255,170,60,0.14)",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor =
-                  "rgba(180,110,30,0.7)";
-                e.currentTarget.style.borderColor = "rgba(218,165,32,0.5)";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor =
-                  "rgba(160,100,30,0.55)";
-                e.currentTarget.style.borderColor = "rgba(218,165,32,0.3)";
-              }}
+              className="px-6 py-3 font-bold tracking-wider uppercase text-xs transition-transform duration-100"
+              style={showForm ? mcGrayButton : mcGoldButton}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ y: 2 }}
             >
               {showForm ? "Cancel" : "+ New World"}
             </motion.button>
@@ -245,39 +334,35 @@ export default function DashboardPage() {
           <AnimatePresence>
             {showForm && (
               <motion.div
-                className="mb-8 backdrop-blur-lg rounded-xl p-6"
-                style={{
-                  backgroundColor: "rgba(0,0,0,0.45)",
-                  border: "1px solid rgba(218,165,32,0.15)",
-                  boxShadow:
-                    "0 8px 40px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,200,100,0.03)",
-                }}
-                initial={{ opacity: 0, y: -14 }}
+                className="mb-10 p-8"
+                style={mcGuiContainer}
+                initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -14 }}
-                transition={{ duration: 0.35 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
               >
                 <h2
-                  className="text-lg font-semibold text-amber-100 mb-4"
-                  style={{ textShadow: "0 1px 8px rgba(0,0,0,0.7)" }}
+                  className="text-lg sm:text-xl font-bold mb-6 text-center uppercase"
+                  style={mcGuiTitle}
                 >
                   Create New World
                 </h2>
 
                 {formError && (
-                  <div className="mb-4 p-3 bg-red-900/30 border border-red-500/30 rounded-lg text-red-400 text-sm">
-                    {formError}
+                  <div className="mb-6" style={mcErrorStyle}>
+                    ❌ {formError}
                   </div>
                 )}
 
                 <form
                   onSubmit={handleCreateWorld}
-                  className="grid grid-cols-1 sm:grid-cols-2 gap-4"
+                  className="grid grid-cols-1 sm:grid-cols-2 gap-6"
                 >
                   <div>
                     <label
                       htmlFor="name"
-                      className="block text-sm text-amber-200/50 mb-1"
+                      className="block mb-2"
+                      style={mcGuiLabel}
                     >
                       World Name *
                     </label>
@@ -288,11 +373,10 @@ export default function DashboardPage() {
                       required
                       value={form.name}
                       onChange={handleFormChange}
-                      className="w-full px-4 py-2.5 rounded-lg text-amber-50 placeholder-amber-900/50 focus:outline-none focus:ring-2 focus:ring-amber-600/40 focus:border-transparent backdrop-blur-sm"
-                      style={{
-                        backgroundColor: "rgba(0,0,0,0.35)",
-                        border: "1px solid rgba(218,165,32,0.1)",
-                      }}
+                      onFocus={() => setFocusedInput("name")}
+                      onBlur={() => setFocusedInput("")}
+                      className="w-full px-4 py-3 placeholder-stone-600 focus:outline-none"
+                      style={getFieldStyle("name")}
                       placeholder="My Survival World"
                     />
                   </div>
@@ -300,7 +384,8 @@ export default function DashboardPage() {
                   <div>
                     <label
                       htmlFor="mcVersion"
-                      className="block text-sm text-amber-200/50 mb-1"
+                      className="block mb-2"
+                      style={mcGuiLabel}
                     >
                       Minecraft Version *
                     </label>
@@ -311,11 +396,10 @@ export default function DashboardPage() {
                       required
                       value={form.mcVersion}
                       onChange={handleFormChange}
-                      className="w-full px-4 py-2.5 rounded-lg text-amber-50 placeholder-amber-900/50 focus:outline-none focus:ring-2 focus:ring-amber-600/40 focus:border-transparent backdrop-blur-sm"
-                      style={{
-                        backgroundColor: "rgba(0,0,0,0.35)",
-                        border: "1px solid rgba(218,165,32,0.1)",
-                      }}
+                      onFocus={() => setFocusedInput("mcVersion")}
+                      onBlur={() => setFocusedInput("")}
+                      className="w-full px-4 py-3 placeholder-stone-600 focus:outline-none"
+                      style={getFieldStyle("mcVersion")}
                       placeholder="1.21"
                     />
                   </div>
@@ -323,7 +407,8 @@ export default function DashboardPage() {
                   <div>
                     <label
                       htmlFor="seed"
-                      className="block text-sm text-amber-200/50 mb-1"
+                      className="block mb-2"
+                      style={mcGuiLabel}
                     >
                       Seed (optional)
                     </label>
@@ -333,11 +418,10 @@ export default function DashboardPage() {
                       type="text"
                       value={form.seed}
                       onChange={handleFormChange}
-                      className="w-full px-4 py-2.5 rounded-lg text-amber-50 placeholder-amber-900/50 focus:outline-none focus:ring-2 focus:ring-amber-600/40 focus:border-transparent backdrop-blur-sm"
-                      style={{
-                        backgroundColor: "rgba(0,0,0,0.35)",
-                        border: "1px solid rgba(218,165,32,0.1)",
-                      }}
+                      onFocus={() => setFocusedInput("seed")}
+                      onBlur={() => setFocusedInput("")}
+                      className="w-full px-4 py-3 placeholder-stone-600 focus:outline-none"
+                      style={getFieldStyle("seed")}
                       placeholder="World seed"
                     />
                   </div>
@@ -345,7 +429,8 @@ export default function DashboardPage() {
                   <div>
                     <label
                       htmlFor="mode"
-                      className="block text-sm text-amber-200/50 mb-1"
+                      className="block mb-2"
+                      style={mcGuiLabel}
                     >
                       Game Mode *
                     </label>
@@ -355,22 +440,22 @@ export default function DashboardPage() {
                       required
                       value={form.mode}
                       onChange={handleFormChange}
-                      className="w-full px-4 py-2.5 rounded-lg text-amber-50 focus:outline-none focus:ring-2 focus:ring-amber-600/40 focus:border-transparent backdrop-blur-sm"
-                      style={{
-                        backgroundColor: "rgba(0,0,0,0.35)",
-                        border: "1px solid rgba(218,165,32,0.1)",
-                      }}
+                      onFocus={() => setFocusedInput("mode")}
+                      onBlur={() => setFocusedInput("")}
+                      className="w-full px-4 py-3 focus:outline-none cursor-pointer"
+                      style={getFieldStyle("mode")}
                     >
-                      <option value="survival">Survival</option>
-                      <option value="hardcore">Hardcore</option>
-                      <option value="creative">Creative</option>
+                      <option value="survival" className="bg-stone-900 text-amber-100 font-mono">Survival</option>
+                      <option value="hardcore" className="bg-stone-900 text-amber-100 font-mono">Hardcore</option>
+                      <option value="creative" className="bg-stone-900 text-amber-100 font-mono">Creative</option>
                     </select>
                   </div>
 
                   <div>
                     <label
                       htmlFor="type"
-                      className="block text-sm text-amber-200/50 mb-1"
+                      className="block mb-2"
+                      style={mcGuiLabel}
                     >
                       World Type *
                     </label>
@@ -380,21 +465,21 @@ export default function DashboardPage() {
                       required
                       value={form.type}
                       onChange={handleFormChange}
-                      className="w-full px-4 py-2.5 rounded-lg text-amber-50 focus:outline-none focus:ring-2 focus:ring-amber-600/40 focus:border-transparent backdrop-blur-sm"
-                      style={{
-                        backgroundColor: "rgba(0,0,0,0.35)",
-                        border: "1px solid rgba(218,165,32,0.1)",
-                      }}
+                      onFocus={() => setFocusedInput("type")}
+                      onBlur={() => setFocusedInput("")}
+                      className="w-full px-4 py-3 focus:outline-none cursor-pointer"
+                      style={getFieldStyle("type")}
                     >
-                      <option value="solo">Solo</option>
-                      <option value="multiplayer">Multiplayer</option>
+                      <option value="solo" className="bg-stone-900 text-amber-100 font-mono">Solo</option>
+                      <option value="multiplayer" className="bg-stone-900 text-amber-100 font-mono">Multiplayer</option>
                     </select>
                   </div>
 
                   <div>
                     <label
                       htmlFor="startedAt"
-                      className="block text-sm text-amber-200/50 mb-1"
+                      className="block mb-2"
+                      style={mcGuiLabel}
                     >
                       Start Date *
                     </label>
@@ -405,29 +490,40 @@ export default function DashboardPage() {
                       required
                       value={form.startedAt}
                       onChange={handleFormChange}
-                      className="w-full px-4 py-2.5 rounded-lg text-amber-50 focus:outline-none focus:ring-2 focus:ring-amber-600/40 focus:border-transparent backdrop-blur-sm"
-                      style={{
-                        backgroundColor: "rgba(0,0,0,0.35)",
-                        border: "1px solid rgba(218,165,32,0.1)",
-                      }}
+                      onFocus={() => setFocusedInput("startedAt")}
+                      onBlur={() => setFocusedInput("")}
+                      className="w-full px-4 py-3 focus:outline-none"
+                      style={getFieldStyle("startedAt")}
                     />
                   </div>
 
-                  <div className="sm:col-span-2">
-                    <button
+                  <div className="sm:col-span-2 flex flex-col sm:flex-row gap-4 items-center justify-end mt-4">
+                    <motion.button
+                      type="button"
+                      onClick={() => setShowForm(false)}
+                      className="px-8 py-3.5 font-bold tracking-wider uppercase text-xs w-full sm:w-auto text-center"
+                      style={{
+                        ...mcGrayButton,
+                        fontFamily: "'Silkscreen', sans-serif",
+                      }}
+                      whileHover={{ scale: 1.03 }}
+                      whileTap={{ y: 2 }}
+                    >
+                      Cancel
+                    </motion.button>
+                    <motion.button
                       type="submit"
                       disabled={submitting}
-                      className="px-6 py-2.5 font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="px-8 py-3.5 font-bold tracking-wider uppercase text-xs disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto text-center"
                       style={{
-                        backgroundColor: "rgba(160,100,30,0.6)",
-                        color: "#ffe0b0",
-                        border: "1px solid rgba(218,165,32,0.3)",
-                        boxShadow: "0 2px 14px rgba(0,0,0,0.5)",
-                        textShadow: "0 1px 4px rgba(0,0,0,0.6)",
+                        ...mcGreenButton,
+                        fontFamily: "'Silkscreen', sans-serif",
                       }}
+                      whileHover={submitting ? {} : { scale: 1.03 }}
+                      whileTap={submitting ? {} : { y: 2 }}
                     >
                       {submitting ? "Creating..." : "Create World"}
-                    </button>
+                    </motion.button>
                   </div>
                 </form>
               </motion.div>
@@ -443,20 +539,27 @@ export default function DashboardPage() {
               transition={{ delay: 0.3, duration: 0.6 }}
             >
               <p
-                className="text-amber-200/60 text-lg mb-2"
-                style={{ textShadow: "0 2px 10px rgba(0,0,0,0.7)" }}
+                className="text-amber-200/65 text-xl mb-3 font-semibold"
+                style={{
+                  fontFamily: "'Silkscreen', sans-serif",
+                  textShadow: "0 2px 10px rgba(0,0,0,0.85)"
+                }}
               >
-                No worlds yet.
+                No worlds discovered yet
               </p>
               <p
-                className="text-amber-200/35 text-sm"
-                style={{ textShadow: "0 1px 6px rgba(0,0,0,0.5)" }}
+                className="text-amber-200/40 text-sm max-w-sm leading-relaxed"
+                style={{
+                  fontFamily: "'VT323', monospace",
+                  fontSize: "1.2rem",
+                  textShadow: "0 1px 6px rgba(0,0,0,0.6)"
+                }}
               >
-                Create your first Minecraft world to start journaling memories.
+                Start your journey by creating a world above to journal your memories.
               </p>
             </motion.div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {worlds.map((world, i) => (
                 <WorldCard
                   key={world._id}
