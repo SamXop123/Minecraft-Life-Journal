@@ -99,6 +99,7 @@ async function handleValidate(verbose = true) {
     // Save key details
     currentConfig.api_key = apiKey;
     currentConfig.minecraft_path = mcPath;
+    currentConfig.web_app_url = webUrl;
     saveCurrentSettings();
 
     log("API Connection verified! Worlds retrieved successfully.", "success");
