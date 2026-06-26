@@ -103,7 +103,37 @@ export async function POST(req) {
       return NextResponse.json({ message: "Forbidden" }, { status: 403 });
     }
 
-    const logInfo = parseLogLine(message);
+    let logInfo = parseLogLine(message);
+
+    // Fallback: If strict parser fails but message has #journal or #coords, parse it anyway
+    if (logInfo.type === "unknown") {
+      const idx = message.indexOf("#");
+      if (idx !== -1) {
+        const keywordPart = message.substring(idx).trim();
+        if (
+          keywordPart.toLowerCase().startsWith("#journal") ||
+          keywordPart.toLowerCase().startsWith("#coords")
+        ) {
+          logInfo = {
+            type: "chat",
+            sender: "Player",
+            content: keywordPart,
+          };
+        }
+      }
+    }
+
+    // Fallback: If strict parser fails for advancement but message contains the phrase
+    if (logInfo.type === "unknown" && message.includes("has made the advancement")) {
+      const advRegex = /has\s+made\s+the\s+advancement\s+\[([^\]]+)\]/;
+      const match = message.match(advRegex);
+      if (match) {
+        logInfo = {
+          type: "advancement",
+          advancement: match[1].trim(),
+        };
+      }
+    }
 
     // 1. Process Advancement
     if (logInfo.type === "advancement") {
