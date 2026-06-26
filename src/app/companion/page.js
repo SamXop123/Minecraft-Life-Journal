@@ -303,7 +303,7 @@ export default function CompanionPage() {
                 </p>
 
                 <a
-                  href="/companion-setup.exe"
+                  href="/MLJ-Companion-setup.exe"
                   download
                   className="w-full py-3 px-6 rounded-xl font-bold flex items-center justify-center gap-2 transition-all duration-300 relative overflow-hidden text-sm uppercase tracking-wider text-center"
                   style={{
