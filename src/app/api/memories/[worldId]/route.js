@@ -28,7 +28,17 @@ export async function GET(req, { params }) {
       );
     }
 
-    const memories = await Memory.find({ worldId }).sort({ memoryDate: 1 });
+    const { searchParams } = new URL(req.url);
+    const showDeleted = searchParams.get("deleted") === "true";
+
+    const query = { worldId };
+    if (showDeleted) {
+      query.isDeleted = true;
+    } else {
+      query.isDeleted = { $ne: true };
+    }
+
+    const memories = await Memory.find(query).sort({ memoryDate: 1 });
 
     return NextResponse.json({ memories }, { status: 200 });
   } catch (error) {
