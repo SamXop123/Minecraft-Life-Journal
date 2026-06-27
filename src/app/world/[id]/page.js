@@ -8,6 +8,8 @@ import CinematicMode from "@/components/CinematicMode";
 import PixelParticles from "@/components/PixelParticles";
 import EditMemoryModal from "@/components/EditMemoryModal";
 import ActivityHeatmap from "@/components/ActivityHeatmap";
+import ConfirmDeleteModal from "@/components/ConfirmDeleteModal";
+import TrashBinModal from "@/components/TrashBinModal";
 
 const CATEGORIES = ["achievement", "build", "death", "funny", "emotional"];
 
@@ -53,6 +55,8 @@ export default function WorldDetailPage({ params }) {
   const [showCinematic, setShowCinematic] = useState(false);
   const [editingMemory, setEditingMemory] = useState(null);
   const [sharingLoading, setSharingLoading] = useState(false);
+  const [memoryToDelete, setMemoryToDelete] = useState(null);
+  const [isTrashOpen, setIsTrashOpen] = useState(false);
 
   // Coordinate Tracker state
   const [coordinates, setCoordinates] = useState([]);
@@ -352,19 +356,18 @@ export default function WorldDetailPage({ params }) {
     }
   }
 
-  async function handleDeleteMemory(memoryId) {
+  async function confirmDeleteMemory() {
+    if (!memoryToDelete) return;
+    const memoryId = memoryToDelete._id;
     setDeletingId(memoryId);
+    setMemoryToDelete(null);
 
     try {
       const res = await fetchWithAuthRetry(`/api/memories/delete/${memoryId}`, {
         method: "DELETE",
       });
 
-      if (!res) {
-        return;
-      }
-
-      if (res.ok) {
+      if (res && res.ok) {
         await fetchMemories(worldId);
       }
     } catch {
@@ -1247,6 +1250,27 @@ export default function WorldDetailPage({ params }) {
                     Memories
                   </h2>
                   <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => setIsTrashOpen(true)}
+                      className="px-4 py-2 text-sm font-medium rounded-lg transition-colors border flex items-center gap-1.5"
+                      style={{
+                        backgroundColor: "rgba(0,0,0,0.3)",
+                        borderColor: "rgba(218,165,32,0.18)",
+                        color: "rgba(255,224,176,0.7)",
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.04)";
+                        e.currentTarget.style.borderColor = "rgba(218,165,32,0.35)";
+                        e.currentTarget.style.color = "rgba(255,224,176,0.95)";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = "rgba(0,0,0,0.3)";
+                        e.currentTarget.style.borderColor = "rgba(218,165,32,0.18)";
+                        e.currentTarget.style.color = "rgba(255,224,176,0.7)";
+                      }}
+                    >
+                      🗑 Trash
+                    </button>
                     {memories.length > 0 && (
                       <button
                         onClick={() => setShowCinematic(true)}
@@ -1591,7 +1615,7 @@ export default function WorldDetailPage({ params }) {
                                 Edit
                               </button>
                               <button
-                                onClick={() => handleDeleteMemory(memory._id)}
+                                onClick={() => setMemoryToDelete(memory)}
                                 disabled={deletingId === memory._id}
                                 className="shrink-0 px-2 py-1 text-xs rounded transition-all disabled:opacity-50"
                                 style={{ color: "rgba(255,224,176,0.5)" }}
@@ -1673,6 +1697,22 @@ export default function WorldDetailPage({ params }) {
           />
         )}
       </AnimatePresence>
+
+      {/* Confirm Delete Modal */}
+      <ConfirmDeleteModal
+        isOpen={!!memoryToDelete}
+        onClose={() => setMemoryToDelete(null)}
+        onConfirm={confirmDeleteMemory}
+      />
+
+      {/* Trash Bin Modal */}
+      <TrashBinModal
+        isOpen={isTrashOpen}
+        onClose={() => setIsTrashOpen(false)}
+        worldId={worldId}
+        onRefreshRequired={() => fetchMemories(worldId)}
+        fetchWithAuthRetry={fetchWithAuthRetry}
+      />
     </div>
   );
 }
