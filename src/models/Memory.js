@@ -31,6 +31,14 @@ const MemorySchema = new mongoose.Schema({
     enum: ["manual", "auto_screenshot", "auto_advancement"],
     default: "manual",
   },
+  isDeleted: {
+    type: Boolean,
+    default: false,
+  },
+  deletedAt: {
+    type: Date,
+    expires: 864000, // 10 days in seconds
+  },
   createdAt: {
     type: Date,
     default: Date.now,
