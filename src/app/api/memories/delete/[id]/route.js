@@ -30,10 +30,19 @@ export async function DELETE(req, { params }) {
       );
     }
 
-    await Memory.findByIdAndDelete(id);
+    const { searchParams } = new URL(req.url);
+    const permanent = searchParams.get("permanent") === "true";
+
+    if (permanent) {
+      await Memory.findByIdAndDelete(id);
+    } else {
+      memory.isDeleted = true;
+      memory.deletedAt = new Date();
+      await memory.save();
+    }
 
     return NextResponse.json(
-      { message: "Memory deleted successfully" },
+      { message: permanent ? "Memory permanently deleted" : "Memory moved to Trash" },
       { status: 200 }
     );
   } catch (error) {
