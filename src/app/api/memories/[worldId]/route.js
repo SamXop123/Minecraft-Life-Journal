@@ -38,7 +38,7 @@ export async function GET(req, { params }) {
       query.isDeleted = { $ne: true };
     }
 
-    const memories = await Memory.find(query).sort({ memoryDate: 1 });
+    const memories = await Memory.find(query).sort({ memoryDate: 1, createdAt: 1 });
 
     return NextResponse.json({ memories }, { status: 200 });
   } catch (error) {
