@@ -34,10 +34,13 @@ impl ProcessMonitorManager {
                 // Refresh processes list
                 sys.refresh_processes();
 
-                // Check if any process name contains "javaw" or "minecraft"
+                // Check if any process name contains "javaw" or "minecraft", or matches "java"/"java.exe"
                 let is_running = sys.processes().values().any(|val| {
                     let name = val.name().to_lowercase();
-                    name.contains("javaw") || name.contains("minecraft")
+                    name.contains("javaw") || 
+                    name.contains("minecraft") || 
+                    name == "java" || 
+                    name == "java.exe"
                 });
 
                 if is_running && !is_minecraft_running {
