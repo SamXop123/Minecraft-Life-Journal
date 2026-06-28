@@ -32,8 +32,8 @@ export async function GET(req, { params }) {
     const worldObj = world.toObject();
     worldObj.playtimeMinutes = totalPlaytimeMinutes;
 
-    const memories = await Memory.find({ worldId: world._id })
-      .sort({ memoryDate: 1 })
+    const memories = await Memory.find({ worldId: world._id, isDeleted: { $ne: true } })
+      .sort({ memoryDate: 1, createdAt: 1 })
       .select("title category description imageUrl memoryDate createdAt");
 
     return NextResponse.json({ world: worldObj, memories }, { status: 200 });
