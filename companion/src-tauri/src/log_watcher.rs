@@ -10,6 +10,39 @@ use tauri::Emitter;
 use crate::config::load_config;
 use crate::screenshot_watcher::SharedScreenshot;
 
+fn compress_to_temp_jpeg(png_path: &Path) -> Option<PathBuf> {
+    println!("Starting image compression for {:?}", png_path);
+    let img = match image::open(png_path) {
+        Ok(i) => i,
+        Err(e) => {
+            println!("Failed to open image {:?} for compression: {}", png_path, e);
+            return None;
+        }
+    };
+
+    let temp_dir = std::env::temp_dir();
+    let temp_filename = format!("mlj_screenshot_{}.jpg", Instant::now().elapsed().as_micros());
+    let temp_path = temp_dir.join(temp_filename);
+
+    println!("Compressing image to {:?}", temp_path);
+    let mut file = match File::create(&temp_path) {
+        Ok(f) => f,
+        Err(e) => {
+            println!("Failed to create temp file {:?}: {}", temp_path, e);
+            return None;
+        }
+    };
+    let mut encoder = image::codecs::jpeg::JpegEncoder::new_with_quality(&mut file, 80);
+    match encoder.encode_image(&img) {
+        Ok(_) => Some(temp_path),
+        Err(e) => {
+            println!("Failed to encode jpeg: {}", e);
+            let _ = std::fs::remove_file(&temp_path);
+            None
+        }
+    }
+}
+
 pub struct LogWatcherManager {
     stop_flag: Arc<AtomicBool>,
     recent_screenshot: SharedScreenshot,
@@ -142,6 +175,11 @@ impl LogWatcherManager {
                                 continue;
                             }
 
+                            // Skip lines printed by the local server thread to avoid duplicates in singleplayer
+                            if trimmed.contains("[Server thread/INFO]") {
+                                continue;
+                            }
+
                             let is_advancement = trimmed.contains("has made the advancement");
                             let has_command = trimmed.contains("#journal") || trimmed.contains("#coords");
 
@@ -161,6 +199,20 @@ impl LogWatcherManager {
                                                 .unwrap_or_else(|| ("Screenshot Captured".to_string(), "Automatically captured in-game screenshot.".to_string()));
 
                                             println!("Pairing screenshot with journal: {:?}", path);
+                                            let _ = app_handle_clone.emit("sync-log-status", "Compressing screenshot...".to_string());
+
+                                            // Attempt compression
+                                            let (upload_path, is_temp) = match compress_to_temp_jpeg(path) {
+                                                Some(temp_path) => {
+                                                    println!("Compression successful: {:?}", temp_path);
+                                                    (temp_path, true)
+                                                }
+                                                None => {
+                                                    println!("Compression failed. Falling back to original PNG: {:?}", path);
+                                                    (path.clone(), false)
+                                                }
+                                            };
+
                                             let _ = app_handle_clone.emit("sync-log-status", "Uploading paired screenshot...".to_string());
 
                                             let url = format!("{}/api/companion/upload", config_clone.web_app_url);
@@ -171,7 +223,7 @@ impl LogWatcherManager {
                                                 .text("title", title)
                                                 .text("description", description)
                                                 .text("category", "achievement")
-                                                .file("file", path.clone());
+                                                .file("file", upload_path.clone());
 
                                             match form_res {
                                                 Ok(form) => {
@@ -195,6 +247,12 @@ impl LogWatcherManager {
                                                 Err(err) => {
                                                     let _ = app_handle_clone.emit("sync-log-error", format!("Failed to read screenshot: {}", err));
                                                 }
+                                            }
+
+                                            // Cleanup temporary file if it was compressed
+                                            if is_temp {
+                                                println!("Cleaning up temp file: {:?}", upload_path);
+                                                let _ = std::fs::remove_file(&upload_path);
                                             }
                                         }
                                     }
