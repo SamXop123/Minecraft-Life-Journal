@@ -26,4 +26,5 @@ reqwest = { version = "0.12", features = ["json", "multipart", "blocking"] }
 tokio = { version = "1", features = ["full"] }
 notify = "6.1"
 sysinfo = "0.30"
+image = { version = "0.24", default-features = false, features = ["png", "jpeg"] }
 
