@@ -175,8 +175,9 @@ impl LogWatcherManager {
                                 continue;
                             }
 
-                            // Skip lines printed by the local server thread to avoid duplicates in singleplayer
-                            if trimmed.contains("[Server thread/INFO]") {
+                            // Skip Server thread logs ONLY for commands to avoid duplicate triggers in singleplayer,
+                            // but allow advancements (since they are only logged by Server thread in singleplayer).
+                            if trimmed.contains("[Server thread/INFO]") && (trimmed.contains("#journal") || trimmed.contains("#coords")) {
                                 continue;
                             }
 
@@ -192,8 +193,8 @@ impl LogWatcherManager {
                                 if trimmed.contains("#journal") {
                                     let mut lock = recent_screenshot.lock().unwrap();
                                     if let Some((path, instant)) = &*lock {
-                                        // 60 seconds pairing window
-                                        if instant.elapsed() < Duration::from_secs(60) {
+                                        // 180 seconds pairing window
+                                        if instant.elapsed() < Duration::from_secs(180) {
                                             is_paired = true;
                                             let (title, description) = parse_command_text(trimmed)
                                                 .unwrap_or_else(|| ("Screenshot Captured".to_string(), "Automatically captured in-game screenshot.".to_string()));
@@ -257,10 +258,8 @@ impl LogWatcherManager {
                                         }
                                     }
 
-                                    if is_paired {
-                                        // Clear queue
-                                        *lock = None;
-                                    }
+                                    // Always clear queue so screenshots don't linger for subsequent entries
+                                    *lock = None;
                                 }
 
                                 // 2. Send standard text log if NOT paired
