@@ -98,26 +98,24 @@ impl ScreenshotWatcherManager {
                 while !stop_flag.load(std::sync::atomic::Ordering::SeqCst) {
                     // Read filesystem events with timeout
                     if let Ok(event) = rx.recv_timeout(Duration::from_millis(500)) {
-                        // Check if it's a create event or any modify/rename event that indicates file save
-                        if event.kind.is_create() || event.kind.is_modify() {
-                            for path in event.paths {
-                                if let Some(ext) = path.extension() {
-                                    let ext_str = ext.to_string_lossy().to_lowercase();
-                                    if ext_str == "png" || ext_str == "jpg" || ext_str == "jpeg" {
-                                        // Check if the path actually exists (sometimes notify triggers early on temp files)
-                                        if path.exists() {
-                                            println!("Screenshot detected: {:?}", path);
-                                            let filename = path.file_name()
-                                                .map(|f| f.to_string_lossy().into_owned())
-                                                .unwrap_or_else(|| "screenshot.png".to_string());
-                                            
-                                            // Save in shared memory
-                                            if let Ok(mut lock) = recent_screenshot.lock() {
-                                                *lock = Some((path.clone(), Instant::now()));
-                                            }
-
-                                            let _ = app_handle_clone.emit("screenshot-detected", filename);
+                        // Process all events in screenshots folder (avoids skipping OS-specific rename/create categories)
+                        for path in event.paths {
+                            if let Some(ext) = path.extension() {
+                                let ext_str = ext.to_string_lossy().to_lowercase();
+                                if ext_str == "png" || ext_str == "jpg" || ext_str == "jpeg" {
+                                    // Check if the path actually exists (sometimes notify triggers early on temp files)
+                                    if path.exists() {
+                                        println!("Screenshot detected: {:?}", path);
+                                        let filename = path.file_name()
+                                            .map(|f| f.to_string_lossy().into_owned())
+                                            .unwrap_or_else(|| "screenshot.png".to_string());
+                                        
+                                        // Save in shared memory
+                                        if let Ok(mut lock) = recent_screenshot.lock() {
+                                            *lock = Some((path.clone(), Instant::now()));
                                         }
+
+                                        let _ = app_handle_clone.emit("screenshot-detected", filename);
                                     }
                                 }
                             }
