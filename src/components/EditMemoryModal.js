@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { compressImage } from "@/lib/utils/compressImage";
 
 const CATEGORIES = ["achievement", "build", "death", "funny", "emotional"];
 
@@ -56,18 +57,29 @@ export default function EditMemoryModal({ memory, onClose, onSaved }) {
 
       /* Upload new image if selected */
       if (imageFile) {
+        const compressed = await compressImage(imageFile);
         const fd = new FormData();
-        fd.append("file", imageFile);
+        fd.append("file", compressed);
         const uploadRes = await fetch("/api/upload", {
           method: "POST",
           headers: { Authorization: `Bearer ${token}` },
           body: fd,
         });
-        if (!uploadRes.ok) {
-          const up = await uploadRes.json();
-          throw new Error(up.message || "Image upload failed");
+
+        let upData;
+        try {
+          upData = await uploadRes.json();
+        } catch {
+          const text = await uploadRes.text().catch(() => "");
+          if (uploadRes.status === 413 || text.includes("Request Entity Too Large")) {
+            throw new Error("File size is too large for the server. Please choose a smaller image.");
+          }
+          throw new Error(`Image upload failed (${uploadRes.status}).`);
         }
-        const upData = await uploadRes.json();
+
+        if (!uploadRes.ok) {
+          throw new Error(upData.message || "Image upload failed");
+        }
         imageUrl = upData.imageUrl;
       }
 
