@@ -80,6 +80,67 @@ function categorizeCoordinate(label) {
   return "other";
 }
 
+// Flexible coordinate parser supporting both `#coords <title> <x> <y> <z>` and `#coords <x> <y> <z> <title>`
+function parseCoordsPayload(payloadStr, clipboard) {
+  let label = "";
+  let x, y, z;
+
+  if (!payloadStr && !clipboard) {
+    return { label: "", x: undefined, y: undefined, z: undefined };
+  }
+
+  // 1. X Y Z at the START followed by optional Title: e.g. "100 64 -200 My Base" or "100 64 -200"
+  const startCoordsRegex = /^(-?\d+(?:\.\d+)?)\s+(-?\d+(?:\.\d+)?)\s+(-?\d+(?:\.\d+)?)(?:\s+(.*))?$/;
+  const startMatch = payloadStr.match(startCoordsRegex);
+
+  // 2. Title followed by X Y Z at the END: e.g. "My Base 100 64 -200"
+  const endCoordsRegex = /^(.*?)\s*(-?\d+(?:\.\d+)?)\s+(-?\d+(?:\.\d+)?)\s+(-?\d+(?:\.\d+)?)$/;
+  const endMatch = payloadStr.match(endCoordsRegex);
+
+  // 3. Embedded /tp command in text (e.g. F3+C copied text directly pasted into chat)
+  const embeddedTpRegex = /(?:tp\s+@s\s+|tp\s+)(-?\d+(?:\.\d+)?)\s+(-?\d+(?:\.\d+)?)\s+(-?\d+(?:\.\d+)?)/i;
+  const embeddedTpMatch = payloadStr.match(embeddedTpRegex);
+
+  if (startMatch) {
+    x = Number(startMatch[1]);
+    y = Number(startMatch[2]);
+    z = Number(startMatch[3]);
+    label = (startMatch[4] || "").trim();
+  } else if (endMatch && endMatch[1].trim()) {
+    label = endMatch[1].trim();
+    x = Number(endMatch[2]);
+    y = Number(endMatch[3]);
+    z = Number(endMatch[4]);
+  } else if (embeddedTpMatch) {
+    x = Number(embeddedTpMatch[1]);
+    y = Number(embeddedTpMatch[2]);
+    z = Number(embeddedTpMatch[3]);
+    label = payloadStr.replace(embeddedTpRegex, "").trim();
+  } else if (clipboard) {
+    // 4. Fallback: check system clipboard content for tp command
+    const tpRegex = /(?:tp\s+@s\s+|tp\s+)(-?\d+(?:\.\d+)?)\s+(-?\d+(?:\.\d+)?)\s+(-?\d+(?:\.\d+)?)/i;
+    const tpMatch = clipboard.match(tpRegex);
+    if (tpMatch) {
+      x = Number(tpMatch[1]);
+      y = Number(tpMatch[2]);
+      z = Number(tpMatch[3]);
+      label = payloadStr || "";
+    }
+  }
+
+  // Clean up label & round decimal points
+  if (x !== undefined && y !== undefined && z !== undefined) {
+    if (!label) {
+      label = "Waypoint";
+    }
+    x = Math.round(x * 10) / 10;
+    y = Math.round(y * 10) / 10;
+    z = Math.round(z * 10) / 10;
+  }
+
+  return { label, x, y, z };
+}
+
 export async function POST(req) {
   try {
     await connectDB();
@@ -209,38 +270,14 @@ export async function POST(req) {
       if (content.toLowerCase().startsWith("#coords")) {
         const payloadStr = content.replace(/^#coords\s*/i, "").trim();
 
-        let label = "";
-        let x, y, z;
-
-        // Try manual parsing (checking for 3 numbers at the end)
-        const manualRegex = /^(.*?)\s+(-?\d+(?:\.\d+)?)\s+(-?\d+(?:\.\d+)?)\s+(-?\d+(?:\.\d+)?)$/;
-        const manualMatch = payloadStr.match(manualRegex);
-
-        if (manualMatch) {
-          label = manualMatch[1].trim();
-          x = Number(manualMatch[2]);
-          y = Number(manualMatch[3]);
-          z = Number(manualMatch[4]);
-        } else if (clipboard) {
-          // Fallback: check clipboard content
-          // Matches standard Minecraft tp commands: e.g. "/tp @s 10 20 30" or "/execute... tp @s 10 20 30"
-          const tpRegex = /(?:tp\s+@s\s+|tp\s+)(-?\d+(?:\.\d+)?)\s+(-?\d+(?:\.\d+)?)\s+(-?\d+(?:\.\d+)?)/i;
-          const tpMatch = clipboard.match(tpRegex);
-
-          if (tpMatch) {
-            label = payloadStr || "Waypoint";
-            x = Number(tpMatch[1]);
-            y = Number(tpMatch[2]);
-            z = Number(tpMatch[3]);
-          }
-        }
+        const { label, x, y, z } = parseCoordsPayload(payloadStr, clipboard);
 
         // If coordinates could not be parsed
         if (x === undefined || y === undefined || z === undefined) {
           return NextResponse.json(
             {
               message:
-                "Could not parse coordinates. Make sure you typed X Y Z coordinates at the end of the message or pressed F3+C to copy your location first.",
+                "Could not parse coordinates. Format as `#coords <title> X Y Z` or `#coords X Y Z <title>` or press F3+C to copy your location first.",
             },
             { status: 400 }
           );
