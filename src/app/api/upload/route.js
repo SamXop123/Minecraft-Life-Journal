@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { requireAuth } from "@/lib/requireAuth";
 import { uploadImage } from "@/lib/cloudinary";
 
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
 export async function POST(req) {
   try {
@@ -27,7 +27,7 @@ export async function POST(req) {
 
     if (file.size > MAX_FILE_SIZE) {
       return NextResponse.json(
-        { message: "File size must not exceed 5MB" },
+        { message: "File size must not exceed 10MB" },
         { status: 400 }
       );
     }
@@ -51,7 +51,7 @@ export async function POST(req) {
 
     console.error("Upload error:", error);
     return NextResponse.json(
-      { message: "Internal server error" },
+      { message: error.message || "Internal server error" },
       { status: 500 }
     );
   }
