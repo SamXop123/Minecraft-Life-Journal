@@ -103,11 +103,15 @@ export async function PATCH(req, { params }) {
       world.updatedAt = new Date();
     } else {
       // Normal field updates
-      const allowedFields = ["name", "mcVersion", "seed", "mode", "type", "isPublic"];
+      const allowedFields = ["name", "mcVersion", "seed", "mode", "type", "isPublic", "startedAt"];
 
       for (const field of allowedFields) {
         if (body[field] !== undefined) {
-          world[field] = body[field];
+          if (field === "startedAt" && body[field]) {
+            world.startedAt = new Date(body[field]);
+          } else {
+            world[field] = body[field];
+          }
         }
       }
 
