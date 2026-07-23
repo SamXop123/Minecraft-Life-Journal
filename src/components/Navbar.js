@@ -8,30 +8,16 @@ import { Home } from "lucide-react";
 
 const HIDDEN_ROUTES = ["/login", "/register", "/"];
 
-/* ─── Tiny pixel pickaxe icon with hover animation ─── */
+/* ─── App logo icon with hover animation ─── */
 function PickaxeIcon() {
   return (
-    <motion.svg
-      width="20"
-      height="20"
-      viewBox="0 0 16 16"
-      fill="none"
-      className="shrink-0"
-      aria-hidden="true"
-      whileHover={{ rotate: -15, scale: 1.1 }}
+    <motion.img
+      src="/logo.png"
+      alt="Minecraft Life Journal Logo"
+      className="w-6 h-6 object-contain shrink-0"
+      whileHover={{ rotate: -10, scale: 1.1 }}
       transition={{ duration: 0.2 }}
-    >
-      {/* Handle */}
-      <rect x="2" y="12" width="3" height="3" rx="0.5" fill="#8B6914" />
-      <rect x="4" y="10" width="3" height="3" rx="0.5" fill="#A07818" />
-      <rect x="6" y="8" width="3" height="3" rx="0.5" fill="#A07818" />
-      {/* Head */}
-      <rect x="8" y="6" width="3" height="3" rx="0.5" fill="#7C8A96" />
-      <rect x="10" y="4" width="3" height="3" rx="0.5" fill="#99AAB5" />
-      <rect x="12" y="2" width="3" height="3" rx="0.5" fill="#B0BEC5" />
-      <rect x="10" y="2" width="2" height="2" rx="0.5" fill="#8D9DA8" />
-      <rect x="12" y="4" width="2" height="2" rx="0.5" fill="#8D9DA8" />
-    </motion.svg>
+    />
   );
 }
 
@@ -175,13 +161,13 @@ export default function Navbar() {
 
       {/* Content */}
       <div className="relative max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          {/* Home Button Icon */}
+        {/* Left Side: Home Button + Brand Title */}
+        <div className="flex items-center gap-3 sm:gap-4">
           <Link
             href="/"
             title="Go to Landing Page"
             aria-label="Home"
-            className="relative p-2 rounded-md transition-all duration-200 flex items-center justify-center group"
+            className="p-2 rounded-md transition-all duration-200 flex items-center justify-center group shrink-0"
             style={{
               color: "#b89868",
               backgroundColor: "rgba(0,0,0,0.25)",
@@ -207,7 +193,7 @@ export default function Navbar() {
                 "0 2px 6px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,200,100,0.04)";
             }}
           >
-            <Home size={18} className="text-amber-400/90 group-hover:text-amber-300 transition-colors" />
+            <Home size={18} className="text-amber-400 group-hover:text-amber-300 transition-colors" />
           </Link>
 
           {/* Brand with Minecraft nameplate style */}
@@ -215,38 +201,38 @@ export default function Navbar() {
             href="/dashboard"
             className="flex items-center gap-3 group relative"
           >
-          {/* Decorative frame around brand */}
-          <div
-            className="absolute -inset-2 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-            style={{
-              background: "rgba(218,165,32,0.08)",
-              border: "1px solid rgba(218,165,32,0.15)",
-              boxShadow: "0 0 20px rgba(255,170,60,0.1), inset 0 1px 0 rgba(255,200,100,0.1)",
-            }}
-          />
-          
-          <div className="relative flex items-center gap-3">
-            {/* Pixel corners decoration */}
-            <div className="absolute -left-1 -top-1 w-1 h-1 bg-amber-400/30" />
-            <div className="absolute -right-1 -top-1 w-1 h-1 bg-amber-400/30" />
-            
-            <PickaxeIcon />
-            <span
-              className="font-bold text-lg tracking-tight transition-all duration-200"
+            {/* Decorative frame around brand */}
+            <div
+              className="absolute -inset-2 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"
               style={{
-                color: "#ffe0b0",
-                textShadow: "0 2px 12px rgba(0,0,0,0.8), 0 0 30px rgba(255,170,60,0.15), 0 1px 0 rgba(255,255,255,0.1)",
+                background: "rgba(218,165,32,0.08)",
+                border: "1px solid rgba(218,165,32,0.15)",
+                boxShadow: "0 0 20px rgba(255,170,60,0.1), inset 0 1px 0 rgba(255,200,100,0.1)",
               }}
-            >
-              <span className="group-hover:text-amber-200 transition-colors duration-200">
-                Minecraft
-              </span>{" "}
-              <span className="text-amber-500/80 group-hover:text-amber-400/90 transition-colors duration-200">
-                Life Journal
+            />
+            
+            <div className="relative flex items-center gap-3">
+              {/* Pixel corners decoration */}
+              <div className="absolute -left-1 -top-1 w-1 h-1 bg-amber-400/30" />
+              <div className="absolute -right-1 -top-1 w-1 h-1 bg-amber-400/30" />
+              
+              <PickaxeIcon />
+              <span
+                className="font-bold text-lg tracking-tight transition-all duration-200"
+                style={{
+                  color: "#ffe0b0",
+                  textShadow: "0 2px 12px rgba(0,0,0,0.8), 0 0 30px rgba(255,170,60,0.15), 0 1px 0 rgba(255,255,255,0.1)",
+                }}
+              >
+                <span className="group-hover:text-amber-200 transition-colors duration-200">
+                  Minecraft
+                </span>{" "}
+                <span className="text-amber-500/80 group-hover:text-amber-400/90 transition-colors duration-200">
+                  Life Journal
+                </span>
               </span>
-            </span>
-          </div>
-        </Link>
+            </div>
+          </Link>
         </div>
 
         {/* Nav links */}

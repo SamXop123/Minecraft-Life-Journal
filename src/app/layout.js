@@ -7,7 +7,7 @@ export const metadata = {
   title: "Minecraft Life Journal",
   description: "A Minecraft Life Journal application",
   icons: {
-    icon: '/favicon.ico',
+    icon: '/logo.png',
   },
 };
 
