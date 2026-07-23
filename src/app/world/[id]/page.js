@@ -10,6 +10,7 @@ import EditMemoryModal from "@/components/EditMemoryModal";
 import ActivityHeatmap from "@/components/ActivityHeatmap";
 import ConfirmDeleteModal from "@/components/ConfirmDeleteModal";
 import TrashBinModal from "@/components/TrashBinModal";
+import { compressImage } from "@/lib/utils/compressImage";
 
 const CATEGORIES = ["achievement", "build", "death", "funny", "emotional"];
 
@@ -298,8 +299,9 @@ export default function WorldDetailPage({ params }) {
 
       // Upload image if selected
       if (imageFile) {
+        const compressed = await compressImage(imageFile);
         const formData = new FormData();
-        formData.append("file", imageFile);
+        formData.append("file", compressed);
 
         const uploadRes = await fetchWithAuthRetry("/api/upload", {
           method: "POST",
@@ -310,7 +312,18 @@ export default function WorldDetailPage({ params }) {
           return;
         }
 
-        const uploadData = await uploadRes.json();
+        let uploadData;
+        try {
+          uploadData = await uploadRes.json();
+        } catch {
+          const text = await uploadRes.text().catch(() => "");
+          if (uploadRes.status === 413 || text.includes("Request Entity Too Large")) {
+            setMemoryFormError("File size is too large to upload. Please select a smaller screenshot.");
+          } else {
+            setMemoryFormError(`Image upload failed (${uploadRes.status}).`);
+          }
+          return;
+        }
 
         if (!uploadRes.ok) {
           setMemoryFormError(uploadData.message || "Image upload failed");
