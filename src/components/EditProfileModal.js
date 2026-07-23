@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { compressImage } from "@/lib/utils/compressImage";
 
 const EXPERIENCE_OPTIONS = [
   { value: "", label: "Select…" },
@@ -58,18 +59,29 @@ export default function EditProfileModal({ profile, onClose, onSaved }) {
 
       /* Upload new avatar if selected */
       if (avatarFile) {
+        const compressed = await compressImage(avatarFile, { maxWidth: 800, maxHeight: 800, quality: 0.8 });
         const fd = new FormData();
-        fd.append("file", avatarFile);
+        fd.append("file", compressed);
         const uploadRes = await fetch("/api/upload", {
           method: "POST",
           headers: { Authorization: `Bearer ${token}` },
           body: fd,
         });
-        if (!uploadRes.ok) {
-          const up = await uploadRes.json();
-          throw new Error(up.message || "Avatar upload failed");
+
+        let upData;
+        try {
+          upData = await uploadRes.json();
+        } catch {
+          const text = await uploadRes.text().catch(() => "");
+          if (uploadRes.status === 413 || text.includes("Request Entity Too Large")) {
+            throw new Error("Avatar image is too large. Please select a smaller file.");
+          }
+          throw new Error(`Avatar upload failed (${uploadRes.status}).`);
         }
-        const upData = await uploadRes.json();
+
+        if (!uploadRes.ok) {
+          throw new Error(upData.message || "Avatar upload failed");
+        }
         avatarUrl = upData.imageUrl;
       }
 
