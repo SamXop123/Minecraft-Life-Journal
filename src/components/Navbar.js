@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
+import { Home } from "lucide-react";
 
 const HIDDEN_ROUTES = ["/login", "/register", "/"];
 
@@ -174,11 +175,46 @@ export default function Navbar() {
 
       {/* Content */}
       <div className="relative max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
-        {/* Brand with Minecraft nameplate style */}
-        <Link
-          href="/dashboard"
-          className="flex items-center gap-3 group relative"
-        >
+        <div className="flex items-center gap-3">
+          {/* Home Button Icon */}
+          <Link
+            href="/"
+            title="Go to Landing Page"
+            aria-label="Home"
+            className="relative p-2 rounded-md transition-all duration-200 flex items-center justify-center group"
+            style={{
+              color: "#b89868",
+              backgroundColor: "rgba(0,0,0,0.25)",
+              border: "2px solid",
+              borderTopColor: "rgba(218,165,32,0.18)",
+              borderRightColor: "rgba(80,50,15,0.35)",
+              borderBottomColor: "rgba(60,40,10,0.45)",
+              borderLeftColor: "rgba(100,60,20,0.28)",
+              boxShadow: "0 2px 6px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,200,100,0.04)",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.color = "#ffd896";
+              e.currentTarget.style.backgroundColor = "rgba(218,165,32,0.2)";
+              e.currentTarget.style.transform = "translateY(-1px)";
+              e.currentTarget.style.boxShadow =
+                "0 4px 12px rgba(218,165,32,0.25), inset 0 1px 0 rgba(255,200,100,0.15)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.color = "#b89868";
+              e.currentTarget.style.backgroundColor = "rgba(0,0,0,0.25)";
+              e.currentTarget.style.transform = "translateY(0)";
+              e.currentTarget.style.boxShadow =
+                "0 2px 6px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,200,100,0.04)";
+            }}
+          >
+            <Home size={18} className="text-amber-400/90 group-hover:text-amber-300 transition-colors" />
+          </Link>
+
+          {/* Brand with Minecraft nameplate style */}
+          <Link
+            href="/dashboard"
+            className="flex items-center gap-3 group relative"
+          >
           {/* Decorative frame around brand */}
           <div
             className="absolute -inset-2 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"
@@ -211,6 +247,7 @@ export default function Navbar() {
             </span>
           </div>
         </Link>
+        </div>
 
         {/* Nav links */}
         {authenticated && (
