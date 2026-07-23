@@ -7,10 +7,12 @@ import { motion, AnimatePresence } from "framer-motion";
 import CinematicMode from "@/components/CinematicMode";
 import PixelParticles from "@/components/PixelParticles";
 import EditMemoryModal from "@/components/EditMemoryModal";
+import EditWorldModal from "@/components/EditWorldModal";
 import ActivityHeatmap from "@/components/ActivityHeatmap";
 import ConfirmDeleteModal from "@/components/ConfirmDeleteModal";
 import TrashBinModal from "@/components/TrashBinModal";
 import { compressImage } from "@/lib/utils/compressImage";
+import { Pencil } from "lucide-react";
 
 const CATEGORIES = ["achievement", "build", "death", "funny", "emotional"];
 
@@ -39,6 +41,7 @@ export default function WorldDetailPage({ params }) {
   const [memories, setMemories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [isEditWorldOpen, setIsEditWorldOpen] = useState(false);
   const [showMemoryForm, setShowMemoryForm] = useState(false);
   const [memoryForm, setMemoryForm] = useState({
     title: "",
@@ -540,15 +543,25 @@ export default function WorldDetailPage({ params }) {
                 transition={{ duration: 0.5 }}
               >
                 <div className="flex items-start justify-between mb-4">
-                  <h1
-                    className="text-2xl font-bold text-amber-100"
-                    style={{
-                      textShadow:
-                        "0 2px 16px rgba(0,0,0,0.8), 0 0 30px rgba(255,170,60,0.08)",
-                    }}
-                  >
-                    {world.name}
-                  </h1>
+                  <div className="flex items-center gap-2">
+                    <h1
+                      className="text-2xl font-bold text-amber-100"
+                      style={{
+                        textShadow:
+                          "0 2px 16px rgba(0,0,0,0.8), 0 0 30px rgba(255,170,60,0.08)",
+                      }}
+                    >
+                      {world.name}
+                    </h1>
+                    <button
+                      onClick={() => setIsEditWorldOpen(true)}
+                      title="Edit World Details"
+                      aria-label="Edit World Details"
+                      className="p-1.5 rounded bg-black/40 hover:bg-amber-500/20 text-amber-200/50 hover:text-amber-200 border border-white/10 hover:border-amber-500/40 transition-all duration-150 shrink-0"
+                    >
+                      <Pencil size={15} />
+                    </button>
+                  </div>
                   {world.endedAt && (
                     <span className="px-2.5 py-1 bg-red-500/10 border border-red-500/30 rounded text-xs text-red-400">
                       Ended
@@ -1725,6 +1738,16 @@ export default function WorldDetailPage({ params }) {
         worldId={worldId}
         onRefreshRequired={() => fetchMemories(worldId)}
         fetchWithAuthRetry={fetchWithAuthRetry}
+      />
+
+      {/* Edit World Modal */}
+      <EditWorldModal
+        isOpen={isEditWorldOpen}
+        world={world}
+        onClose={() => setIsEditWorldOpen(false)}
+        onSaved={(updated) => {
+          setWorld((prev) => ({ ...prev, ...updated }));
+        }}
       />
     </div>
   );
