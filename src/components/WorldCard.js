@@ -11,6 +11,7 @@ import {
   Calendar,
   Globe,
   Compass,
+  Pencil,
 } from "lucide-react";
 
 /**
@@ -18,7 +19,7 @@ import {
  * styled to look like an inventory/advancement slot with game-mode icons,
  * stats capsules, and a gold playtime badge.
  */
-export default function WorldCard({ world, index, onClick }) {
+export default function WorldCard({ world, index, onClick, onEdit }) {
   function formatDate(dateStr) {
     if (!dateStr) return "—";
     return new Date(dateStr).toLocaleDateString("en-US", {
@@ -89,12 +90,27 @@ export default function WorldCard({ world, index, onClick }) {
 
       {/* Header Row */}
       <div className="flex items-start justify-between gap-3 mb-4 relative z-10">
-        <h2
-          className="text-lg font-bold text-amber-100 group-hover:text-amber-50 transition-colors truncate"
-          style={{ textShadow: "0 1px 6px rgba(0,0,0,0.8)" }}
-        >
-          {world.name}
-        </h2>
+        <div className="flex items-center gap-2 min-w-0">
+          <h2
+            className="text-lg font-bold text-amber-100 group-hover:text-amber-50 transition-colors truncate"
+            style={{ textShadow: "0 1px 6px rgba(0,0,0,0.8)" }}
+          >
+            {world.name}
+          </h2>
+          {onEdit && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onEdit(world);
+              }}
+              title="Edit World Details"
+              aria-label="Edit World Details"
+              className="p-1 rounded bg-black/40 hover:bg-amber-500/20 text-amber-200/50 hover:text-amber-200 border border-white/10 hover:border-amber-500/40 transition-all duration-150 shrink-0 opacity-80 group-hover:opacity-100"
+            >
+              <Pencil size={13} />
+            </button>
+          )}
+        </div>
         {/* Game Mode Badge */}
         <div
           className="flex items-center gap-1 px-2.5 py-1 rounded border text-[10px] font-bold uppercase tracking-wider shrink-0"
