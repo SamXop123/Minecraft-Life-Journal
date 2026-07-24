@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
@@ -63,6 +63,7 @@ export default function WorldDetailPage({ params }) {
   const [isTrashOpen, setIsTrashOpen] = useState(false);
 
   // Coordinate Tracker state
+  const coordFormRef = useRef(null);
   const [coordinates, setCoordinates] = useState([]);
   const [showCoordForm, setShowCoordForm] = useState(false);
   const [coordForm, setCoordForm] = useState({
@@ -221,6 +222,13 @@ export default function WorldDetailPage({ params }) {
     setCopiedCoordId(coord._id);
     setTimeout(() => setCopiedCoordId(null), 2000);
   }
+
+  // Auto scroll to coordinate form inside left panel when opened
+  useEffect(() => {
+    if (showCoordForm && coordFormRef.current) {
+      coordFormRef.current.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+  }, [showCoordForm]);
 
   useEffect(() => {
     async function fetchWorld() {
@@ -443,7 +451,7 @@ export default function WorldDetailPage({ params }) {
         style={{ transformOrigin: "50% 40%", zIndex: 0 }}
       >
         <img
-          src="/hd-treehouse-bg.jpg"
+          src="/enhanced-mc-art.jpg"
           alt=""
           className="absolute inset-0 w-full h-full object-cover"
           draggable={false}
@@ -525,9 +533,9 @@ export default function WorldDetailPage({ params }) {
             ← Back to Dashboard
           </Link>
 
-          <div className="flex gap-6 items-start">
-            {/* ════════ LEFT PANEL (40%) — World Details ════════ */}
-            <div style={{ width: "40%" }} className="sticky top-10 self-start">
+          <div className="flex flex-col lg:flex-row gap-6 items-start">
+            {/* ════════ LEFT PANEL (40%) — World Details & Coordinates ════════ */}
+            <div className="w-full lg:w-[40%] sticky top-6 self-start max-h-[calc(100vh-3rem)] overflow-y-auto pr-1 custom-scrollbar space-y-5">
 
               {/* World Header */}
               <motion.div
@@ -934,6 +942,7 @@ export default function WorldDetailPage({ params }) {
                 <AnimatePresence>
                   {showCoordForm && (
                     <motion.div
+                      ref={coordFormRef}
                       initial={{ opacity: 0, height: 0 }}
                       animate={{ opacity: 1, height: "auto" }}
                       exit={{ opacity: 0, height: 0 }}
@@ -1146,7 +1155,7 @@ export default function WorldDetailPage({ params }) {
                     No coordinates saved yet.
                   </p>
                 ) : (
-                  <div className="space-y-2">
+                  <div className="space-y-2 max-h-72 overflow-y-auto pr-1 custom-scrollbar">
                     {coordinates.map((coord) => {
                       const cat = COORD_CATEGORY_COLORS[coord.category] || COORD_CATEGORY_COLORS.other;
                       return (
@@ -1249,7 +1258,7 @@ export default function WorldDetailPage({ params }) {
 
             </div>
             {/* ════════ RIGHT PANEL (60%) — Memories ════════ */}
-            <div style={{ width: "60%" }}>
+            <div className="w-full lg:w-[60%]">
 
               {/* Memories Section */}
               <motion.div
