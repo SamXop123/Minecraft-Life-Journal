@@ -171,7 +171,7 @@ export default function PublicWorldPage({ params }) {
         style={{ transformOrigin: "50% 40%", zIndex: 0 }}
       >
         <img
-          src="/hd-treehouse-bg.jpg"
+          src="/enhanced-mc-art.jpg"
           alt=""
           className="absolute inset-0 w-full h-full object-cover"
           draggable={false}
