@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
+import { useSettings } from "@/context/SettingsContext";
 import CinematicMode from "@/components/CinematicMode";
 import PixelParticles from "@/components/PixelParticles";
 import EditMemoryModal from "@/components/EditMemoryModal";
@@ -37,6 +38,7 @@ const COORD_CATEGORY_COLORS = {
 
 export default function WorldDetailPage({ params }) {
   const router = useRouter();
+  const { settings } = useSettings();
   const [world, setWorld] = useState(null);
   const [memories, setMemories] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -78,6 +80,18 @@ export default function WorldDetailPage({ params }) {
   const [coordSubmitting, setCoordSubmitting] = useState(false);
   const [coordDeletingId, setCoordDeletingId] = useState(null);
   const [copiedCoordId, setCopiedCoordId] = useState(null);
+
+  const orderedMemories = useMemo(() => {
+    if (!memories || memories.length === 0) return [];
+    return [...memories].sort((a, b) => {
+      const dateA = new Date(a.memoryDate || a.createdAt).getTime();
+      const dateB = new Date(b.memoryDate || b.createdAt).getTime();
+      if (settings?.memoryOrder === "newest") {
+        return dateB - dateA;
+      }
+      return dateA - dateB;
+    });
+  }, [memories, settings?.memoryOrder]);
 
   function getToken() {
     return localStorage.getItem("accessToken");
@@ -1579,7 +1593,7 @@ export default function WorldDetailPage({ params }) {
                 )}
 
                 {/* Timeline */}
-                {memories.length === 0 ? (
+                {orderedMemories.length === 0 ? (
                   <p className="text-sm" style={{ color: "rgba(255,224,176,0.5)" }}>
                     No memories yet. Add your first memory to start the timeline.
                   </p>
@@ -1588,7 +1602,7 @@ export default function WorldDetailPage({ params }) {
                     className="relative ml-3 pl-6 space-y-6"
                     style={{ borderLeft: "2px solid rgba(218,165,32,0.15)" }}
                   >
-                    {memories.map((memory) => (
+                    {orderedMemories.map((memory) => (
                       <div key={memory._id} className="relative group">
                         {/* Timeline dot */}
                         <div
