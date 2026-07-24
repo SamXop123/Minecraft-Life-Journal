@@ -1,6 +1,8 @@
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import MusicButton from "@/components/MusicButton";
+import SettingsModal from "@/components/SettingsModal";
+import { SettingsProvider } from "@/context/SettingsContext";
 import { Analytics } from "@vercel/analytics/next";
 
 export const metadata = {
@@ -23,10 +25,13 @@ export default function RootLayout({ children }) {
         />
       </head>
       <body className="antialiased bg-gray-950 text-white min-h-screen">
-        <Navbar />
-        <MusicButton />
-        <main>{children}</main>
-        <Analytics />
+        <SettingsProvider>
+          <Navbar />
+          <SettingsModal />
+          <MusicButton />
+          <main>{children}</main>
+          <Analytics />
+        </SettingsProvider>
       </body>
     </html>
   );
