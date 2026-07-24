@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 
 import PixelParticles from "@/components/PixelParticles";
 import WorldCard from "@/components/WorldCard";
+import { useSettings } from "@/context/SettingsContext";
 
 /* ─── Custom Font and Premium 3D Button Styles ─── */
 const mcGoldButton = {
@@ -99,6 +100,7 @@ const mcErrorStyle = {
 
 export default function DashboardPage() {
   const router = useRouter();
+  const { settings, activeTheme, effectiveParticleEffect } = useSettings();
   const [worlds, setWorlds] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -229,20 +231,27 @@ export default function DashboardPage() {
     <div className="relative min-h-screen">
 
       {/* ═══════════════════════════════════════
-          LAYER 0 — BREATHING BACKGROUND IMAGE
+          LAYER 0 — BREATHING BACKGROUND IMAGE / THEME GRADIENT
       ═══════════════════════════════════════ */}
       <motion.div
         className="fixed inset-0"
-        animate={{ scale: [1, 1.02, 1] }}
+        animate={settings.motionMode === "full" ? { scale: [1, 1.02, 1] } : { scale: 1 }}
         transition={{ duration: 14, repeat: Infinity, ease: "easeInOut" }}
         style={{ transformOrigin: "50% 40%", zIndex: 0 }}
       >
-        <img
-          src="/minecraft-hero.jpg"
-          alt=""
-          className="absolute inset-0 w-full h-full object-cover"
-          draggable={false}
-        />
+        {activeTheme.type === "image" ? (
+          <img
+            src={activeTheme.image}
+            alt={activeTheme.name}
+            className="absolute inset-0 w-full h-full object-cover transition-opacity duration-700"
+            draggable={false}
+          />
+        ) : (
+          <div
+            className="absolute inset-0 w-full h-full transition-all duration-700"
+            style={{ background: activeTheme.background }}
+          />
+        )}
       </motion.div>
 
       {/* ═══════════════════════════════════════
@@ -267,16 +276,18 @@ export default function DashboardPage() {
       {/* ═══════════════════════════════════════
           LAYER 2 — WARM GOLDEN SUN GLOW
       ═══════════════════════════════════════ */}
-      <motion.div
-        className="fixed inset-0 pointer-events-none"
-        style={{
-          zIndex: 2,
-          background:
-            "radial-gradient(ellipse 50% 50% at 65% 20%, rgba(255,180,60,0.12) 0%, rgba(255,140,30,0.04) 40%, transparent 70%)",
-        }}
-        animate={{ opacity: [1, 0.8, 1] }}
-        transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-      />
+      {settings.motionMode !== "off" && (
+        <motion.div
+          className="fixed inset-0 pointer-events-none"
+          style={{
+            zIndex: 2,
+            background:
+              "radial-gradient(ellipse 50% 50% at 65% 20%, rgba(255,180,60,0.12) 0%, rgba(255,140,30,0.04) 40%, transparent 70%)",
+          }}
+          animate={settings.motionMode === "full" ? { opacity: [1, 0.8, 1] } : { opacity: 0.9 }}
+          transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+        />
+      )}
 
       {/* ═══════════════════════════════════════
           LAYER 3 — VIGNETTE (DARK EDGES)
@@ -294,7 +305,7 @@ export default function DashboardPage() {
           LAYER 4 — PIXEL PARTICLES
       ═══════════════════════════════════════ */}
       <div className="fixed inset-0 pointer-events-none opacity-50" style={{ zIndex: 4 }}>
-        <PixelParticles count={18} />
+        <PixelParticles type={effectiveParticleEffect} count={18} motionMode={settings.motionMode} />
       </div>
 
       {/* ═══════════════════════════════════════
@@ -308,7 +319,7 @@ export default function DashboardPage() {
             <motion.h1
               className="text-2xl sm:text-3xl font-extrabold text-amber-100"
               style={{
-                fontFamily: "'Silkscreen', sans-serif",
+                fontFamily: settings.pixelFonts ? "'Silkscreen', sans-serif" : "inherit",
                 textShadow: "3px 3px 0px rgba(0,0,0,0.95), 0 0 30px rgba(255,170,60,0.15)",
                 letterSpacing: "0.05em",
               }}
