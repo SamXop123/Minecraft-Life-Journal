@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { Home } from "lucide-react";
+import { Home, Settings } from "lucide-react";
+import { useSettings } from "@/context/SettingsContext";
 
 const HIDDEN_ROUTES = ["/login", "/register", "/"];
 
@@ -53,6 +54,7 @@ function DecorativePixels() {
 export default function Navbar() {
   const router = useRouter();
   const pathname = usePathname();
+  const { openSettings } = useSettings();
   const [authenticated, setAuthenticated] = useState(false);
   const [userProfile, setUserProfile] = useState(null);
 
@@ -509,6 +511,47 @@ export default function Navbar() {
               }}
             >
               Logout
+            </button>
+
+            {/* Separator */}
+            <div className="flex flex-col gap-0.5 mx-1">
+              <div className="w-px h-1.5" style={{ backgroundColor: "rgba(218,165,32,0.2)" }} />
+              <div className="w-px h-1.5" style={{ backgroundColor: "rgba(218,165,32,0.15)" }} />
+              <div className="w-px h-1.5" style={{ backgroundColor: "rgba(218,165,32,0.1)" }} />
+            </div>
+
+            {/* Settings Button - Rightmost Icon Button */}
+            <button
+              onClick={openSettings}
+              title="Website Settings"
+              aria-label="Settings"
+              className="p-2 rounded-md transition-all duration-200 flex items-center justify-center group shrink-0"
+              style={{
+                color: "#b89868",
+                backgroundColor: "rgba(0,0,0,0.25)",
+                border: "2px solid",
+                borderTopColor: "rgba(218,165,32,0.18)",
+                borderRightColor: "rgba(80,50,15,0.35)",
+                borderBottomColor: "rgba(60,40,10,0.45)",
+                borderLeftColor: "rgba(100,60,20,0.28)",
+                boxShadow: "0 2px 6px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,200,100,0.04)",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.color = "#ffd896";
+                e.currentTarget.style.backgroundColor = "rgba(218,165,32,0.2)";
+                e.currentTarget.style.transform = "translateY(-1px)";
+                e.currentTarget.style.boxShadow =
+                  "0 4px 12px rgba(218,165,32,0.25), inset 0 1px 0 rgba(255,200,100,0.15)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.color = "#b89868";
+                e.currentTarget.style.backgroundColor = "rgba(0,0,0,0.25)";
+                e.currentTarget.style.transform = "translateY(0)";
+                e.currentTarget.style.boxShadow =
+                  "0 2px 6px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,200,100,0.04)";
+              }}
+            >
+              <Settings className="w-4 h-4 text-amber-400 group-hover:rotate-45 group-hover:text-amber-300 transition-transform duration-300" />
             </button>
           </div>
         )}
