@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useSettings } from "@/context/SettingsContext";
 import PixelParticles from "@/components/PixelParticles";
 import CinematicMode from "@/components/CinematicMode";
 import {
@@ -70,6 +71,7 @@ function formatPlaytime(totalMinutes) {
 }
 
 export default function PublicWorldPage({ params }) {
+  const { settings } = useSettings();
   const [world, setWorld] = useState(null);
   const [memories, setMemories] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -106,6 +108,18 @@ export default function PublicWorldPage({ params }) {
 
     fetchPublicWorld();
   }, [params]);
+
+  const orderedMemories = useMemo(() => {
+    if (!memories || memories.length === 0) return [];
+    return [...memories].sort((a, b) => {
+      const dateA = new Date(a.memoryDate || a.createdAt).getTime();
+      const dateB = new Date(b.memoryDate || b.createdAt).getTime();
+      if (settings?.memoryOrder === "newest") {
+        return dateB - dateA;
+      }
+      return dateA - dateB;
+    });
+  }, [memories, settings?.memoryOrder]);
 
   /* ── Loading ── */
   if (loading) {
@@ -420,13 +434,13 @@ export default function PublicWorldPage({ params }) {
               Journal Memories ({memories.length})
             </h2>
 
-            {memories.length === 0 ? (
+            {orderedMemories.length === 0 ? (
               <p className="text-center py-12 text-sm italic" style={{ color: "rgba(255,224,176,0.3)" }}>
                 No memories recorded yet in this journal.
               </p>
             ) : (
               <div className="relative border-l-2 border-amber-950/40 ml-3 pl-6 space-y-6">
-                {memories.map((memory, idx) => {
+                {orderedMemories.map((memory, idx) => {
                   const cat = CATEGORY_STYLES[memory.category] || CATEGORY_STYLES.achievement;
 
                   return (
