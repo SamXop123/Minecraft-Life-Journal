@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Settings, X, Volume2, VolumeX, Sparkles, Palette, Eye, RotateCcw, Check, Sparkle } from "lucide-react";
-import { useSettings, THEMES, PARTICLE_OPTIONS, MOTION_OPTIONS } from "@/context/SettingsContext";
+import { useSettings, THEMES, PARTICLE_OPTIONS, MOTION_OPTIONS, MEMORY_ORDER_OPTIONS } from "@/context/SettingsContext";
 
 /* ─── Minecraft GUI Button Styles ─── */
 const mcGoldButton = {
@@ -429,6 +429,42 @@ export default function SettingsModal() {
                         {settings.pixelFonts ? "👾" : "🔤"}
                       </span>
                     </button>
+                  </div>
+                </div>
+
+                {/* Memory Order Preference */}
+                <div>
+                  <label
+                    className="block text-xs uppercase tracking-wider mb-2 font-bold"
+                    style={{
+                      fontFamily: settings.pixelFonts ? "'Silkscreen', sans-serif" : "inherit",
+                      color: "#ffd896",
+                      textShadow: "1px 1px 0px #000",
+                    }}
+                  >
+                    Memory Timeline Ordering
+                  </label>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {MEMORY_ORDER_OPTIONS.map((ord) => {
+                      const isSelected = settings.memoryOrder === ord.id;
+                      return (
+                        <button
+                          key={ord.id}
+                          onClick={() => updateSettings({ memoryOrder: ord.id })}
+                          className={`p-3 rounded-md border text-left transition-all duration-200 flex flex-col justify-between ${
+                            isSelected
+                              ? "bg-amber-950/40 border-amber-400 text-amber-100"
+                              : "bg-stone-950/40 border-stone-800 text-stone-400 hover:border-stone-700"
+                          }`}
+                        >
+                          <div className="flex items-center justify-between w-full mb-1">
+                            <span className="text-xs font-bold text-amber-200">{ord.name}</span>
+                            {isSelected && <Check className="w-3.5 h-3.5 text-amber-400 stroke-[3]" />}
+                          </div>
+                          <p className="text-[11px] text-stone-400 leading-tight">{ord.description}</p>
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
 
