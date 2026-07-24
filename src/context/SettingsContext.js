@@ -95,6 +95,11 @@ export const MOTION_OPTIONS = [
   { id: "off", name: "Off", description: "No background motion or particles for max performance" },
 ];
 
+export const MEMORY_ORDER_OPTIONS = [
+  { id: "newest", name: "Newest First", description: "Newly added/dated memories appear at the top" },
+  { id: "oldest", name: "Oldest First", description: "Earliest memories appear at the top" },
+];
+
 const DEFAULT_SETTINGS = {
   audioAutoplay: false, // Muted/closed by default on site open
   audioVolume: 0.2,
@@ -102,6 +107,7 @@ const DEFAULT_SETTINGS = {
   particleEffect: "auto",
   motionMode: "full",
   pixelFonts: true,
+  memoryOrder: "newest",
 };
 
 const SettingsContext = createContext(null);
