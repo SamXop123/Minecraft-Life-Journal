@@ -1,11 +1,10 @@
 "use client";
 
 import { useRef, useState, useEffect, useCallback } from "react";
-
-const AUDIO_KEY = "mlj-ambient-audio";
-const AUDIO_VOLUME = 0.2;
+import { useSettings } from "@/context/SettingsContext";
 
 export default function MusicButton() {
+  const { settings, isLoaded } = useSettings();
   const audioRef = useRef(null);
   const [playing, setPlaying] = useState(false);
 
@@ -13,17 +12,29 @@ export default function MusicButton() {
     if (!audioRef.current) {
       const a = new Audio("/ambient.mp3");
       a.loop = true;
-      a.volume = AUDIO_VOLUME;
+      a.volume = settings.audioVolume;
       audioRef.current = a;
     }
     return audioRef.current;
-  }, []);
+  }, [settings.audioVolume]);
 
-  // Restore saved state on mount (visual only — can't autoplay without gesture)
+  // Update volume dynamically when settings volume changes
   useEffect(() => {
-    const saved = localStorage.getItem(AUDIO_KEY);
-    if (saved === "on") setPlaying(true);
+    if (audioRef.current) {
+      audioRef.current.volume = settings.audioVolume;
+    }
+  }, [settings.audioVolume]);
 
+  // Initialize playback state based on audioAutoplay setting once settings are loaded
+  useEffect(() => {
+    if (!isLoaded) return;
+    if (settings.audioAutoplay) {
+      setPlaying(true);
+    }
+  }, [isLoaded, settings.audioAutoplay]);
+
+  // Cleanup on unmount
+  useEffect(() => {
     return () => {
       if (audioRef.current) {
         audioRef.current.pause();
@@ -32,9 +43,14 @@ export default function MusicButton() {
     };
   }, []);
 
-  // If state is restored as "on", attempt play on next user interaction
+  // Handle play/pause when playing state changes
   useEffect(() => {
-    if (!playing) return;
+    if (!playing) {
+      if (audioRef.current) {
+        audioRef.current.pause();
+      }
+      return;
+    }
 
     const tryPlay = () => {
       const audio = getAudio();
@@ -61,11 +77,9 @@ export default function MusicButton() {
     if (playing) {
       audio.pause();
       setPlaying(false);
-      localStorage.setItem(AUDIO_KEY, "off");
     } else {
       audio.play().catch(() => {});
       setPlaying(true);
-      localStorage.setItem(AUDIO_KEY, "on");
     }
   };
 
