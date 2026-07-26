@@ -114,10 +114,15 @@ export default function PublicWorldPage({ params }) {
     return [...memories].sort((a, b) => {
       const dateA = new Date(a.memoryDate || a.createdAt).getTime();
       const dateB = new Date(b.memoryDate || b.createdAt).getTime();
+      const createdA = new Date(a.createdAt || a.memoryDate).getTime();
+      const createdB = new Date(b.createdAt || b.memoryDate).getTime();
+
       if (settings?.memoryOrder === "newest") {
-        return dateB - dateA;
+        if (dateB !== dateA) return dateB - dateA;
+        return createdB - createdA;
       }
-      return dateA - dateB;
+      if (dateA !== dateB) return dateA - dateB;
+      return createdA - createdB;
     });
   }, [memories, settings?.memoryOrder]);
 
