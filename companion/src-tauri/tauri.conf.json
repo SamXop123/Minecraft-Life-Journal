@@ -1,7 +1,7 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "MLJ Companion",
-  "version": "0.1.0",
+  "version": "2.0.0",
   "identifier": "com.mythi.companion",
   "build": {
     "frontendDist": "../src"
@@ -11,9 +11,11 @@
     "windows": [
       {
         "title": "Minecraft Life Journal Companion",
-        "width": 580,
-        "height": 680,
-        "resizable": false
+        "width": 720,
+        "height": 820,
+        "minWidth": 640,
+        "minHeight": 720,
+        "resizable": true
       }
     ],
     "security": {
