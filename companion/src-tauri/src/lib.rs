@@ -1,5 +1,9 @@
 use std::sync::{Arc, Mutex};
-use tauri::Emitter;
+use tauri::{
+    menu::{Menu, MenuItem, PredefinedMenuItem},
+    tray::{TrayIconBuilder, TrayIconEvent},
+    Emitter, Manager, WindowEvent,
+};
 
 mod config;
 mod log_watcher;
@@ -42,18 +46,24 @@ fn save_config(config: AppConfig, state: tauri::State<'_, Arc<WatcherState>>, ap
 }
 
 #[tauri::command]
-fn fetch_worlds(api_key: String, web_app_url: String) -> Result<serde_json::Value, String> {
-    let client = reqwest::blocking::Client::new();
+async fn fetch_worlds(api_key: String, web_app_url: String) -> Result<serde_json::Value, String> {
+    let client = reqwest::Client::builder()
+        .timeout(std::time::Duration::from_secs(10))
+        .build()
+        .map_err(|e| e.to_string())?;
+
     let url = format!("{}/api/companion/worlds", web_app_url);
-    
-    let res = client.get(&url)
+
+    let res = client
+        .get(&url)
         .header("x-api-key", api_key)
         .send()
+        .await
         .map_err(|e| e.to_string())?;
-        
+
     let status = res.status();
     if status.is_success() {
-        let val: serde_json::Value = res.json().map_err(|e| e.to_string())?;
+        let val: serde_json::Value = res.json().await.map_err(|e| e.to_string())?;
         Ok(val)
     } else {
         Err(format!("Server returned error status: {}", status))
@@ -98,6 +108,17 @@ pub fn run() {
     });
 
     tauri::Builder::default()
+        .plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
+            if let Some(window) = app.get_webview_window("main") {
+                let _ = window.show();
+                let _ = window.unminimize();
+                let _ = window.set_focus();
+                let _ = app.emit(
+                    "sync-log-status",
+                    "MLJ Companion is already running! Focusing window.".to_string(),
+                );
+            }
+        }))
         .plugin(tauri_plugin_opener::init())
         .manage(watcher_state)
         .invoke_handler(tauri::generate_handler![
@@ -107,6 +128,70 @@ pub fn run() {
             start_watchers,
             stop_watchers
         ])
+        .setup(|app| {
+            let title_i = MenuItem::with_id(app, "title", "🎮  MLJ Companion v0.1.0", false, None::<&str>)?;
+            let sep1 = PredefinedMenuItem::separator(app)?;
+            let show_i = MenuItem::with_id(app, "show", "📌  Open Companion Window", true, None::<&str>)?;
+            let web_i = MenuItem::with_id(app, "web", "🌐  Open Web Journal", true, None::<&str>)?;
+            let sep2 = PredefinedMenuItem::separator(app)?;
+            let quit_i = MenuItem::with_id(app, "quit", "❌  Quit MLJ Companion", true, None::<&str>)?;
+
+            let menu = Menu::with_items(app, &[&title_i, &sep1, &show_i, &web_i, &sep2, &quit_i])?;
+
+            let _tray = TrayIconBuilder::new()
+                .icon(app.default_window_icon().unwrap().clone())
+                .menu(&menu)
+                .tooltip("MLJ Companion")
+                .on_menu_event(|app, event| match event.id.as_ref() {
+                    "quit" => {
+                        app.exit(0);
+                    }
+                    "show" => {
+                        if let Some(window) = app.get_webview_window("main") {
+                            let _ = window.show();
+                            let _ = window.unminimize();
+                            let _ = window.set_focus();
+                        }
+                    }
+                    "web" => {
+                        let config = load_config();
+                        let url = if config.web_app_url.is_empty() {
+                            "https://minecraft-life-journal.vercel.app".to_string()
+                        } else {
+                            config.web_app_url
+                        };
+                        let _ = tauri_plugin_opener::open_url(url, None::<&str>);
+                    }
+                    _ => {}
+                })
+                .on_tray_icon_event(|tray, event| {
+                    if let TrayIconEvent::Click {
+                        button: tauri::tray::MouseButton::Left,
+                        ..
+                    } = event
+                    {
+                        let app = tray.app_handle();
+                        if let Some(window) = app.get_webview_window("main") {
+                            let _ = window.show();
+                            let _ = window.unminimize();
+                            let _ = window.set_focus();
+                        }
+                    }
+                })
+                .build(app)?;
+
+            Ok(())
+        })
+        .on_window_event(|window, event| {
+            if let WindowEvent::CloseRequested { api, .. } = event {
+                api.prevent_close();
+                let _ = window.hide();
+                let _ = window.app_handle().emit(
+                    "sync-log-status",
+                    "MLJ Companion is running in the system tray.".to_string(),
+                );
+            }
+        })
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
