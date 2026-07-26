@@ -35,7 +35,25 @@ export async function PATCH(req, { params }) {
     const allowedFields = ["title", "category", "description", "memoryDate", "imageUrl"];
 
     for (const field of allowedFields) {
-      if (body[field] !== undefined) {
+      if (field === "memoryDate" && body.memoryDate !== undefined) {
+        const newYMD = typeof body.memoryDate === "string"
+          ? body.memoryDate.split("T")[0]
+          : new Date(body.memoryDate).toISOString().split("T")[0];
+
+        const oldYMD = memory.memoryDate
+          ? new Date(memory.memoryDate).toISOString().split("T")[0]
+          : "";
+
+        if (newYMD && newYMD === oldYMD) {
+          // Calendar date (YYYY-MM-DD) is unchanged; preserve existing memoryDate timestamp and time component
+        } else if (newYMD) {
+          // Calendar date changed; preserve time-of-day component from original memoryDate or createdAt
+          const origDate = memory.memoryDate || memory.createdAt || new Date();
+          const origTimeStr = new Date(origDate).toISOString().split("T")[1];
+          const combined = new Date(`${newYMD}T${origTimeStr}`);
+          memory.memoryDate = isNaN(combined.getTime()) ? new Date(body.memoryDate) : combined;
+        }
+      } else if (body[field] !== undefined) {
         memory[field] = body[field];
       }
     }
