@@ -488,7 +488,7 @@ export default function Home() {
                     </span>
                   </div>
                   <span className="text-[10px] font-mono text-amber-200/40">
-                    VERSION 1.3.0
+                    VERSION 2.0.0
                   </span>
                 </div>
 
