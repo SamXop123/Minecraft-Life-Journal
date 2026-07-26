@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Minecraft Life Journal Companion</title>
-    <!-- Thematic Retro Fonts -->
+    <!-- Thematic Fonts (Asynchronous for instant window render) -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -55,11 +55,11 @@
           </select>
         </div>
 
-        <div class="input-row" style="margin-top: 4px;">
-          <button id="start-btn" class="btn-primary-action" style="flex: 1;" disabled>
+        <div class="input-row action-buttons">
+          <button id="start-btn" class="btn-primary-action" disabled>
             Start Monitoring
           </button>
-          <button id="stop-btn" class="btn-secondary" style="flex: 1;" disabled>
+          <button id="stop-btn" class="btn-secondary" disabled>
             Stop
           </button>
         </div>
@@ -69,14 +69,20 @@
       <section class="status-bar">
         <div class="status-indicator">
           <div id="status-dot" class="status-dot"></div>
-          <span id="status-text" class="status-text" style="color: #ef4444;">Disconnected</span>
+          <span id="status-text" class="status-text">Disconnected</span>
         </div>
         <div id="mc-status-text" class="mc-status">Minecraft: Closed</div>
       </section>
 
       <!-- Console Logs Logger -->
       <section class="console-panel">
-        <div class="console-header">Sync Console Log</div>
+        <div class="console-header">
+          <div class="console-header-left">
+            <span class="console-title">Sync Console Log</span>
+            <span id="log-count" class="log-count-badge">1 entry</span>
+          </div>
+          <button id="clear-logs-btn" class="btn-clear">Clear Log</button>
+        </div>
         <div id="console-logs" class="console-logs">
           <div class="log-entry info">Companion app initialized. Paste your API Key and folder path to start.</div>
         </div>
