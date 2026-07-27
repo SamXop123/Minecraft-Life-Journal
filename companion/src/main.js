@@ -242,7 +242,7 @@ async function handleSubmitBugReport() {
   submitBugBtn.innerText = "Sending...";
 
   try {
-    await invoke("submit_bug_report", { title, description, contact, webhookUrl: null });
+    await invoke("submit_bug_report", { title, description, contact });
 
     if (bugStatusMsg) {
       bugStatusMsg.className = "bug-status success";
