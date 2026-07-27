@@ -96,6 +96,78 @@ fn stop_watchers(state: tauri::State<'_, Arc<WatcherState>>, app_handle: tauri::
     Ok(())
 }
 
+#[tauri::command]
+async fn submit_bug_report(title: String, description: String, contact: String, webhook_url: Option<String>) -> Result<(), String> {
+    if title.trim().is_empty() || description.trim().is_empty() {
+        return Err("Title and description are required.".to_string());
+    }
+
+    let config = load_config();
+    let client = reqwest::Client::new();
+    let contact_text = if contact.trim().is_empty() { "Anonymous".to_string() } else { contact };
+
+    // If an explicit webhook URL is provided, send directly to Discord.
+    if let Some(ref url) = webhook_url {
+        if !url.trim().is_empty() {
+            let payload = serde_json::json!({
+                "username": "MLJ Companion Bug Reporter",
+                "avatar_url": "https://minecraft-life-journal.vercel.app/logo.png",
+                "embeds": [
+                    {
+                        "title": format!("🐛 Bug Report: {}", title),
+                        "description": description,
+                        "color": 15158332,
+                        "fields": [
+                            { "name": "App Version", "value": "v2.0.0", "inline": true },
+                            { "name": "OS", "value": std::env::consts::OS, "inline": true },
+                            { "name": "Reporter", "value": contact_text, "inline": true },
+                            { "name": "Selected World", "value": if config.selected_world_name.is_empty() { "None".to_string() } else { config.selected_world_name.clone() }, "inline": false }
+                        ],
+                        "footer": {
+                            "text": "Minecraft Life Journal Companion"
+                        }
+                    }
+                ]
+            });
+
+            let res = client.post(url)
+                .json(&payload)
+                .send()
+                .await
+                .map_err(|e| format!("Network error sending bug report: {}", e))?;
+
+            if res.status().is_success() || res.status() == 204 {
+                return Ok(());
+            } else {
+                return Err(format!("Discord returned status {}", res.status()));
+            }
+        }
+    }
+
+    // Default: Post to Web API Endpoint
+    let api_url = format!("{}/api/companion/bug-report", config.web_app_url);
+    let payload = serde_json::json!({
+        "title": title,
+        "description": description,
+        "contact": contact_text,
+        "worldName": config.selected_world_name,
+        "appVersion": "v2.0.0",
+        "os": std::env::consts::OS
+    });
+
+    let res = client.post(&api_url)
+        .json(&payload)
+        .send()
+        .await
+        .map_err(|e| format!("Network error sending bug report: {}", e))?;
+
+    if res.status().is_success() {
+        Ok(())
+    } else {
+        Err(format!("Server returned status {}", res.status()))
+    }
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let recent_screenshot: SharedScreenshot = Arc::new(Mutex::new(None));
@@ -126,7 +198,8 @@ pub fn run() {
             save_config,
             fetch_worlds,
             start_watchers,
-            stop_watchers
+            stop_watchers,
+            submit_bug_report
         ])
         .setup(|app| {
             let title_i = MenuItem::with_id(app, "title", "🎮  MLJ Companion v2.0.0", false, None::<&str>)?;
@@ -184,12 +257,15 @@ pub fn run() {
         })
         .on_window_event(|window, event| {
             if let WindowEvent::CloseRequested { api, .. } = event {
-                api.prevent_close();
-                let _ = window.hide();
-                let _ = window.app_handle().emit(
-                    "sync-log-status",
-                    "MLJ Companion is running in the system tray.".to_string(),
-                );
+                let config = load_config();
+                if config.minimize_to_tray {
+                    api.prevent_close();
+                    let _ = window.hide();
+                    let _ = window.app_handle().emit(
+                        "sync-log-status",
+                        "MLJ Companion is running in the system tray.".to_string(),
+                    );
+                }
             }
         })
         .run(tauri::generate_context!())
