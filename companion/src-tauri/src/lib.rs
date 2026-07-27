@@ -97,7 +97,7 @@ fn stop_watchers(state: tauri::State<'_, Arc<WatcherState>>, app_handle: tauri::
 }
 
 #[tauri::command]
-async fn submit_bug_report(title: String, description: String, contact: String, webhook_url: Option<String>) -> Result<(), String> {
+async fn submit_bug_report(title: String, description: String, contact: String) -> Result<(), String> {
     if title.trim().is_empty() || description.trim().is_empty() {
         return Err("Title and description are required.".to_string());
     }
@@ -106,46 +106,6 @@ async fn submit_bug_report(title: String, description: String, contact: String, 
     let client = reqwest::Client::new();
     let contact_text = if contact.trim().is_empty() { "Anonymous".to_string() } else { contact };
 
-    // If an explicit webhook URL is provided, send directly to Discord.
-    if let Some(ref url) = webhook_url {
-        if !url.trim().is_empty() {
-            let payload = serde_json::json!({
-                "username": "MLJ Companion Bug Reporter",
-                "avatar_url": "https://minecraft-life-journal.vercel.app/logo.png",
-                "embeds": [
-                    {
-                        "title": format!("🐛 Bug Report: {}", title),
-                        "description": description,
-                        "color": 15158332,
-                        "fields": [
-                            { "name": "App Version", "value": "v2.0.0", "inline": true },
-                            { "name": "OS", "value": std::env::consts::OS, "inline": true },
-                            { "name": "Reporter", "value": contact_text, "inline": true },
-                            { "name": "Selected World", "value": if config.selected_world_name.is_empty() { "None".to_string() } else { config.selected_world_name.clone() }, "inline": false }
-                        ],
-                        "footer": {
-                            "text": "Minecraft Life Journal Companion"
-                        }
-                    }
-                ]
-            });
-
-            let res = client.post(url)
-                .json(&payload)
-                .send()
-                .await
-                .map_err(|e| format!("Network error sending bug report: {}", e))?;
-
-            if res.status().is_success() || res.status() == 204 {
-                return Ok(());
-            } else {
-                return Err(format!("Discord returned status {}", res.status()));
-            }
-        }
-    }
-
-    // Default: Post to Web API Endpoint
-    let api_url = format!("{}/api/companion/bug-report", config.web_app_url);
     let payload = serde_json::json!({
         "title": title,
         "description": description,
@@ -155,16 +115,28 @@ async fn submit_bug_report(title: String, description: String, contact: String, 
         "os": std::env::consts::OS
     });
 
-    let res = client.post(&api_url)
-        .json(&payload)
-        .send()
-        .await
-        .map_err(|e| format!("Network error sending bug report: {}", e))?;
+    let primary_url = format!("{}/api/companion/bug-report", config.web_app_url);
+    let mut success = false;
 
-    if res.status().is_success() {
+    if let Ok(res) = client.post(&primary_url).json(&payload).send().await {
+        if res.status().is_success() {
+            success = true;
+        }
+    }
+
+    if !success && !config.web_app_url.contains("localhost") {
+        let local_url = "http://localhost:3000/api/companion/bug-report";
+        if let Ok(res) = client.post(local_url).json(&payload).send().await {
+            if res.status().is_success() {
+                success = true;
+            }
+        }
+    }
+
+    if success {
         Ok(())
     } else {
-        Err(format!("Server returned status {}", res.status()))
+        Err("Failed to deliver bug report. Make sure web app or dev server is running.".to_string())
     }
 }
 
