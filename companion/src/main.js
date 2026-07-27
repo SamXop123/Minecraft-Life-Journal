@@ -16,6 +16,20 @@ const consoleLogs = document.getElementById("console-logs");
 const clearLogsBtn = document.getElementById("clear-logs-btn");
 const logCountBadge = document.getElementById("log-count");
 
+const trayCheckbox = document.getElementById("tray-checkbox");
+
+// Bug Modal Elements
+const bugReportBtn = document.getElementById("bug-report-btn");
+const bugModal = document.getElementById("bug-modal");
+const closeBugModal = document.getElementById("close-bug-modal");
+const cancelBugBtn = document.getElementById("cancel-bug-btn");
+const submitBugBtn = document.getElementById("submit-bug-btn");
+const bugTitleInput = document.getElementById("bug-title-input");
+const bugDescInput = document.getElementById("bug-desc-input");
+const bugContactInput = document.getElementById("bug-contact-input");
+const bugWebhookInput = document.getElementById("bug-webhook-input");
+const bugStatusMsg = document.getElementById("bug-status-msg");
+
 let currentConfig = null;
 let logCount = 1;
 
@@ -47,6 +61,7 @@ async function init() {
     currentConfig = await invoke("get_config");
     if (apiKeyInput) apiKeyInput.value = currentConfig.api_key || "";
     if (mcPathInput) mcPathInput.value = currentConfig.minecraft_path || "";
+    if (trayCheckbox) trayCheckbox.checked = currentConfig.minimize_to_tray !== false;
 
     log("Loaded local configuration settings.");
 
@@ -111,6 +126,7 @@ async function handleValidate(verbose = true) {
     currentConfig.api_key = apiKey;
     currentConfig.minecraft_path = mcPath;
     currentConfig.web_app_url = webUrl;
+    if (trayCheckbox) currentConfig.minimize_to_tray = trayCheckbox.checked;
     saveCurrentSettings();
 
     log("API Connection verified! Worlds retrieved successfully.", "success");
@@ -129,6 +145,10 @@ async function saveCurrentSettings() {
   if (selectedIndex >= 0 && worldSelect.options[selectedIndex].value) {
     currentConfig.selected_world_id = worldSelect.options[selectedIndex].value;
     currentConfig.selected_world_name = worldSelect.options[selectedIndex].text;
+  }
+
+  if (trayCheckbox) {
+    currentConfig.minimize_to_tray = trayCheckbox.checked;
   }
 
   try {
@@ -187,6 +207,66 @@ function handleClearLogs() {
 }
 
 // ═══════════════════════════════════════
+// BUG REPORT MODAL HANDLERS
+// ═══════════════════════════════════════
+
+function openBugModal() {
+  if (bugStatusMsg) {
+    bugStatusMsg.className = "bug-status hidden";
+    bugStatusMsg.innerText = "";
+  }
+  if (bugTitleInput) bugTitleInput.value = "";
+  if (bugDescInput) bugDescInput.value = "";
+  if (bugContactInput) bugContactInput.value = "";
+  if (bugModal) bugModal.classList.remove("hidden");
+}
+
+function closeBugModalHandler() {
+  if (bugModal) bugModal.classList.add("hidden");
+}
+
+async function handleSubmitBugReport() {
+  const title = bugTitleInput ? bugTitleInput.value.trim() : "";
+  const description = bugDescInput ? bugDescInput.value.trim() : "";
+  const contact = bugContactInput ? bugContactInput.value.trim() : "";
+
+  if (!title || !description) {
+    if (bugStatusMsg) {
+      bugStatusMsg.className = "bug-status error";
+      bugStatusMsg.innerText = "Please enter an issue title and description.";
+    }
+    return;
+  }
+
+  submitBugBtn.disabled = true;
+  submitBugBtn.innerText = "Sending...";
+
+  try {
+    await invoke("submit_bug_report", { title, description, contact, webhookUrl: null });
+
+    if (bugStatusMsg) {
+      bugStatusMsg.className = "bug-status success";
+      bugStatusMsg.innerText = "✨ Bug report submitted successfully! Developer has been notified.";
+    }
+
+    log(`Bug report submitted: "${title}"`, "success");
+
+    setTimeout(() => {
+      closeBugModalHandler();
+      submitBugBtn.disabled = false;
+      submitBugBtn.innerText = "Submit Report";
+    }, 1800);
+  } catch (err) {
+    if (bugStatusMsg) {
+      bugStatusMsg.className = "bug-status error";
+      bugStatusMsg.innerText = `Failed to send report: ${err}`;
+    }
+    submitBugBtn.disabled = false;
+    submitBugBtn.innerText = "Submit Report";
+  }
+}
+
+// ═══════════════════════════════════════
 // BIND EVENTS
 // ═══════════════════════════════════════
 
@@ -194,7 +274,14 @@ if (validateBtn) validateBtn.addEventListener("click", () => handleValidate(true
 if (startBtn) startBtn.addEventListener("click", handleStart);
 if (stopBtn) stopBtn.addEventListener("click", handleStop);
 if (worldSelect) worldSelect.addEventListener("change", saveCurrentSettings);
+if (trayCheckbox) trayCheckbox.addEventListener("change", saveCurrentSettings);
 if (clearLogsBtn) clearLogsBtn.addEventListener("click", handleClearLogs);
+
+// Bug Modal Listeners
+if (bugReportBtn) bugReportBtn.addEventListener("click", openBugModal);
+if (closeBugModal) closeBugModal.addEventListener("click", closeBugModalHandler);
+if (cancelBugBtn) cancelBugBtn.addEventListener("click", closeBugModalHandler);
+if (submitBugBtn) submitBugBtn.addEventListener("click", handleSubmitBugReport);
 
 // Listen to backend notifications
 listen("sync-log-status", (event) => log(event.payload, "status"));
