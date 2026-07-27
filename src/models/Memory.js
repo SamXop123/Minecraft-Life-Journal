@@ -45,6 +45,8 @@ const MemorySchema = new mongoose.Schema({
   },
 });
 
+MemorySchema.index({ worldId: 1, isDeleted: 1, memoryDate: -1, createdAt: -1 });
+
 const Memory =
   mongoose.models.Memory || mongoose.model("Memory", MemorySchema);
 
