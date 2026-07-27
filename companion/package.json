@@ -2,6 +2,7 @@
   "name": "companion",
   "private": true,
   "version": "2.0.0",
+  "author": "SamXop123",
   "type": "module",
   "scripts": {
     "tauri": "tauri"

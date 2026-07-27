@@ -1,6 +1,7 @@
 {
   "name": "minecraft-life-journal",
   "version": "2.0.0",
+  "author": "SamXop123",
   "private": true,
   "scripts": {
     "dev": "next dev",
