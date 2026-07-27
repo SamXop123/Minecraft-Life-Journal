@@ -55,6 +55,14 @@
           </select>
         </div>
 
+        <div class="tray-option-row">
+          <label class="tray-option-label" for="tray-checkbox">
+            <input id="tray-checkbox" type="checkbox" checked />
+            <span class="checkbox-custom"></span>
+            <span class="tray-option-text">Minimize to System Tray on Close (X)</span>
+          </label>
+        </div>
+
         <div class="input-row action-buttons">
           <button id="start-btn" class="btn-primary-action" disabled>
             Start Monitoring
@@ -81,12 +89,48 @@
             <span class="console-title">Sync Console Log</span>
             <span id="log-count" class="log-count-badge">1 entry</span>
           </div>
-          <button id="clear-logs-btn" class="btn-clear">Clear Log</button>
+          <div class="console-header-actions">
+            <button id="bug-report-btn" class="btn-bug">🐛 Report Bug</button>
+            <button id="clear-logs-btn" class="btn-clear">Clear Log</button>
+          </div>
         </div>
         <div id="console-logs" class="console-logs">
           <div class="log-entry info">Companion app initialized. Paste your API Key and folder path to start.</div>
         </div>
       </section>
+    </div>
+
+    <!-- Bug Report Modal -->
+    <div id="bug-modal" class="modal-overlay hidden">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>🐛 Report a Bug</h2>
+          <button id="close-bug-modal" class="btn-close-modal">&times;</button>
+        </div>
+        <p class="modal-desc">Send a bug report directly to the developer's Discord.</p>
+        
+        <div class="form-group">
+          <label for="bug-title-input">Issue Title *</label>
+          <input id="bug-title-input" type="text" placeholder="Brief summary of the issue" />
+        </div>
+
+        <div class="form-group">
+          <label for="bug-desc-input">Description & Steps to Reproduce *</label>
+          <textarea id="bug-desc-input" rows="4" placeholder="What happened? What were you doing when the bug occurred?"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="bug-contact-input">Your Contact / Discord (Optional)</label>
+          <input id="bug-contact-input" type="text" placeholder="e.g. Steve#1234 or email@domain.com" />
+        </div>
+
+        <div id="bug-status-msg" class="bug-status hidden"></div>
+
+        <div class="modal-actions">
+          <button id="cancel-bug-btn" class="btn-secondary">Cancel</button>
+          <button id="submit-bug-btn" class="btn-primary-action">Submit Report</button>
+        </div>
+      </div>
     </div>
   </body>
 </html>
