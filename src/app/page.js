@@ -439,13 +439,12 @@ export default function Home() {
           </section>
 
           {/* Section 2: Mockup and Companion Info */}
-          <section className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-            <div className="lg:col-span-5 space-y-6">
-              <span
-                className="text-xs uppercase font-mono tracking-widest text-amber-500 bg-amber-500/10 border border-amber-500/25 px-3.5 py-1.5 rounded-full inline-block"
-              >
-                Companion Client
-              </span>
+          <section className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+            <div className="lg:col-span-5 space-y-5">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-mono uppercase tracking-wider">
+                <Activity className="w-3.5 h-3.5" />
+                Zero Modding Required
+              </div>
               <h2
                 className="text-3xl sm:text-4xl font-extrabold text-amber-100 leading-tight"
                 style={{ textShadow: "0 2px 8px rgba(0,0,0,0.6)" }}
@@ -596,26 +595,53 @@ export default function Home() {
               </p>
             </div>
 
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.98 }}
-              className="inline-block"
-            >
-              <Link
-                href="/register"
-                className="inline-flex items-center gap-3.5 px-10 py-4 font-bold text-lg text-center"
-                style={mcPrimaryButton}
+            <div className="flex flex-col sm:flex-row justify-center gap-4 items-center">
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.98 }}
               >
-                Create Your Journal
-                <ArrowRight className="w-5 h-5" />
-              </Link>
-            </motion.div>
+                <Link
+                  href="/docs"
+                  className="inline-flex items-center gap-2 px-8 py-3.5 font-bold text-base text-center"
+                  style={mcSecondaryButton}
+                >
+                  Read Docs
+                </Link>
+              </motion.div>
 
-            <div className="pt-8 border-t border-amber-900/10 text-xs text-amber-200/30 font-mono flex justify-center gap-8">
-              <span>&copy; 2026 Minecraft Life Journal</span>
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <Link
+                  href="/register"
+                  className="inline-flex items-center gap-3.5 px-8 py-3.5 font-bold text-base text-center"
+                  style={mcPrimaryButton}
+                >
+                  Create Your Journal
+                  <ArrowRight className="w-5 h-5" />
+                </Link>
+              </motion.div>
+            </div>
+
+            <div className="pt-8 border-t border-amber-900/10 text-xs text-amber-200/40 font-mono flex flex-wrap justify-center gap-3 sm:gap-4 items-center">
+              <span>&copy; 2026 Minecraft Life Journal &bull; SamXop123</span>
+              <span className="text-amber-500/30">&bull;</span>
+              <Link href="/docs" className="hover:underline flex items-center gap-1 hover:text-amber-200/70">
+                Documentation
+              </Link>
+              <span className="text-amber-500/30">&bull;</span>
+              <Link href="/about" className="hover:underline flex items-center gap-1 hover:text-amber-200/70">
+                About MLJ
+              </Link>
+              <span className="text-amber-500/30">&bull;</span>
+              <Link href="/companion" className="hover:underline flex items-center gap-1 hover:text-amber-200/70">
+                Companion App
+              </Link>
+              <span className="text-amber-500/30">&bull;</span>
               <a
                 href="/dashboard"
-                className="hover:underline flex items-center gap-1 hover:text-amber-200/50"
+                className="hover:underline flex items-center gap-1 hover:text-amber-200/70"
               >
                 Dashboard
                 <ExternalLink className="w-3 h-3" />
