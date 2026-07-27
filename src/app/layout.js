@@ -6,10 +6,34 @@ import { SettingsProvider } from "@/context/SettingsContext";
 import { Analytics } from "@vercel/analytics/next";
 
 export const metadata = {
-  title: "Minecraft Life Journal",
-  description: "A Minecraft Life Journal application",
+  metadataBase: new URL("https://minecraft-life-journal.vercel.app"),
+  title: "Minecraft Life Journal | Preserve Your Minecraft World Stories & Playtime",
+  description: "Track your Minecraft adventures, in-game memories, screenshots, coordinate logs, and total playtime live with MLJ Companion.",
   icons: {
-    icon: '/logo.png',
+    icon: "/logo.png",
+    apple: "/logo.png",
+  },
+  openGraph: {
+    title: "Minecraft Life Journal | Sync Your In-Game Journey Live",
+    description: "Track your Minecraft adventures, in-game memories, screenshots, coordinate logs, and total playtime live.",
+    url: "https://minecraft-life-journal.vercel.app",
+    siteName: "Minecraft Life Journal",
+    images: [
+      {
+        url: "/logo.png",
+        width: 800,
+        height: 800,
+        alt: "Minecraft Life Journal Logo",
+      },
+    ],
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+    title: "Minecraft Life Journal",
+    description: "Track your Minecraft adventures, in-game memories, screenshots, coordinate logs, and total playtime live.",
+    images: ["/logo.png"],
   },
 };
 
