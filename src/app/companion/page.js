@@ -325,6 +325,31 @@ export default function CompanionPage() {
                   <Download size={16} />
                   Download installer
                 </a>
+
+                {/* Windows SmartScreen Guidance */}
+                <div className="mt-4 p-3.5 rounded-xl bg-amber-950/30 border border-amber-500/20 text-xs text-amber-200/80 space-y-1">
+                  <div className="flex items-center gap-2 text-amber-400 font-semibold">
+                    <ShieldAlert size={14} className="shrink-0" />
+                    <span>Windows SmartScreen Note</span>
+                  </div>
+                  <p className="leading-relaxed font-light text-[11px]">
+                    If Windows displays a <em>"Windows protected your PC"</em> prompt on first run, simply click <strong>More Info</strong> ➔ <strong>Run Anyway</strong>.
+                  </p>
+                </div>
+
+                {/* Supported Clients Badge */}
+                <div className="mt-5 pt-4 border-t border-white/5 space-y-2">
+                  <p className="text-[10px] font-mono font-bold tracking-widest text-amber-200/40 uppercase">
+                    Supported Launchers
+                  </p>
+                  <div className="flex flex-wrap gap-1.5 text-[11px]">
+                    {["Official Launcher", "Lunar Client", "Fabric", "Forge", "OptiFine", "Feather", "Badlion"].map((launcher) => (
+                      <span key={launcher} className="px-2.5 py-1 rounded-md bg-white/5 border border-white/10 text-amber-100/80 font-mono">
+                        {launcher}
+                      </span>
+                    ))}
+                  </div>
+                </div>
               </motion.div>
             </div>
 
