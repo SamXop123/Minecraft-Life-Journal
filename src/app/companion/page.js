@@ -340,14 +340,12 @@ export default function CompanionPage() {
                 {/* Supported Clients Badge */}
                 <div className="mt-5 pt-4 border-t border-white/5 space-y-2">
                   <p className="text-[10px] font-mono font-bold tracking-widest text-amber-200/40 uppercase">
-                    Supported Launchers
+                    Supported Launcher
                   </p>
                   <div className="flex flex-wrap gap-1.5 text-[11px]">
-                    {["Official Launcher", "Lunar Client", "Fabric", "Forge", "OptiFine", "Feather", "Badlion"].map((launcher) => (
-                      <span key={launcher} className="px-2.5 py-1 rounded-md bg-white/5 border border-white/10 text-amber-100/80 font-mono">
-                        {launcher}
-                      </span>
-                    ))}
+                    <span className="px-2.5 py-1 rounded-md bg-amber-500/10 border border-amber-500/30 text-amber-300 font-mono font-semibold">
+                      Official Minecraft Launcher
+                    </span>
                   </div>
                 </div>
               </motion.div>
