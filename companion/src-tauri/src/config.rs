@@ -6,6 +6,10 @@ fn default_web_url() -> String {
     "http://localhost:3000".to_string()
 }
 
+fn default_true() -> bool {
+    true
+}
+
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct AppConfig {
     pub api_key: String,
@@ -14,6 +18,10 @@ pub struct AppConfig {
     pub selected_world_name: String,
     #[serde(default = "default_web_url")]
     pub web_app_url: String,
+    #[serde(default = "default_true")]
+    pub minimize_to_tray: bool,
+    #[serde(default)]
+    pub discord_webhook_url: String,
 }
 
 pub fn get_home_dir() -> PathBuf {
@@ -57,6 +65,8 @@ impl Default for AppConfig {
             } else {
                 "https://minecraft-life-journal.vercel.app".to_string()
             },
+            minimize_to_tray: true,
+            discord_webhook_url: String::new(),
         }
     }
 }
