@@ -63,7 +63,7 @@ impl Default for AppConfig {
             web_app_url: if cfg!(debug_assertions) {
                 "http://localhost:3000".to_string()
             } else {
-                "https://minecraft-life-journal.vercel.app".to_string()
+                "https://mlj.app".to_string()
             },
             minimize_to_tray: true,
             discord_webhook_url: String::new(),
@@ -93,7 +93,7 @@ pub fn load_config() -> AppConfig {
     config.web_app_url = if cfg!(debug_assertions) {
         "http://localhost:3000".to_string()
     } else {
-        "https://minecraft-life-journal.vercel.app".to_string()
+        "https://mlj.app".to_string()
     };
     
     config

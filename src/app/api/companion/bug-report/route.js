@@ -23,7 +23,7 @@ export async function POST(req) {
 
     const payload = {
       username: "MLJ Companion Bug Reporter",
-      avatar_url: "https://minecraft-life-journal.vercel.app/logo.png",
+      avatar_url: "https://mlj.app/logo.png",
       embeds: [
         {
           title: `🐛 Bug Report: ${title}`,
