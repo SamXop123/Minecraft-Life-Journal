@@ -48,26 +48,41 @@ fn save_config(config: AppConfig, state: tauri::State<'_, Arc<WatcherState>>, ap
 #[tauri::command]
 async fn fetch_worlds(api_key: String, web_app_url: String) -> Result<serde_json::Value, String> {
     let client = reqwest::Client::builder()
-        .timeout(std::time::Duration::from_secs(10))
+        .timeout(std::time::Duration::from_secs(6))
         .build()
         .map_err(|e| e.to_string())?;
 
-    let url = format!("{}/api/companion/worlds", web_app_url);
+    let mut targets = vec![
+        web_app_url.clone(),
+        "https://mlj.app".to_string(),
+        "https://minecraft-life-journal.vercel.app".to_string(),
+        "http://localhost:3000".to_string(),
+    ];
+    targets.dedup();
 
-    let res = client
-        .get(&url)
-        .header("x-api-key", api_key)
-        .send()
-        .await
-        .map_err(|e| e.to_string())?;
-
-    let status = res.status();
-    if status.is_success() {
-        let val: serde_json::Value = res.json().await.map_err(|e| e.to_string())?;
-        Ok(val)
-    } else {
-        Err(format!("Server returned error status: {}", status))
+    let mut last_err = String::new();
+    for target in targets {
+        if target.trim().is_empty() {
+            continue;
+        }
+        let url = format!("{}/api/companion/worlds", target.trim_end_matches('/'));
+        match client.get(&url).header("x-api-key", &api_key).send().await {
+            Ok(res) => {
+                let status = res.status();
+                if status.is_success() {
+                    let val: serde_json::Value = res.json().await.map_err(|e| e.to_string())?;
+                    return Ok(val);
+                } else {
+                    last_err = format!("Server ({}) status: {}", target, status);
+                }
+            }
+            Err(e) => {
+                last_err = format!("Network error reaching ({}): {}", target, e);
+            }
+        }
     }
+
+    Err(format!("Could not connect to MLJ servers. {}", last_err))
 }
 
 #[tauri::command]
@@ -103,7 +118,11 @@ async fn submit_bug_report(title: String, description: String, contact: String) 
     }
 
     let config = load_config();
-    let client = reqwest::Client::new();
+    let client = reqwest::Client::builder()
+        .timeout(std::time::Duration::from_secs(6))
+        .build()
+        .map_err(|e| e.to_string())?;
+
     let contact_text = if contact.trim().is_empty() { "Anonymous".to_string() } else { contact };
 
     let payload = serde_json::json!({
@@ -115,29 +134,27 @@ async fn submit_bug_report(title: String, description: String, contact: String) 
         "os": std::env::consts::OS
     });
 
-    let primary_url = format!("{}/api/companion/bug-report", config.web_app_url);
-    let mut success = false;
+    let mut targets = vec![
+        config.web_app_url.clone(),
+        "https://mlj.app".to_string(),
+        "https://minecraft-life-journal.vercel.app".to_string(),
+        "http://localhost:3000".to_string(),
+    ];
+    targets.dedup();
 
-    if let Ok(res) = client.post(&primary_url).json(&payload).send().await {
-        if res.status().is_success() {
-            success = true;
+    for target in targets {
+        if target.trim().is_empty() {
+            continue;
         }
-    }
-
-    if !success && !config.web_app_url.contains("localhost") {
-        let local_url = "http://localhost:3000/api/companion/bug-report";
-        if let Ok(res) = client.post(local_url).json(&payload).send().await {
+        let api_url = format!("{}/api/companion/bug-report", target.trim_end_matches('/'));
+        if let Ok(res) = client.post(&api_url).json(&payload).send().await {
             if res.status().is_success() {
-                success = true;
+                return Ok(());
             }
         }
     }
 
-    if success {
-        Ok(())
-    } else {
-        Err("Failed to deliver bug report. Make sure web app or dev server is running.".to_string())
-    }
+    Err("Failed to deliver bug report. Please verify network connection.".to_string())
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -201,7 +218,7 @@ pub fn run() {
                     "web" => {
                         let config = load_config();
                         let url = if config.web_app_url.is_empty() {
-                            "https://minecraft-life-journal.vercel.app".to_string()
+                            "https://mlj.app".to_string()
                         } else {
                             config.web_app_url
                         };
