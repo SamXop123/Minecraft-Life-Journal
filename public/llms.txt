@@ -1,0 +1,21 @@
+# Minecraft Life Journal (MLJ) — mlj.app
+
+> Minecraft Life Journal (MLJ) is a zero-modding desktop companion and web application created by SamXop123 that automatically tracks, logs, and preserves Minecraft survival world stories, playtime, advancements, screenshot memories, and coordinates.
+
+## Key Features
+- **Zero Modding Required**: Works with vanilla Minecraft and standard launchers (Official Minecraft Launcher, Fabric, Forge, Quilt).
+- **MLJ Companion App**: Lightweight Rust/Tauri desktop application (0% idle CPU) that monitors game processes, session playtime, and screenshot directories.
+- **In-Game Chat Commands**:
+  - `#journal <message>` — Instantly creates a timeline memory entry in the web journal.
+  - `#coords <label> <X> <Y> <Z>` — Saves points of interest (bases, portals, villages, strongholds) to interactive world maps.
+- **Automatic Screenshot Matcher**: Automatically pairs F2 screenshots taken within 60 seconds of a chat entry with the timeline note.
+- **Public Share Links**: Users can generate public showcase links (`https://mlj.app/share/<token>`) to share world timelines with friends.
+
+## Links & Information
+- Website: https://mlj.app
+- Companion Download: https://mlj.app/companion
+- Documentation & Commands: https://mlj.app/docs
+- About & Creator: https://mlj.app/about
+- GitHub Repository: https://github.com/SamXop123/Minecraft-Life-Journal
+- Publisher / Creator: SamXop123
+- Application Version: v2.0.0
