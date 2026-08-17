@@ -6,7 +6,7 @@ import { SettingsProvider } from "@/context/SettingsContext";
 import { Analytics } from "@vercel/analytics/next";
 
 export const metadata = {
-  metadataBase: new URL("https://minecraft-life-journal.vercel.app"),
+  metadataBase: new URL("https://mlj.app"),
   title: "Minecraft Life Journal | Preserve Your Minecraft World Stories & Playtime",
   description: "Track your Minecraft adventures, in-game memories, screenshots, coordinate logs, and total playtime live with MLJ Companion.",
   icons: {
@@ -16,7 +16,7 @@ export const metadata = {
   openGraph: {
     title: "Minecraft Life Journal | Sync Your In-Game Journey Live",
     description: "Track your Minecraft adventures, in-game memories, screenshots, coordinate logs, and total playtime live.",
-    url: "https://minecraft-life-journal.vercel.app",
+    url: "https://mlj.app",
     siteName: "Minecraft Life Journal",
     images: [
       {
