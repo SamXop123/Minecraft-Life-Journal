@@ -92,6 +92,139 @@ fn get_log_paths(minecraft_path: &str) -> Vec<PathBuf> {
     paths
 }
 
+fn get_api_targets(configured_url: &str) -> Vec<String> {
+    let mut targets = vec![
+        configured_url.to_string(),
+        "https://www.mlj.app".to_string(),
+        "https://mlj.app".to_string(),
+        "https://minecraft-life-journal.vercel.app".to_string(),
+        "http://localhost:3000".to_string(),
+    ];
+    targets.retain(|t| !t.trim().is_empty());
+    targets.dedup();
+    targets
+}
+
+fn upload_paired_screenshot(
+    client: &reqwest::blocking::Client,
+    config: &crate::config::AppConfig,
+    title: &str,
+    description: &str,
+    file_bytes: &[u8],
+    filename: &str,
+) -> Result<String, String> {
+    let targets = get_api_targets(&config.web_app_url);
+    let mut last_err = String::from("Screenshot upload failed");
+
+    for base in &targets {
+        let mut target_url = format!("{}/api/companion/upload", base.trim_end_matches('/'));
+
+        // Follow up to 3 redirects per domain target
+        for _ in 0..3 {
+            let part = reqwest::blocking::multipart::Part::bytes(file_bytes.to_vec())
+                .file_name(filename.to_string())
+                .mime_str(if filename.ends_with(".png") { "image/png" } else { "image/jpeg" })
+                .unwrap_or_else(|_| reqwest::blocking::multipart::Part::bytes(file_bytes.to_vec()));
+
+            let form = reqwest::blocking::multipart::Form::new()
+                .text("worldId", config.selected_world_id.clone())
+                .text("title", title.to_string())
+                .text("description", description.to_string())
+                .text("category", "achievement".to_string())
+                .part("file", part);
+
+            match client.post(&target_url)
+                .header("x-api-key", &config.api_key)
+                .multipart(form)
+                .send() {
+                    Ok(resp) => {
+                        let status = resp.status();
+                        if status.is_success() {
+                            return Ok("Screenshot logged successfully".to_string());
+                        } else if status.is_redirection() {
+                            if let Some(loc) = resp.headers().get("Location") {
+                                if let Ok(loc_str) = loc.to_str() {
+                                    target_url = loc_str.to_string();
+                                    continue;
+                                }
+                            }
+                            last_err = format!("Server redirected ({}) without location header", status);
+                            break;
+                        } else {
+                            last_err = format!("Server ({}) returned status {}", base, status);
+                            break;
+                        }
+                    }
+                    Err(e) => {
+                        last_err = format!("Network error ({}): {}", base, e);
+                        break;
+                    }
+                }
+        }
+    }
+
+    Err(last_err)
+}
+
+fn send_text_log(
+    client: &reqwest::blocking::Client,
+    config: &crate::config::AppConfig,
+    message: &str,
+) -> Result<String, String> {
+    let targets = get_api_targets(&config.web_app_url);
+    let mut last_err = String::from("Log sending failed");
+    let body = serde_json::json!({
+        "worldId": config.selected_world_id,
+        "message": message
+    });
+
+    for base in &targets {
+        let mut target_url = format!("{}/api/companion/log", base.trim_end_matches('/'));
+
+        for _ in 0..3 {
+            match client.post(&target_url)
+                .header("x-api-key", &config.api_key)
+                .json(&body)
+                .send() {
+                    Ok(resp) => {
+                        let status = resp.status();
+                        if status.is_success() {
+                            if let Ok(res_json) = resp.json::<serde_json::Value>() {
+                                let msg = res_json["message"].as_str().unwrap_or("Success");
+                                return Ok(msg.to_string());
+                            }
+                            return Ok("Logged successfully".to_string());
+                        } else if status.is_redirection() {
+                            if let Some(loc) = resp.headers().get("Location") {
+                                if let Ok(loc_str) = loc.to_str() {
+                                    target_url = loc_str.to_string();
+                                    continue;
+                                }
+                            }
+                            last_err = format!("Server redirected ({}) without location header", status);
+                            break;
+                        } else {
+                            if let Ok(res_json) = resp.json::<serde_json::Value>() {
+                                if let Some(err_msg) = res_json["message"].as_str() {
+                                    last_err = format!("Error: {}", err_msg);
+                                    break;
+                                }
+                            }
+                            last_err = format!("Server ({}) returned status {}", base, status);
+                            break;
+                        }
+                    }
+                    Err(e) => {
+                        last_err = format!("Network error ({}): {}", base, e);
+                        break;
+                    }
+                }
+        }
+    }
+
+    Err(last_err)
+}
+
 impl LogWatcherManager {
     pub fn new(recent_screenshot: SharedScreenshot) -> Self {
         Self {
@@ -142,7 +275,10 @@ impl LogWatcherManager {
                 let mut pos = reader.seek(SeekFrom::Current(0)).unwrap_or(0);
 
                 let mut line = String::new();
-                let client = reqwest::blocking::Client::new();
+                let client = reqwest::blocking::Client::builder()
+                    .timeout(Duration::from_secs(10))
+                    .build()
+                    .unwrap_or_else(|_| reqwest::blocking::Client::new());
 
                 while !stop_flag.load(Ordering::SeqCst) {
                     line.clear();
@@ -189,13 +325,12 @@ impl LogWatcherManager {
                                 let _ = app_handle_clone.emit("sync-log-status", format!("Processing: {}", trimmed));
 
                                 // 1. Attempt Screenshot pairing if it's #journal command
-                                let mut is_paired = false;
+                                let mut screenshot_upload_succeeded = false;
                                 if trimmed.contains("#journal") {
                                     let mut lock = recent_screenshot.lock().unwrap();
                                     if let Some((path, instant)) = &*lock {
                                         // 180 seconds pairing window
                                         if instant.elapsed() < Duration::from_secs(180) {
-                                            is_paired = true;
                                             let (title, description) = parse_command_text(trimmed)
                                                 .unwrap_or_else(|| ("Screenshot Captured".to_string(), "Automatically captured in-game screenshot.".to_string()));
 
@@ -204,55 +339,32 @@ impl LogWatcherManager {
 
                                             // Attempt compression
                                             let (upload_path, is_temp) = match compress_to_temp_jpeg(path) {
-                                                Some(temp_path) => {
-                                                    println!("Compression successful: {:?}", temp_path);
-                                                    (temp_path, true)
-                                                }
-                                                None => {
-                                                    println!("Compression failed. Falling back to original PNG: {:?}", path);
-                                                    (path.clone(), false)
-                                                }
+                                                Some(temp_path) => (temp_path, true),
+                                                None => (path.clone(), false),
                                             };
 
                                             let _ = app_handle_clone.emit("sync-log-status", "Uploading paired screenshot...".to_string());
 
-                                            let url = format!("{}/api/companion/upload", config_clone.web_app_url);
-                                            
-                                            // Create multipart form data
-                                            let form_res = reqwest::blocking::multipart::Form::new()
-                                                .text("worldId", config_clone.selected_world_id.clone())
-                                                .text("title", title)
-                                                .text("description", description)
-                                                .text("category", "achievement")
-                                                .file("file", upload_path.clone());
+                                            if let Ok(file_bytes) = fs::read(&upload_path) {
+                                                let filename = upload_path.file_name()
+                                                    .map(|f| f.to_string_lossy().into_owned())
+                                                    .unwrap_or_else(|| "screenshot.jpg".to_string());
 
-                                            match form_res {
-                                                Ok(form) => {
-                                                    match client.post(&url)
-                                                        .header("x-api-key", &config_clone.api_key)
-                                                        .multipart(form)
-                                                        .send() {
-                                                            Ok(response) => {
-                                                                let status = response.status();
-                                                                if status.is_success() {
-                                                                    let _ = app_handle_clone.emit("sync-log-success", "Screenshot logged successfully".to_string());
-                                                                } else {
-                                                                    let _ = app_handle_clone.emit("sync-log-error", format!("Server rejected screenshot upload: {}", status));
-                                                                }
-                                                            }
-                                                            Err(err) => {
-                                                                let _ = app_handle_clone.emit("sync-log-error", format!("Screenshot upload network error: {}", err));
-                                                            }
-                                                        }
+                                                match upload_paired_screenshot(&client, &config_clone, &title, &description, &file_bytes, &filename) {
+                                                    Ok(success_msg) => {
+                                                        screenshot_upload_succeeded = true;
+                                                        let _ = app_handle_clone.emit("sync-log-success", success_msg);
+                                                    }
+                                                    Err(err) => {
+                                                        let _ = app_handle_clone.emit("sync-log-error", format!("Screenshot upload issue: {}. Falling back to text journal...", err));
+                                                    }
                                                 }
-                                                Err(err) => {
-                                                    let _ = app_handle_clone.emit("sync-log-error", format!("Failed to read screenshot: {}", err));
-                                                }
+                                            } else {
+                                                let _ = app_handle_clone.emit("sync-log-error", "Could not read screenshot file. Falling back to text journal...".to_string());
                                             }
 
                                             // Cleanup temporary file if it was compressed
                                             if is_temp {
-                                                println!("Cleaning up temp file: {:?}", upload_path);
                                                 let _ = std::fs::remove_file(&upload_path);
                                             }
                                         }
@@ -262,38 +374,16 @@ impl LogWatcherManager {
                                     *lock = None;
                                 }
 
-                                // 2. Send standard text log if NOT paired
-                                if !is_paired {
-                                    let url = format!("{}/api/companion/log", config_clone.web_app_url);
-                                    let body = serde_json::json!({
-                                        "worldId": config_clone.selected_world_id,
-                                        "message": trimmed
-                                    });
-
-                                    match client.post(&url)
-                                        .header("x-api-key", &config_clone.api_key)
-                                        .json(&body)
-                                        .send() {
-                                            Ok(response) => {
-                                                let status = response.status();
-                                                if status.is_success() {
-                                                    if let Ok(res_json) = response.json::<serde_json::Value>() {
-                                                        let msg = res_json["message"].as_str().unwrap_or("Success");
-                                                        let _ = app_handle_clone.emit("sync-log-success", msg.to_string());
-                                                    }
-                                                } else {
-                                                    if let Ok(res_json) = response.json::<serde_json::Value>() {
-                                                        let err_msg = res_json["message"].as_str().unwrap_or("API Error");
-                                                        let _ = app_handle_clone.emit("sync-log-error", format!("Error: {}", err_msg));
-                                                    } else {
-                                                        let _ = app_handle_clone.emit("sync-log-error", format!("Server returned status {}", status));
-                                                    }
-                                                }
-                                            }
-                                            Err(err) => {
-                                                let _ = app_handle_clone.emit("sync-log-error", format!("Network error: {}", err));
-                                            }
+                                // 2. Send standard text log if screenshot upload was not applicable or failed
+                                if !screenshot_upload_succeeded {
+                                    match send_text_log(&client, &config_clone, trimmed) {
+                                        Ok(msg) => {
+                                            let _ = app_handle_clone.emit("sync-log-success", msg);
                                         }
+                                        Err(err) => {
+                                            let _ = app_handle_clone.emit("sync-log-error", err);
+                                        }
+                                    }
                                 }
                             }
                         }
