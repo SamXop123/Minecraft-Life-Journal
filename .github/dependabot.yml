@@ -1,0 +1,37 @@
+version: 2
+updates:
+  # Next.js Web Application dependencies
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+    commit-message:
+      prefix: "chore(deps)"
+    labels:
+      - "dependencies"
+      - "web"
+
+  # Companion Desktop Frontend dependencies
+  - package-ecosystem: "npm"
+    directory: "/companion"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "chore(deps-companion)"
+    labels:
+      - "dependencies"
+      - "companion"
+
+  # Tauri / Rust Backend dependencies
+  - package-ecosystem: "cargo"
+    directory: "/companion/src-tauri"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "chore(deps-rust)"
+    labels:
+      - "dependencies"
+      - "rust"
