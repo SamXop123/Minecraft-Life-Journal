@@ -47,24 +47,29 @@ fn save_config(config: AppConfig, state: tauri::State<'_, Arc<WatcherState>>, ap
 
 #[tauri::command]
 async fn fetch_worlds(api_key: String, web_app_url: String) -> Result<serde_json::Value, String> {
+    if api_key.trim().is_empty() {
+        return Err("API Key is empty. Please enter your API Key from mlj.app/companion".to_string());
+    }
+
     let client = reqwest::Client::builder()
-        .timeout(std::time::Duration::from_secs(6))
+        .timeout(std::time::Duration::from_secs(8))
         .build()
         .map_err(|e| e.to_string())?;
 
     let mut targets = vec![
         web_app_url.clone(),
+        "https://www.mlj.app".to_string(),
         "https://mlj.app".to_string(),
         "https://minecraft-life-journal.vercel.app".to_string(),
-        "http://localhost:3000".to_string(),
     ];
+    if cfg!(debug_assertions) || web_app_url.contains("localhost") {
+        targets.push("http://localhost:3000".to_string());
+    }
+    targets.retain(|t| !t.trim().is_empty());
     targets.dedup();
 
     let mut last_err = String::new();
     for target in targets {
-        if target.trim().is_empty() {
-            continue;
-        }
         let url = format!("{}/api/companion/worlds", target.trim_end_matches('/'));
         match client.get(&url).header("x-api-key", &api_key).send().await {
             Ok(res) => {
@@ -72,12 +77,20 @@ async fn fetch_worlds(api_key: String, web_app_url: String) -> Result<serde_json
                 if status.is_success() {
                     let val: serde_json::Value = res.json().await.map_err(|e| e.to_string())?;
                     return Ok(val);
+                } else if status == reqwest::StatusCode::UNAUTHORIZED || status == reqwest::StatusCode::FORBIDDEN {
+                    // API key is invalid or expired
+                    if let Ok(err_json) = res.json::<serde_json::Value>().await {
+                        if let Some(msg) = err_json["message"].as_str() {
+                            return Err(msg.to_string());
+                        }
+                    }
+                    return Err("Invalid or expired API Key. Please copy your latest API Key from mlj.app/companion".to_string());
                 } else {
-                    last_err = format!("Server ({}) status: {}", target, status);
+                    last_err = format!("Server ({}) returned status: {}", target, status);
                 }
             }
             Err(e) => {
-                last_err = format!("Network error reaching ({}): {}", target, e);
+                last_err = format!("Connection error: {}", e);
             }
         }
     }
