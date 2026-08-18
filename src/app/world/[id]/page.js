@@ -1294,14 +1294,14 @@ export default function WorldDetailPage({ params }) {
               >
                 <div className="flex items-center justify-between mb-6">
                   <h2
-                    className="text-xl font-semibold"
+                    className="text-xl font-semibold flex items-center gap-2"
                     style={{
                       color: "rgba(255,224,176,0.95)",
                       textShadow:
                         "0 0 15px rgba(218,165,32,0.4), 0 2px 6px rgba(0,0,0,0.7)",
                     }}
                   >
-                    Memories
+                    Memories ({memories.length})
                   </h2>
                   <div className="flex items-center gap-2">
                     <button
