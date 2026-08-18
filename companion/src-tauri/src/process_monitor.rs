@@ -11,36 +11,75 @@ pub struct ProcessMonitorManager {
     stop_flag: Arc<AtomicBool>,
 }
 
+fn get_api_targets(configured_url: &str) -> Vec<String> {
+    let mut targets = vec![
+        configured_url.to_string(),
+        "https://www.mlj.app".to_string(),
+        "https://mlj.app".to_string(),
+        "https://minecraft-life-journal.vercel.app".to_string(),
+        "http://localhost:3000".to_string(),
+    ];
+    targets.retain(|t| !t.trim().is_empty());
+    targets.dedup();
+    targets
+}
+
+fn post_activity_json(
+    client: &reqwest::blocking::Client,
+    config: &crate::config::AppConfig,
+    body: &serde_json::Value,
+) -> bool {
+    let targets = get_api_targets(&config.web_app_url);
+
+    for base in &targets {
+        let mut target_url = format!("{}/api/companion/activity", base.trim_end_matches('/'));
+
+        for _ in 0..3 {
+            match client.post(&target_url)
+                .header("x-api-key", &config.api_key)
+                .json(body)
+                .send() {
+                    Ok(res) => {
+                        if res.status().is_success() {
+                            return true;
+                        } else if res.status().is_redirection() {
+                            if let Some(loc) = res.headers().get("Location") {
+                                if let Ok(loc_str) = loc.to_str() {
+                                    target_url = loc_str.to_string();
+                                    continue;
+                                }
+                            }
+                            break;
+                        } else {
+                            break;
+                        }
+                    }
+                    Err(_) => break,
+                }
+        }
+    }
+    false
+}
+
 fn send_playtime_update(client: &reqwest::blocking::Client, app_handle: &AppHandle, delta_minutes: u64, is_ongoing: bool) {
     if delta_minutes == 0 {
         return;
     }
     let config = load_config();
     if !config.api_key.is_empty() && !config.selected_world_id.is_empty() {
-        let url = format!("{}/api/companion/activity", config.web_app_url);
         let body = serde_json::json!({
             "worldId": config.selected_world_id,
             "playtimeMinutes": delta_minutes
         });
 
-        match client.post(&url)
-            .header("x-api-key", &config.api_key)
-            .json(&body)
-            .send() {
-                Ok(res) => {
-                    if res.status().is_success() {
-                        let status_msg = if is_ongoing {
-                            format!("Live Playtime Sync: +{} min recorded", delta_minutes)
-                        } else {
-                            format!("Session end sync: +{} min recorded", delta_minutes)
-                        };
-                        let _ = app_handle.emit("sync-log-success", status_msg);
-                    }
-                }
-                Err(err) => {
-                    println!("Failed to send session playtime update: {}", err);
-                }
-            }
+        if post_activity_json(client, &config, &body) {
+            let status_msg = if is_ongoing {
+                format!("Live Playtime Sync: +{} min recorded", delta_minutes)
+            } else {
+                format!("Session end sync: +{} min recorded", delta_minutes)
+            };
+            let _ = app_handle.emit("sync-log-success", status_msg);
+        }
     }
 }
 
@@ -60,7 +99,10 @@ impl ProcessMonitorManager {
             let mut is_minecraft_running = false;
             let mut session_start: Option<Instant> = None;
             let mut last_synced_minutes: u64 = 0;
-            let client = reqwest::blocking::Client::new();
+            let client = reqwest::blocking::Client::builder()
+                .timeout(Duration::from_secs(10))
+                .build()
+                .unwrap_or_else(|_| reqwest::blocking::Client::new());
 
             println!("Process monitor started.");
 
@@ -88,24 +130,13 @@ impl ProcessMonitorManager {
                     // Send start activity update (Mark played)
                     let config = load_config();
                     if !config.api_key.is_empty() && !config.selected_world_id.is_empty() {
-                        let url = format!("{}/api/companion/activity", config.web_app_url);
                         let body = serde_json::json!({
                             "worldId": config.selected_world_id
                         });
 
-                        match client.post(&url)
-                            .header("x-api-key", &config.api_key)
-                            .json(&body)
-                            .send() {
-                                Ok(res) => {
-                                    if res.status().is_success() {
-                                        let _ = app_handle.emit("sync-log-success", "Minecraft session started".to_string());
-                                    }
-                                }
-                                Err(err) => {
-                                    println!("Failed to send start activity: {}", err);
-                                }
-                            }
+                        if post_activity_json(&client, &config, &body) {
+                            let _ = app_handle.emit("sync-log-success", "Minecraft session started".to_string());
+                        }
                     }
                 } else if is_running && is_minecraft_running {
                     // Minecraft is actively running!
