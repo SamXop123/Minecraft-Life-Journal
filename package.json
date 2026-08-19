@@ -17,7 +17,7 @@
     "framer-motion": "^12.34.2",
     "jsonwebtoken": "^9.0.3",
     "lucide-react": "^1.7.0",
-    "mongoose": "^9.2.1",
+    "mongoose": "^9.9.2",
     "next": "16.1.6",
     "nodemailer": "^8.0.4",
     "react": "19.2.3",
