@@ -36,3 +36,7 @@ Thank you for your interest in contributing to Minecraft Life Journal! We welcom
 ## Reporting Issues
 
 If you find a bug or have a feature request, please open an issue on GitHub. Provide as much detail as possible, including steps to reproduce for bugs.
+
+---
+
+### Happy Contributing!
