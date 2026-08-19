@@ -11,7 +11,7 @@
 
 ### 🌟 Features & Highlights
 
-- **⚡ Zero-Bloat Tauri v2 Desktop Companion**:
+- **⚡Desktop Companion**:
   - Lightweight Rust desktop client with 0% idle CPU usage.
   - Automatic game process monitoring, session playtime calculation, and screenshot folder matching.
   - Single-instance window focus protection (`tauri-plugin-single-instance`).
@@ -23,16 +23,11 @@
   - Type `#coords <label> <X> <Y> <Z>` to map points of interest (bases, portals, villages, strongholds).
   - Auto-pairs F2 screenshots taken within 60 seconds of chat memories.
 
-- **🐛 In-App Discord Bug Reporter**:
+- **🐛 In-App Bug Reporter**:
   - Native bug report modal built directly into the companion app that forwards rich, color-coded embeds to the developer's Discord server channel.
 
 - **📖 Official Documentation & About Pages**:
   - Dedicated `/docs` and `/about` pages featuring Quick Start guides, chat command cheat sheets, troubleshooting FAQ, SmartScreen installation helper, and creator story by **SamXop123**.
-
-- **🤖 AI Assistant Discovery & Search Engine Optimization**:
-  - Native sitemap, robots control, and standard `llms.txt` for AI Assistant discovery (ChatGPT, Perplexity, Claude, Gemini).
-  - JSON-LD `SoftwareApplication` schema markup for Google & Bing search indexing.
-  - Open Graph and Twitter Card social link previews across messaging platforms.
 
 - **⚡ High-Performance Database Architecture**:
   - MongoDB compound indexing (`{ worldId: 1, isDeleted: 1, memoryDate: -1, createdAt: -1 }`) for fast timeline pagination.
