@@ -6,6 +6,7 @@ import World from "@/models/World";
 import Memory from "@/models/Memory";
 import WorldActivity from "@/models/WorldActivity";
 import { normalizeDate } from "@/lib/utils/normalizeDate";
+import { classifyMemory } from "@/lib/utils/categorizer";
 
 export const runtime = "nodejs";
 
@@ -58,9 +59,16 @@ export async function POST(req) {
       );
     }
 
-    const title = formData.get("title") || "Screenshot Captured";
-    const description = formData.get("description") || "Automatically captured in-game screenshot.";
-    const category = formData.get("category") || "achievement";
+    const rawTitle = formData.get("title") || "Screenshot Captured";
+    const rawDescription = formData.get("description") || "Automatically captured in-game screenshot.";
+    const providedCategory = formData.get("category");
+
+    const { category: detectedCategory, cleanText } = classifyMemory(rawDescription, rawTitle);
+    const category = (providedCategory && providedCategory !== "achievement") ? providedCategory : detectedCategory;
+    const description = cleanText || rawDescription;
+    const title = rawTitle.startsWith("[") && rawTitle.includes("]")
+      ? rawTitle.replace(/^\s*\[[a-zA-Z0-9_\-\s]{2,20}\]\s*/, "")
+      : rawTitle;
 
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);

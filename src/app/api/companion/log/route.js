@@ -6,6 +6,7 @@ import Memory from "@/models/Memory";
 import Coordinate from "@/models/Coordinate";
 import WorldActivity from "@/models/WorldActivity";
 import { normalizeDate } from "@/lib/utils/normalizeDate";
+import { classifyMemory } from "@/lib/utils/categorizer";
 
 export const runtime = "nodejs";
 
@@ -41,23 +42,7 @@ function parseLogLine(msg) {
   return { type: "unknown", content: msg.trim() };
 }
 
-// Keyword-based memory categorizer
-function categorizeMemory(text) {
-  const lowercase = text.toLowerCase();
-  if (lowercase.includes("died") || lowercase.includes("death") || lowercase.includes("killed") || lowercase.includes("slain")) {
-    return "death";
-  }
-  if (lowercase.includes("built") || lowercase.includes("build") || lowercase.includes("house") || lowercase.includes("farm") || lowercase.includes("base") || lowercase.includes("project")) {
-    return "build";
-  }
-  if (lowercase.includes("lol") || lowercase.includes("haha") || lowercase.includes("joke") || lowercase.includes("funny") || lowercase.includes("troll")) {
-    return "funny";
-  }
-  if (lowercase.includes("love") || lowercase.includes("sad") || lowercase.includes("emotional") || lowercase.includes("feel") || lowercase.includes("rip") || lowercase.includes("miss")) {
-    return "emotional";
-  }
-  return "achievement"; // fallback default
-}
+// Regex helper to extract chat text and advancements
 
 // Keyword-based coordinate categorizer
 function categorizeCoordinate(label) {
@@ -240,14 +225,14 @@ export async function POST(req) {
           );
         }
 
-        const category = categorizeMemory(text);
-        const title = text.length > 45 ? `${text.slice(0, 42)}...` : text;
+        const { category, cleanText } = classifyMemory(text);
+        const title = cleanText.length > 45 ? `${cleanText.slice(0, 42)}...` : cleanText;
 
         const memory = await Memory.create({
           worldId,
           title,
           category,
-          description: text,
+          description: cleanText,
           memoryDate: new Date(),
           source: "manual",
         });
