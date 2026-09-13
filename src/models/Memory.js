@@ -13,8 +13,9 @@ const MemorySchema = new mongoose.Schema({
   },
   category: {
     type: String,
-    enum: ["achievement", "build", "death", "funny", "emotional"],
     required: [true, "Category is required"],
+    trim: true,
+    default: "story",
   },
   description: {
     type: String,
