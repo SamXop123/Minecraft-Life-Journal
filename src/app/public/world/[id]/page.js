@@ -22,9 +22,15 @@ import {
 const CATEGORY_STYLES = {
   achievement: { bg: "rgba(234,179,8,0.08)", border: "rgba(234,179,8,0.25)", color: "#facc15" },
   build: { bg: "rgba(59,130,246,0.08)", border: "rgba(59,130,246,0.25)", color: "#60a5fa" },
+  exploration: { bg: "rgba(20,184,166,0.08)", border: "rgba(20,184,166,0.25)", color: "#2dd4bf" },
+  mining: { bg: "rgba(245,158,11,0.08)", border: "rgba(245,158,11,0.25)", color: "#fbbf24" },
+  combat: { bg: "rgba(244,63,94,0.08)", border: "rgba(244,63,94,0.25)", color: "#fb7185" },
   death: { bg: "rgba(239,68,68,0.08)", border: "rgba(239,68,68,0.25)", color: "#f87171" },
+  redstone: { bg: "rgba(220,38,38,0.08)", border: "rgba(220,38,38,0.25)", color: "#ef4444" },
+  story: { bg: "rgba(16,185,129,0.08)", border: "rgba(16,185,129,0.25)", color: "#34d399" },
   funny: { bg: "rgba(236,72,153,0.08)", border: "rgba(236,72,153,0.25)", color: "#f472b6" },
   emotional: { bg: "rgba(168,85,247,0.08)", border: "rgba(168,85,247,0.25)", color: "#c084fc" },
+  custom: { bg: "rgba(16,185,129,0.08)", border: "rgba(16,185,129,0.25)", color: "#34d399" },
 };
 
 const mcGoldButton = {
