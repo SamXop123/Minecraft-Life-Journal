@@ -6,9 +6,14 @@ import { motion, AnimatePresence } from "framer-motion";
 const CATEGORY_COLORS = {
   achievement: "bg-yellow-500/10 border-yellow-500/30 text-yellow-400",
   build: "bg-blue-500/10 border-blue-500/30 text-blue-400",
+  exploration: "bg-teal-500/10 border-teal-500/30 text-teal-400",
+  mining: "bg-amber-500/10 border-amber-500/30 text-amber-400",
+  combat: "bg-rose-500/10 border-rose-500/30 text-rose-400",
   death: "bg-red-500/10 border-red-500/30 text-red-400",
-  funny: "bg-purple-500/10 border-purple-500/30 text-purple-400",
-  emotional: "bg-pink-500/10 border-pink-500/30 text-pink-400",
+  redstone: "bg-red-600/10 border-red-600/30 text-red-400",
+  story: "bg-emerald-500/10 border-emerald-500/30 text-emerald-400",
+  funny: "bg-pink-500/10 border-pink-500/30 text-pink-400",
+  emotional: "bg-purple-500/10 border-purple-500/30 text-purple-400",
 };
 
 export default function TrashBinModal({
