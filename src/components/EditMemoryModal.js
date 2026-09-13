@@ -4,12 +4,38 @@ import { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { compressImage } from "@/lib/utils/compressImage";
 
-const CATEGORIES = ["achievement", "build", "death", "funny", "emotional"];
+const CATEGORIES = [
+  "achievement",
+  "build",
+  "exploration",
+  "mining",
+  "combat",
+  "death",
+  "redstone",
+  "story",
+  "funny",
+  "emotional",
+];
+
+const CATEGORY_EMOJIS = {
+  achievement: "🏆",
+  build: "🏰",
+  exploration: "🧭",
+  mining: "⛏️",
+  combat: "⚔️",
+  death: "☠️",
+  redstone: "⚙️",
+  story: "📜",
+  funny: "😂",
+  emotional: "❤️",
+};
 
 export default function EditMemoryModal({ memory, onClose, onSaved }) {
+  const isInitialCustom = Boolean(memory.category && !CATEGORIES.includes(memory.category));
   const [form, setForm] = useState({
     title: memory.title || "",
-    category: memory.category || "achievement",
+    category: isInitialCustom ? "custom" : memory.category || "achievement",
+    customCategory: isInitialCustom ? memory.category : "",
     description: memory.description || "",
     memoryDate: memory.memoryDate
       ? memory.memoryDate.split("T")[0]
@@ -45,7 +71,17 @@ export default function EditMemoryModal({ memory, onClose, onSaved }) {
     e.preventDefault();
     setError("");
 
-    if (!form.title.trim() || !form.category || !form.memoryDate) {
+    const finalCategory =
+      form.category === "custom"
+        ? form.customCategory?.trim().toLowerCase() || "custom"
+        : form.category;
+
+    if (form.category === "custom" && !form.customCategory?.trim()) {
+      setError("Please specify a custom category name.");
+      return;
+    }
+
+    if (!form.title.trim() || !finalCategory || !form.memoryDate) {
       setError("Title, category and date are required.");
       return;
     }
@@ -85,7 +121,7 @@ export default function EditMemoryModal({ memory, onClose, onSaved }) {
 
       const body = {
         title: form.title.trim(),
-        category: form.category,
+        category: finalCategory,
         description: form.description.trim() || undefined,
         memoryDate: form.memoryDate,
         imageUrl,
@@ -248,10 +284,27 @@ export default function EditMemoryModal({ memory, onClose, onSaved }) {
                 >
                   {CATEGORIES.map((cat) => (
                     <option key={cat} value={cat} style={{ backgroundColor: "#1a1008" }}>
-                      {cat.charAt(0).toUpperCase() + cat.slice(1)}
+                      {CATEGORY_EMOJIS[cat]} {cat.charAt(0).toUpperCase() + cat.slice(1)}
                     </option>
                   ))}
+                  <option value="custom" style={{ backgroundColor: "#1a1008" }}>
+                    ✨ + Custom Category...
+                  </option>
                 </select>
+                {form.category === "custom" && (
+                  <div className="mt-2">
+                    <input
+                      name="customCategory"
+                      type="text"
+                      placeholder="Type custom category name..."
+                      value={form.customCategory}
+                      onChange={handleChange}
+                      className="w-full px-3.5 py-2 text-sm transition-all"
+                      style={inputStyle}
+                      required
+                    />
+                  </div>
+                )}
               </div>
 
               <div>
