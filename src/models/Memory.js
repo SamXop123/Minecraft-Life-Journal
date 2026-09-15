@@ -32,6 +32,11 @@ const MemorySchema = new mongoose.Schema({
     enum: ["manual", "auto_screenshot", "auto_advancement"],
     default: "manual",
   },
+  isFavorite: {
+    type: Boolean,
+    default: false,
+    index: true,
+  },
   isDeleted: {
     type: Boolean,
     default: false,
@@ -45,6 +50,8 @@ const MemorySchema = new mongoose.Schema({
     default: Date.now,
   },
 });
+
+MemorySchema.index({ worldId: 1, isFavorite: 1, isDeleted: 1 });
 
 MemorySchema.index({ worldId: 1, isDeleted: 1, memoryDate: -1, createdAt: -1 });
 
