@@ -32,7 +32,7 @@ export async function PATCH(req, { params }) {
 
     const body = await req.json();
 
-    const allowedFields = ["title", "category", "description", "memoryDate", "imageUrl"];
+    const allowedFields = ["title", "category", "description", "memoryDate", "imageUrl", "isFavorite"];
 
     for (const field of allowedFields) {
       if (field === "memoryDate" && body.memoryDate !== undefined) {
