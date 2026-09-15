@@ -236,7 +236,7 @@ export default function DocsPage() {
 
         {/* Footer Link */}
         <div className="pt-6 border-t border-white/5 text-center text-xs text-amber-200/40 font-mono">
-          <span>Minecraft Life Journal v2.0.0 &bull; Documentation</span>
+          <span>Minecraft Life Journal v2.1.0 &bull; Documentation</span>
         </div>
       </div>
     </div>

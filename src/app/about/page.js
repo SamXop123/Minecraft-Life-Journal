@@ -157,7 +157,7 @@ export default function AboutPage() {
 
           <div className="flex flex-col items-center md:items-end gap-2 text-xs font-mono">
             <span className="px-3 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-300 font-bold">
-              VERSION 2.0.0 (RELEASE)
+              VERSION 2.1.0 (RELEASE)
             </span>
             <a
               href="https://github.com/SamXop123"

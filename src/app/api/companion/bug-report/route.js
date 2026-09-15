@@ -30,13 +30,13 @@ export async function POST(req) {
           description: description,
           color: 15158332, // Red/Orange tint
           fields: [
-            { name: "App Version", value: appVersion || "v2.0.0", inline: true },
+            { name: "App Version", value: appVersion || "v2.1.0", inline: true },
             { name: "OS", value: os || "Windows", inline: true },
             { name: "Reporter", value: contact || "Anonymous", inline: true },
             { name: "Selected World", value: worldName || "None", inline: false },
           ],
           footer: {
-            text: "Minecraft Life Journal Companion v2.0.0",
+            text: "Minecraft Life Journal Companion v2.1.0",
           },
           timestamp: new Date().toISOString(),
         },

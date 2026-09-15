@@ -143,7 +143,7 @@ async fn submit_bug_report(title: String, description: String, contact: String) 
         "description": description,
         "contact": contact_text,
         "worldName": config.selected_world_name,
-        "appVersion": "v2.0.0",
+        "appVersion": "v2.1.0",
         "os": std::env::consts::OS
     });
 
@@ -204,7 +204,7 @@ pub fn run() {
             submit_bug_report
         ])
         .setup(|app| {
-            let title_i = MenuItem::with_id(app, "title", "🎮  MLJ Companion v2.0.0", false, None::<&str>)?;
+            let title_i = MenuItem::with_id(app, "title", "🎮  MLJ Companion v2.1.0", false, None::<&str>)?;
             let sep1 = PredefinedMenuItem::separator(app)?;
             let show_i = MenuItem::with_id(app, "show", "📌  Open Companion Window", true, None::<&str>)?;
             let web_i = MenuItem::with_id(app, "web", "🌐  Open Web Journal", true, None::<&str>)?;

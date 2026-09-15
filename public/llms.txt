@@ -18,4 +18,4 @@
 - About & Creator: https://mlj.app/about
 - GitHub Repository: https://github.com/SamXop123/Minecraft-Life-Journal
 - Publisher / Creator: SamXop123
-- Application Version: v2.0.0
+- Application Version: v2.1.0
