@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useSettings } from "@/context/SettingsContext";
 import PixelParticles from "@/components/PixelParticles";
 import CinematicMode from "@/components/CinematicMode";
+import ScreenshotLightbox from "@/components/ScreenshotLightbox";
 import {
   Compass,
   Swords,
@@ -83,6 +84,7 @@ export default function PublicWorldPage({ params }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [showCinematic, setShowCinematic] = useState(false);
+  const [zoomedScreenshot, setZoomedScreenshot] = useState(null);
 
   useEffect(() => {
     async function fetchPublicWorld() {
@@ -131,6 +133,10 @@ export default function PublicWorldPage({ params }) {
       return createdA - createdB;
     });
   }, [memories, settings?.memoryOrder]);
+
+  const screenshotMemories = useMemo(() => {
+    return orderedMemories.filter((m) => !!m.imageUrl);
+  }, [orderedMemories]);
 
   /* ── Loading ── */
   if (loading) {
@@ -516,13 +522,15 @@ export default function PublicWorldPage({ params }) {
 
                         {memory.imageUrl && (
                           <div
-                            className="rounded-lg overflow-hidden border border-white/5 bg-black/20 shadow-md max-w-lg"
+                            onClick={() => setZoomedScreenshot(memory)}
+                            className="rounded-lg overflow-hidden border border-white/5 bg-black/20 shadow-md max-w-lg cursor-pointer hover:opacity-95 transition-opacity"
                           >
                             <img
                               src={memory.imageUrl}
                               alt={memory.title}
-                              className="w-full max-h-72 object-cover transition-transform duration-300 group-hover:scale-[1.01]"
+                              className="w-full max-h-72 object-cover select-none"
                               draggable={false}
+                              onContextMenu={(e) => e.preventDefault()}
                             />
                           </div>
                         )}
@@ -586,6 +594,16 @@ export default function PublicWorldPage({ params }) {
           />
         )}
       </AnimatePresence>
+
+      {/* Screenshot Lightbox / Zoom View */}
+      {zoomedScreenshot && (
+        <ScreenshotLightbox
+          activeItem={zoomedScreenshot}
+          items={screenshotMemories}
+          onClose={() => setZoomedScreenshot(null)}
+          onNavigate={(item) => setZoomedScreenshot(item)}
+        />
+      )}
     </div>
   );
 }
