@@ -48,12 +48,95 @@ pub struct LogWatcherManager {
     recent_screenshot: SharedScreenshot,
 }
 
-fn parse_command_text(trimmed_line: &str) -> Option<(String, String)> {
+fn classify_category(text: &str) -> (String, String) {
+    let text_trim = text.trim();
+    // 1. Check for [tag] prefix
+    if text_trim.starts_with('[') {
+        if let Some(end_idx) = text_trim.find(']') {
+            let tag = text_trim[1..end_idx].trim().to_lowercase();
+            let clean = text_trim[end_idx + 1..].trim().to_string();
+            if !tag.is_empty() && tag.len() <= 20 {
+                return (tag, if clean.is_empty() { text_trim.to_string() } else { clean });
+            }
+        }
+    }
+
+    let lower = text_trim.to_lowercase();
+    let lower_without_game = lower.replace("minecraft", "");
+
+    // Death
+    if lower.contains("died") || lower.contains("death") || lower.contains("killed")
+        || lower.contains("slain") || lower.contains("fell from") || lower.contains("lava")
+        || lower.contains("drowned") || lower.contains("creeper") || lower.contains("rip") {
+        return ("death".to_string(), text_trim.to_string());
+    }
+
+    // Combat
+    if lower.contains("dragon") || lower.contains("wither") || lower.contains("warden")
+        || lower.contains("raid") || lower.contains("fight") || lower.contains("battle")
+        || lower.contains("boss") || lower.contains("pvp") || lower.contains("pillager") {
+        return ("combat".to_string(), text_trim.to_string());
+    }
+
+    // Mining
+    if lower.contains("diamond") || lower.contains("netherite") || lower.contains("ancient debris")
+        || lower.contains("iron") || lower.contains("gold") || lower.contains("emerald")
+        || lower.contains("ore") || lower.contains("cave") || lower_without_game.contains("mine")
+        || lower.contains("geode") || lower.contains("deepslate") {
+        return ("mining".to_string(), text_trim.to_string());
+    }
+
+    // Building
+    if lower.contains("build") || lower.contains("built") || lower.contains("house")
+        || lower.contains("base") || lower.contains("castle") || lower.contains("farm")
+        || lower.contains("tower") || lower.contains("roof") || lower.contains("bridge")
+        || lower.contains("storage") || lower.contains("dock") {
+        return ("build".to_string(), text_trim.to_string());
+    }
+
+    // Exploration
+    if lower.contains("found") || lower.contains("discovered") || lower.contains("explore")
+        || lower.contains("biome") || lower.contains("mansion") || lower.contains("village")
+        || lower.contains("temple") || lower.contains("elytra") || lower.contains("shipwreck")
+        || lower.contains("stronghold") || lower.contains("journey") {
+        return ("exploration".to_string(), text_trim.to_string());
+    }
+
+    // Redstone
+    if lower.contains("redstone") || lower.contains("piston") || lower.contains("contraption")
+        || lower.contains("automated") || lower.contains("sorter") || lower.contains("hopper") {
+        return ("redstone".to_string(), text_trim.to_string());
+    }
+
+    // Funny
+    if lower.contains("lol") || lower.contains("lmao") || lower.contains("haha")
+        || lower.contains("funny") || lower.contains("fail") || lower.contains("joke") || lower.contains("oops") {
+        return ("funny".to_string(), text_trim.to_string());
+    }
+
+    // Emotional / Pets
+    if lower.contains("love") || lower.contains("sad") || lower.contains("miss")
+        || lower.contains("sunset") || lower.contains("pet") || lower.contains("dog")
+        || lower.contains("cat") || lower.contains("wolf") || lower.contains("wholesome") {
+        return ("emotional".to_string(), text_trim.to_string());
+    }
+
+    // Achievement
+    if lower.contains("advancement") || lower.contains("achievement") || lower.contains("unlocked")
+        || lower.contains("milestone") || lower.contains("100 days") {
+        return ("achievement".to_string(), text_trim.to_string());
+    }
+
+    ("story".to_string(), text_trim.to_string())
+}
+
+fn parse_command_text(trimmed_line: &str) -> Option<(String, String, String)> {
     if let Some(pos) = trimmed_line.find("#journal") {
-        let text = trimmed_line[pos + 8..].trim().to_string();
+        let text = trimmed_line[pos + 8..].trim();
         if !text.is_empty() {
-            let title = if text.len() > 45 { format!("{}...", &text[..42]) } else { text.clone() };
-            return Some((title, text));
+            let (category, clean_text) = classify_category(text);
+            let title = if clean_text.len() > 45 { format!("{}...", &clean_text[..42]) } else { clean_text.clone() };
+            return Some((title, clean_text, category));
         }
     }
     None
@@ -110,6 +193,7 @@ fn upload_paired_screenshot(
     config: &crate::config::AppConfig,
     title: &str,
     description: &str,
+    category: &str,
     file_bytes: &[u8],
     filename: &str,
 ) -> Result<String, String> {
@@ -130,7 +214,7 @@ fn upload_paired_screenshot(
                 .text("worldId", config.selected_world_id.clone())
                 .text("title", title.to_string())
                 .text("description", description.to_string())
-                .text("category", "achievement".to_string())
+                .text("category", category.to_string())
                 .part("file", part);
 
             match client.post(&target_url)
@@ -331,8 +415,8 @@ impl LogWatcherManager {
                                     if let Some((path, instant)) = &*lock {
                                         // 180 seconds pairing window
                                         if instant.elapsed() < Duration::from_secs(180) {
-                                            let (title, description) = parse_command_text(trimmed)
-                                                .unwrap_or_else(|| ("Screenshot Captured".to_string(), "Automatically captured in-game screenshot.".to_string()));
+                                            let (title, description, category) = parse_command_text(trimmed)
+                                                .unwrap_or_else(|| ("Screenshot Captured".to_string(), "Automatically captured in-game screenshot.".to_string(), "story".to_string()));
 
                                             println!("Pairing screenshot with journal: {:?}", path);
                                             let _ = app_handle_clone.emit("sync-log-status", "Compressing screenshot...".to_string());
@@ -350,7 +434,7 @@ impl LogWatcherManager {
                                                     .map(|f| f.to_string_lossy().into_owned())
                                                     .unwrap_or_else(|| "screenshot.jpg".to_string());
 
-                                                match upload_paired_screenshot(&client, &config_clone, &title, &description, &file_bytes, &filename) {
+                                                match upload_paired_screenshot(&client, &config_clone, &title, &description, &category, &file_bytes, &filename) {
                                                     Ok(success_msg) => {
                                                         screenshot_upload_succeeded = true;
                                                         let _ = app_handle_clone.emit("sync-log-success", success_msg);
