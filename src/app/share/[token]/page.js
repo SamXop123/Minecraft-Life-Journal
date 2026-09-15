@@ -6,6 +6,7 @@ import { useSettings } from "@/context/SettingsContext";
 import PixelParticles from "@/components/PixelParticles";
 import CinematicMode from "@/components/CinematicMode";
 import ScreenshotLightbox from "@/components/ScreenshotLightbox";
+import FavoritesWallDrawer from "@/components/FavoritesWallDrawer";
 import {
   Compass,
   Swords,
@@ -18,6 +19,7 @@ import {
   Globe,
   Play,
   ArrowLeft,
+  Star,
 } from "lucide-react";
 
 const CATEGORY_STYLES = {
@@ -85,6 +87,7 @@ export default function SharedWorldPage({ params }) {
   const [error, setError] = useState("");
   const [showCinematic, setShowCinematic] = useState(false);
   const [zoomedScreenshot, setZoomedScreenshot] = useState(null);
+  const [isFavoritesDrawerOpen, setIsFavoritesDrawerOpen] = useState(false);
 
   useEffect(() => {
     async function fetchSharedWorld() {
@@ -131,6 +134,10 @@ export default function SharedWorldPage({ params }) {
 
   const screenshotMemories = useMemo(() => {
     return orderedMemories.filter((m) => !!m.imageUrl);
+  }, [orderedMemories]);
+
+  const favoriteMemories = useMemo(() => {
+    return orderedMemories.filter((m) => !!m.isFavorite && !m.isDeleted);
   }, [orderedMemories]);
 
   /* ── Loading ── */
@@ -599,6 +606,46 @@ export default function SharedWorldPage({ params }) {
           onNavigate={(item) => setZoomedScreenshot(item)}
         />
       )}
+
+      {/* Right-Edge Floating Favorites Wall Button (Shared Visitors - Vertical) */}
+      {favoriteMemories.length > 0 && (
+        <motion.button
+          onClick={() => setIsFavoritesDrawerOpen(true)}
+          whileHover={{ x: -3 }}
+          whileTap={{ scale: 0.95 }}
+          className="fixed right-0 top-1/2 -translate-y-1/2 z-40 flex flex-col items-center gap-2 py-3 px-1.5 sm:px-2 rounded-l-xl shadow-2xl border-l border-t border-b cursor-pointer transition-colors backdrop-blur-md group"
+          style={{
+            backgroundColor: "rgba(22, 14, 7, 0.94)",
+            borderColor: "rgba(218, 165, 32, 0.38)",
+            boxShadow: "-4px 2px 18px rgba(0, 0, 0, 0.6), 0 0 12px rgba(218, 165, 32, 0.12)",
+          }}
+          title="Open Favorites Wall (Highlights)"
+        >
+          <Star className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-400 fill-amber-400 group-hover:rotate-12 transition-transform drop-shadow-[0_0_6px_rgba(251,191,36,0.6)] shrink-0" />
+          <span
+            className="text-[10px] sm:text-[11px] font-bold text-amber-200 uppercase tracking-widest select-none whitespace-nowrap"
+            style={{
+              fontFamily: "'Silkscreen', sans-serif",
+              writingMode: "vertical-rl",
+              transform: "rotate(180deg)",
+            }}
+          >
+            Favorites Wall
+          </span>
+          <span className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-amber-500/25 text-amber-300 text-[10px] font-mono font-bold flex items-center justify-center border border-amber-500/30 shrink-0">
+            {favoriteMemories.length}
+          </span>
+        </motion.button>
+      )}
+
+      {/* Favorites Wall Drawer */}
+      <FavoritesWallDrawer
+        isOpen={isFavoritesDrawerOpen}
+        onClose={() => setIsFavoritesDrawerOpen(false)}
+        favorites={favoriteMemories}
+        isOwner={false}
+        onScreenshotClick={(m) => setZoomedScreenshot(m)}
+      />
     </div>
   );
 }
