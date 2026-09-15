@@ -1,5 +1,40 @@
 # 🚀 Minecraft Life Journal — Release Notes & Changelog
 
+## 🎉 [2.1.0] - Favorites Wall, Screenshot Lightbox & Smart Auto-Categorization — 2026-09-15
+
+> **Minecraft Life Journal v2.1.0 introduces the interactive Favorites Wall, full-screen Screenshot Lightbox, in-game chat auto-categorizer, coordinate editing, and companion reliability updates!**
+
+### 🌟 Features & Highlights
+
+- **⭐ Interactive Favorites Wall & Starred Memories**:
+  - **Star Animation**: Added `FavoriteStarButton` with physics-based cubic-bezier elastic spring animation (`ease: [0.175, 0.885, 0.32, 1.275]`) and particle burst effects.
+  - **Slide-Out Drawer**: Introduced `FavoritesWallDrawer` sliding panel displaying all pinned memories, active counts, and direct modal actions.
+  - **Floating Access Tab**: Upright vertically stacked launcher (`F A V O R I T E S  W A L L`) seamlessly accessible across Private World (`/world/[id]`), Public Showcase (`/public/world/[id]`), and Shared (`/share/[token]`) views.
+  - **Atomic Backend Persistence**: Dedicated `/api/memories/favorite/[id]` route with lean MongoDB queries ensuring favorite states persist reliably across page reloads.
+
+- **🔍 Fullscreen Screenshot Lightbox**:
+  - Built `ScreenshotLightbox` for inspecting high-resolution Minecraft screenshots with smooth scaling, backdrop blur, metadata inspection, and instant download.
+  - Integrated across memory cards, timeline lists, and the Favorites Wall.
+
+- **🧠 Intelligent Chat Auto-Categorizer**:
+  - Integrated heuristic categorizer (`src/lib/utils/categorizer.js`) that automatically scans `#journal` in-game entries and assigns contextual tags (*Build*, *Exploration*, *Mining*, *Combat*, *Death*, *Achievement*, *Redstone*, *Farming*).
+
+- **🧭 Coordinate Editing & Management**:
+  - Added `EditCoordinateModal` and `/api/coordinates/edit/[id]` endpoint to modify saved points of interest, X/Y/Z coordinates, labels, and dimensions (Overworld, Nether, The End).
+  - Enhanced `EditMemoryModal` with interactive category pickers and refreshed validation.
+
+- **⚡ Desktop Companion v2.1.0 & Process Monitoring**:
+  - Desktop companion bumped to **v2.1.0** with updated tray menus and embedded Discord bug reporter.
+  - Multi-target upload retry and fallback logic for log events and screenshot synchronization.
+  - Released dual Windows installer formats in `public/`: NSIS Setup (`.exe`) and WiX MSI (`.msi`).
+
+- **✨ UI & Experience Polish**:
+  - Real-time dynamic memory counts on world cards.
+  - Polished soft-delete trash bin and restoration workflows (`TrashBinModal`).
+  - Core dependency upgrades: Tauri 2.11.5, Tokio 1.53.1, Cloudinary 2.10.0, and Serde JSON.
+
+---
+
 ## 🎉 [2.0.0] - Official Public Release — 2026-08-17
 
 > **Minecraft Life Journal v2.0.0 is officially live for the public!**
