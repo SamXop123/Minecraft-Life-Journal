@@ -627,16 +627,25 @@ export default function PublicWorldPage({ params }) {
           title="Open Favorites Wall (Highlights)"
         >
           <Star className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-400 fill-amber-400 group-hover:rotate-12 transition-transform drop-shadow-[0_0_6px_rgba(251,191,36,0.6)] shrink-0" />
-          <span
-            className="text-[10px] sm:text-[11px] font-bold text-amber-200 uppercase tracking-widest select-none whitespace-nowrap"
-            style={{
-              fontFamily: "'Silkscreen', sans-serif",
-              writingMode: "vertical-rl",
-              transform: "rotate(180deg)",
-            }}
+          <div
+            className="flex flex-col items-center leading-none font-bold text-amber-200 uppercase select-none text-[9px] sm:text-[10px] gap-0.5 py-0.5"
+            style={{ fontFamily: "'Silkscreen', sans-serif" }}
           >
-            Favorites Wall
-          </span>
+            <span>F</span>
+            <span>A</span>
+            <span>V</span>
+            <span>O</span>
+            <span>R</span>
+            <span>I</span>
+            <span>T</span>
+            <span>E</span>
+            <span>S</span>
+            <span className="h-1.5" />
+            <span>W</span>
+            <span>A</span>
+            <span>L</span>
+            <span>L</span>
+          </div>
           <span className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-amber-500/25 text-amber-300 text-[10px] font-mono font-bold flex items-center justify-center border border-amber-500/30 shrink-0">
             {favoriteMemories.length}
           </span>
