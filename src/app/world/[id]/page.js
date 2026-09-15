@@ -14,8 +14,10 @@ import ActivityHeatmap from "@/components/ActivityHeatmap";
 import ConfirmDeleteModal from "@/components/ConfirmDeleteModal";
 import TrashBinModal from "@/components/TrashBinModal";
 import ScreenshotLightbox from "@/components/ScreenshotLightbox";
+import FavoritesWallDrawer from "@/components/FavoritesWallDrawer";
+import FavoriteStarButton from "@/components/FavoriteStarButton";
 import { compressImage } from "@/lib/utils/compressImage";
-import { Pencil } from "lucide-react";
+import { Pencil, Star } from "lucide-react";
 
 const CATEGORIES = [
   "achievement",
@@ -114,6 +116,7 @@ export default function WorldDetailPage({ params }) {
   const [coordDeletingId, setCoordDeletingId] = useState(null);
   const [copiedCoordId, setCopiedCoordId] = useState(null);
   const [zoomedScreenshot, setZoomedScreenshot] = useState(null);
+  const [isFavoritesDrawerOpen, setIsFavoritesDrawerOpen] = useState(false);
 
   const orderedMemories = useMemo(() => {
     if (!memories || memories.length === 0) return [];
@@ -134,6 +137,10 @@ export default function WorldDetailPage({ params }) {
 
   const screenshotMemories = useMemo(() => {
     return orderedMemories.filter((m) => !!m.imageUrl);
+  }, [orderedMemories]);
+
+  const favoriteMemories = useMemo(() => {
+    return orderedMemories.filter((m) => !!m.isFavorite && !m.isDeleted);
   }, [orderedMemories]);
 
   function getToken() {
@@ -474,6 +481,35 @@ export default function WorldDetailPage({ params }) {
       console.error("Failed to delete memory");
     } finally {
       setDeletingId(null);
+    }
+  }
+
+  async function toggleFavoriteMemory(memory) {
+    if (!memory?._id) return;
+    const memoryId = memory._id;
+    const nextVal = !memory.isFavorite;
+
+    // Optimistic UI update
+    setMemories((prev) =>
+      prev.map((m) => (m._id === memoryId ? { ...m, isFavorite: nextVal } : m))
+    );
+
+    try {
+      const res = await fetchWithAuthRetry(`/api/memories/favorite/${memoryId}`, {
+        method: "PATCH",
+      });
+      if (!res || !res.ok) {
+        // Revert on failure
+        setMemories((prev) =>
+          prev.map((m) => (m._id === memoryId ? { ...m, isFavorite: !nextVal } : m))
+        );
+      }
+    } catch (err) {
+      console.error("Failed to toggle favorite", err);
+      // Revert on failure
+      setMemories((prev) =>
+        prev.map((m) => (m._id === memoryId ? { ...m, isFavorite: !nextVal } : m))
+      );
     }
   }
 
@@ -1745,7 +1781,12 @@ export default function WorldDetailPage({ params }) {
                                 <span>{memory.category}</span>
                               </span>
                             </div>
-                            <div className="flex items-center gap-1">
+                            <div className="flex items-center gap-1.5">
+                              <FavoriteStarButton
+                                isFavorite={!!memory.isFavorite}
+                                onToggle={() => toggleFavoriteMemory(memory)}
+                                size="sm"
+                              />
                               <button
                                 onClick={() => setEditingMemory(memory)}
                                 disabled={deletingId === memory._id}
@@ -1902,6 +1943,45 @@ export default function WorldDetailPage({ params }) {
           onNavigate={(item) => setZoomedScreenshot(item)}
         />
       )}
+
+      {/* Right-Edge Floating Favorites Wall Button (Vertical) */}
+      <motion.button
+        onClick={() => setIsFavoritesDrawerOpen(true)}
+        whileHover={{ x: -3 }}
+        whileTap={{ scale: 0.95 }}
+        className="fixed right-0 top-1/2 -translate-y-1/2 z-40 flex flex-col items-center gap-2 py-3 px-1.5 sm:px-2 rounded-l-xl shadow-2xl border-l border-t border-b cursor-pointer transition-colors backdrop-blur-md group"
+        style={{
+          backgroundColor: "rgba(22, 14, 7, 0.94)",
+          borderColor: "rgba(218, 165, 32, 0.38)",
+          boxShadow: "-4px 2px 18px rgba(0, 0, 0, 0.6), 0 0 12px rgba(218, 165, 32, 0.12)",
+        }}
+        title="Open Favorites Wall (Hall of Fame)"
+      >
+        <Star className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-400 fill-amber-400 group-hover:rotate-12 transition-transform drop-shadow-[0_0_6px_rgba(251,191,36,0.6)] shrink-0" />
+        <span
+          className="text-[10px] sm:text-[11px] font-bold text-amber-200 uppercase tracking-widest select-none whitespace-nowrap"
+          style={{
+            fontFamily: "'Silkscreen', sans-serif",
+            writingMode: "vertical-rl",
+            transform: "rotate(180deg)",
+          }}
+        >
+          Favorites Wall
+        </span>
+        <span className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-amber-500/25 text-amber-300 text-[10px] font-mono font-bold flex items-center justify-center border border-amber-500/30 shrink-0">
+          {favoriteMemories.length}
+        </span>
+      </motion.button>
+
+      {/* Favorites Wall Drawer */}
+      <FavoritesWallDrawer
+        isOpen={isFavoritesDrawerOpen}
+        onClose={() => setIsFavoritesDrawerOpen(false)}
+        favorites={favoriteMemories}
+        onToggleFavorite={toggleFavoriteMemory}
+        isOwner={true}
+        onScreenshotClick={(m) => setZoomedScreenshot(m)}
+      />
     </div>
   );
 }
