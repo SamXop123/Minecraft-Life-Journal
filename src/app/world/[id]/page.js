@@ -9,20 +9,51 @@ import CinematicMode from "@/components/CinematicMode";
 import PixelParticles from "@/components/PixelParticles";
 import EditMemoryModal from "@/components/EditMemoryModal";
 import EditWorldModal from "@/components/EditWorldModal";
+import EditCoordinateModal from "@/components/EditCoordinateModal";
 import ActivityHeatmap from "@/components/ActivityHeatmap";
 import ConfirmDeleteModal from "@/components/ConfirmDeleteModal";
 import TrashBinModal from "@/components/TrashBinModal";
+import ScreenshotLightbox from "@/components/ScreenshotLightbox";
 import { compressImage } from "@/lib/utils/compressImage";
 import { Pencil } from "lucide-react";
 
-const CATEGORIES = ["achievement", "build", "death", "funny", "emotional"];
+const CATEGORIES = [
+  "achievement",
+  "build",
+  "exploration",
+  "mining",
+  "combat",
+  "death",
+  "redstone",
+  "story",
+  "funny",
+  "emotional",
+];
 
 const CATEGORY_COLORS = {
   achievement: "bg-yellow-500/10 border-yellow-500/30 text-yellow-400",
   build: "bg-blue-500/10 border-blue-500/30 text-blue-400",
+  exploration: "bg-teal-500/10 border-teal-500/30 text-teal-400",
+  mining: "bg-amber-500/10 border-amber-500/30 text-amber-400",
+  combat: "bg-rose-500/10 border-rose-500/30 text-rose-400",
   death: "bg-red-500/10 border-red-500/30 text-red-400",
+  redstone: "bg-red-600/10 border-red-600/30 text-red-400",
+  story: "bg-emerald-500/10 border-emerald-500/30 text-emerald-400",
   funny: "bg-pink-500/10 border-pink-500/30 text-pink-400",
   emotional: "bg-purple-500/10 border-purple-500/30 text-purple-400",
+};
+
+const CATEGORY_EMOJIS = {
+  achievement: "🏆",
+  build: "🏰",
+  exploration: "🧭",
+  mining: "⛏️",
+  combat: "⚔️",
+  death: "☠️",
+  redstone: "⚙️",
+  story: "📜",
+  funny: "😂",
+  emotional: "❤️",
 };
 
 const COORD_CATEGORIES = ["base", "structure", "resource", "portal", "poi", "other"];
@@ -48,6 +79,7 @@ export default function WorldDetailPage({ params }) {
   const [memoryForm, setMemoryForm] = useState({
     title: "",
     category: "achievement",
+    customCategory: "",
     description: "",
     memoryDate: "",
   });
@@ -68,6 +100,7 @@ export default function WorldDetailPage({ params }) {
   const coordFormRef = useRef(null);
   const [coordinates, setCoordinates] = useState([]);
   const [showCoordForm, setShowCoordForm] = useState(false);
+  const [editingCoordinate, setEditingCoordinate] = useState(null);
   const [coordForm, setCoordForm] = useState({
     label: "",
     x: "",
@@ -80,6 +113,7 @@ export default function WorldDetailPage({ params }) {
   const [coordSubmitting, setCoordSubmitting] = useState(false);
   const [coordDeletingId, setCoordDeletingId] = useState(null);
   const [copiedCoordId, setCopiedCoordId] = useState(null);
+  const [zoomedScreenshot, setZoomedScreenshot] = useState(null);
 
   const orderedMemories = useMemo(() => {
     if (!memories || memories.length === 0) return [];
@@ -97,6 +131,10 @@ export default function WorldDetailPage({ params }) {
       return createdA - createdB;
     });
   }, [memories, settings?.memoryOrder]);
+
+  const screenshotMemories = useMemo(() => {
+    return orderedMemories.filter((m) => !!m.imageUrl);
+  }, [orderedMemories]);
 
   function getToken() {
     return localStorage.getItem("accessToken");
@@ -363,12 +401,30 @@ export default function WorldDetailPage({ params }) {
         imageUrl = uploadData.imageUrl;
       }
 
+      const finalCategory =
+        memoryForm.category === "custom"
+          ? memoryForm.customCategory?.trim().toLowerCase()
+          : memoryForm.category;
+
+      if (memoryForm.category === "custom" && !memoryForm.customCategory?.trim()) {
+        setMemoryFormError("Please enter a name for your custom category.");
+        setSubmitting(false);
+        return;
+      }
+
       const res = await fetchWithAuthRetry("/api/memories", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ ...memoryForm, worldId, imageUrl: imageUrl || undefined }),
+        body: JSON.stringify({
+          title: memoryForm.title.trim(),
+          category: finalCategory || "story",
+          description: memoryForm.description,
+          memoryDate: memoryForm.memoryDate,
+          worldId,
+          imageUrl: imageUrl || undefined,
+        }),
       });
 
       if (!res) {
@@ -385,6 +441,7 @@ export default function WorldDetailPage({ params }) {
       setMemoryForm({
         title: "",
         category: "achievement",
+        customCategory: "",
         description: "",
         memoryDate: "",
       });
@@ -1232,6 +1289,22 @@ export default function WorldDetailPage({ params }) {
                                 {copiedCoordId === coord._id ? "✓" : "Copy"}
                               </button>
                               <button
+                                onClick={() => setEditingCoordinate(coord)}
+                                className="px-2 py-0.5 text-xs rounded transition-all"
+                                style={{ color: "rgba(255,224,176,0.5)" }}
+                                onMouseEnter={(e) => {
+                                  e.currentTarget.style.color = "#93c5fd";
+                                  e.currentTarget.style.backgroundColor =
+                                    "rgba(59,130,246,0.1)";
+                                }}
+                                onMouseLeave={(e) => {
+                                  e.currentTarget.style.color = "rgba(255,224,176,0.5)";
+                                  e.currentTarget.style.backgroundColor = "transparent";
+                                }}
+                              >
+                                Edit
+                              </button>
+                              <button
                                 onClick={() => handleDeleteCoordinate(coord._id)}
                                 disabled={coordDeletingId === coord._id}
                                 className="px-2 py-0.5 text-xs rounded transition-all disabled:opacity-50"
@@ -1464,10 +1537,29 @@ export default function WorldDetailPage({ params }) {
                           >
                             {CATEGORIES.map((cat) => (
                               <option key={cat} value={cat}>
-                                {cat.charAt(0).toUpperCase() + cat.slice(1)}
+                                {CATEGORY_EMOJIS[cat]} {cat.charAt(0).toUpperCase() + cat.slice(1)}
                               </option>
                             ))}
+                            <option value="custom">✨ + Custom Category...</option>
                           </select>
+                          {memoryForm.category === "custom" && (
+                            <div className="mt-2">
+                              <input
+                                type="text"
+                                name="customCategory"
+                                value={memoryForm.customCategory || ""}
+                                onChange={handleMemoryFormChange}
+                                placeholder="Type custom category (e.g. Pet, Trade, Nether)..."
+                                className="w-full px-4 py-2 rounded-lg text-sm transition-all focus:outline-none focus:ring-2"
+                                style={{
+                                  backgroundColor: "rgba(0,0,0,0.45)",
+                                  border: "1px solid rgba(218,165,32,0.3)",
+                                  color: "rgba(255,224,176,0.9)",
+                                }}
+                                required
+                              />
+                            </div>
+                          )}
                         </div>
 
                         <div>
@@ -1644,11 +1736,13 @@ export default function WorldDetailPage({ params }) {
                                 {memory.title}
                               </h3>
                               <span
-                                className={`inline-block px-2 py-0.5 border rounded text-xs capitalize ${CATEGORY_COLORS[memory.category] ||
-                                  "bg-gray-500/10 border-gray-500/30 text-gray-400"
-                                  }`}
+                                className={`inline-flex items-center gap-1 px-2 py-0.5 border rounded text-xs capitalize ${
+                                  CATEGORY_COLORS[memory.category] ||
+                                  "bg-emerald-500/10 border-emerald-500/30 text-emerald-400"
+                                }`}
                               >
-                                {memory.category}
+                                <span>{CATEGORY_EMOJIS[memory.category] || "🏷️"}</span>
+                                <span>{memory.category}</span>
                               </span>
                             </div>
                             <div className="flex items-center gap-1">
@@ -1705,14 +1799,21 @@ export default function WorldDetailPage({ params }) {
                             </p>
                           )}
 
-                          {/* Image */}
+                          {/* Image with Zoom */}
                           {memory.imageUrl && (
-                            <img
-                              src={memory.imageUrl}
-                              alt={memory.title}
-                              className="w-full max-h-64 object-cover rounded-lg"
-                              style={{ border: "1px solid rgba(218,165,32,0.2)" }}
-                            />
+                            <div
+                              onClick={() => setZoomedScreenshot(memory)}
+                              className="relative cursor-pointer rounded-lg overflow-hidden transition-all duration-200 block hover:opacity-95"
+                              style={{ border: "1px solid rgba(218,165,32,0.22)" }}
+                            >
+                              <img
+                                src={memory.imageUrl}
+                                alt={memory.title}
+                                className="w-full max-h-64 object-cover select-none"
+                                draggable={false}
+                                onContextMenu={(e) => e.preventDefault()}
+                              />
+                            </div>
                           )}
                         </div>
                       </div>
@@ -1777,6 +1878,30 @@ export default function WorldDetailPage({ params }) {
           setWorld((prev) => ({ ...prev, ...updated }));
         }}
       />
+
+      {/* Edit Coordinate Modal */}
+      {editingCoordinate && (
+        <EditCoordinateModal
+          coordinate={editingCoordinate}
+          onClose={() => setEditingCoordinate(null)}
+          fetchWithAuthRetry={fetchWithAuthRetry}
+          onSaved={(updatedCoord) => {
+            setCoordinates((prev) =>
+              prev.map((c) => (c._id === updatedCoord._id ? updatedCoord : c))
+            );
+          }}
+        />
+      )}
+
+      {/* Screenshot Lightbox / Zoom View */}
+      {zoomedScreenshot && (
+        <ScreenshotLightbox
+          activeItem={zoomedScreenshot}
+          items={screenshotMemories}
+          onClose={() => setZoomedScreenshot(null)}
+          onNavigate={(item) => setZoomedScreenshot(item)}
+        />
+      )}
     </div>
   );
 }
