@@ -55,7 +55,10 @@ MemorySchema.index({ worldId: 1, isFavorite: 1, isDeleted: 1 });
 
 MemorySchema.index({ worldId: 1, isDeleted: 1, memoryDate: -1, createdAt: -1 });
 
-const Memory =
-  mongoose.models.Memory || mongoose.model("Memory", MemorySchema);
+if (mongoose.models.Memory) {
+  delete mongoose.models.Memory;
+}
+
+const Memory = mongoose.model("Memory", MemorySchema);
 
 export default Memory;
