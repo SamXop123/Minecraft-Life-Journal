@@ -30,15 +30,19 @@ export async function PATCH(req, { params }) {
       );
     }
 
-    // Toggle favorite state
-    memory.isFavorite = !memory.isFavorite;
-    await memory.save();
+    // Toggle favorite state atomically
+    const nextFavorite = !memory.isFavorite;
+    const updatedMemory = await Memory.findByIdAndUpdate(
+      id,
+      { $set: { isFavorite: nextFavorite } },
+      { new: true }
+    );
 
     return NextResponse.json(
       {
-        message: memory.isFavorite ? "Memory added to Favorites Wall" : "Memory removed from Favorites Wall",
-        isFavorite: memory.isFavorite,
-        memory,
+        message: nextFavorite ? "Memory added to Favorites Wall" : "Memory removed from Favorites Wall",
+        isFavorite: nextFavorite,
+        memory: updatedMemory,
       },
       { status: 200 }
     );
