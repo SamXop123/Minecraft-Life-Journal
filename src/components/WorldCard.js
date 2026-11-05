@@ -88,6 +88,18 @@ export default function WorldCard({ world, index, onClick, onEdit }) {
       {/* Decorative inner gradient on hover */}
       <div className="absolute -inset-px bg-gradient-to-r from-amber-500/0 via-amber-500/5 to-amber-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none rounded-2xl" />
 
+      {/* Cover Image Banner */}
+      {world.coverImage && (
+        <div className="-mt-5 -mx-5 mb-3.5 h-28 w-[calc(100%+2.5rem)] overflow-hidden relative border-b border-amber-800/20">
+          <img
+            src={world.coverImage}
+            alt=""
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+        </div>
+      )}
+
       {/* Header Row */}
       <div className="flex items-start justify-between gap-3 mb-4 relative z-10">
         <div className="flex items-center gap-2 min-w-0">
