@@ -54,6 +54,10 @@ const WorldSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  coverImage: {
+    type: String,
+    default: "",
+  },
   createdAt: {
     type: Date,
     default: Date.now,
