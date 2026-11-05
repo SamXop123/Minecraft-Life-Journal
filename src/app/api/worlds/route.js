@@ -63,7 +63,7 @@ export async function POST(req) {
 
     const decoded = await requireAuth(req);
 
-    const { name, mcVersion, seed, mode, type, startedAt } = await req.json();
+    const { name, mcVersion, seed, mode, type, startedAt, coverImage } = await req.json();
 
     // Validate required fields
     if (!name || !mcVersion || !mode || !type || !startedAt) {
@@ -82,6 +82,7 @@ export async function POST(req) {
       type,
       startedAt,
       isPublic: false,
+      coverImage: coverImage || "",
     });
 
     return NextResponse.json(
