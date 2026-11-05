@@ -294,6 +294,33 @@ export default function PublicWorldPage({ params }) {
             </h1>
           </div>
 
+          {/* World Cover Photo */}
+          {world.coverImage && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-8 rounded-2xl overflow-hidden relative shadow-2xl"
+              style={{
+                border: "3px solid #1a1410",
+                outline: "3px solid #7a6652",
+                outlineOffset: "-6px",
+              }}
+            >
+              <div className="relative h-48 sm:h-72 w-full bg-black/60">
+                <img
+                  src={world.coverImage}
+                  alt={`${world.name} Cover`}
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20" />
+                <div className="absolute bottom-3 left-4 right-4 flex items-center justify-between text-xs text-amber-200 font-mono">
+                  <span className="font-bold">🌲 {world.name}</span>
+                  <span className="text-amber-200/70">Creator: {ownerName}</span>
+                </div>
+              </div>
+            </motion.div>
+          )}
+
           {/* Action Row - Cinematic Mode */}
           {memories.length > 0 && (
             <div className="flex justify-center mb-8">
