@@ -103,7 +103,7 @@ export async function PATCH(req, { params }) {
       world.updatedAt = new Date();
     } else {
       // Normal field updates
-      const allowedFields = ["name", "mcVersion", "seed", "mode", "type", "isPublic", "startedAt"];
+      const allowedFields = ["name", "mcVersion", "seed", "mode", "type", "isPublic", "startedAt", "coverImage"];
 
       for (const field of allowedFields) {
         if (body[field] !== undefined) {
