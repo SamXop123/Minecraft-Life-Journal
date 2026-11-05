@@ -17,7 +17,7 @@ import ScreenshotLightbox from "@/components/ScreenshotLightbox";
 import FavoritesWallDrawer from "@/components/FavoritesWallDrawer";
 import FavoriteStarButton from "@/components/FavoriteStarButton";
 import { compressImage } from "@/lib/utils/compressImage";
-import { Pencil, Star } from "lucide-react";
+import { Pencil, Star, Camera, Trash2, Loader2 } from "lucide-react";
 
 const CATEGORIES = [
   "achievement",
@@ -117,6 +117,9 @@ export default function WorldDetailPage({ params }) {
   const [copiedCoordId, setCopiedCoordId] = useState(null);
   const [zoomedScreenshot, setZoomedScreenshot] = useState(null);
   const [isFavoritesDrawerOpen, setIsFavoritesDrawerOpen] = useState(false);
+  const [uploadingCover, setUploadingCover] = useState(false);
+  const [coverError, setCoverError] = useState("");
+  const coverFileInputRef = useRef(null);
 
   const orderedMemories = useMemo(() => {
     if (!memories || memories.length === 0) return [];
@@ -347,6 +350,84 @@ export default function WorldDetailPage({ params }) {
       return `${hours}h ${mins}m`;
     }
     return `${mins}m`;
+  }
+
+  async function handleCoverFileChange(e) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setCoverError("");
+    setUploadingCover(true);
+
+    try {
+      const compressed = await compressImage(file, { maxWidth: 1920, maxHeight: 1080, quality: 0.85 });
+      const formData = new FormData();
+      formData.append("file", compressed);
+
+      const uploadRes = await fetchWithAuthRetry("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!uploadRes) return;
+      const uploadData = await uploadRes.json();
+
+      if (!uploadRes.ok) {
+        setCoverError(uploadData.message || "Failed to upload cover image");
+        return;
+      }
+
+      const res = await fetchWithAuthRetry(`/api/worlds/${worldId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ coverImage: uploadData.imageUrl }),
+      });
+
+      if (!res) return;
+      const data = await res.json();
+      if (!res.ok) {
+        setCoverError(data.message || "Failed to save cover image");
+        return;
+      }
+
+      setWorld((prev) => ({ ...prev, coverImage: data.world.coverImage }));
+    } catch (err) {
+      console.error("Cover upload error:", err);
+      setCoverError("Something went wrong uploading cover photo.");
+    } finally {
+      setUploadingCover(false);
+      if (coverFileInputRef.current) {
+        coverFileInputRef.current.value = "";
+      }
+    }
+  }
+
+  async function handleRemoveCover() {
+    if (!window.confirm("Are you sure you want to remove the world cover photo?")) return;
+    setCoverError("");
+    setUploadingCover(true);
+
+    try {
+      const res = await fetchWithAuthRetry(`/api/worlds/${worldId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ coverImage: "" }),
+      });
+
+      if (!res) return;
+      const data = await res.json();
+      if (!res.ok) {
+        setCoverError(data.message || "Failed to remove cover image");
+        return;
+      }
+
+      setWorld((prev) => ({ ...prev, coverImage: "" }));
+    } catch (err) {
+      console.error("Cover remove error:", err);
+      setCoverError("Failed to remove cover photo.");
+    } finally {
+      setUploadingCover(false);
+    }
   }
 
   function handleMemoryFormChange(e) {
@@ -662,6 +743,79 @@ export default function WorldDetailPage({ params }) {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5 }}
               >
+                {/* Hidden Cover File Input */}
+                <input
+                  ref={coverFileInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleCoverFileChange}
+                />
+
+                {/* Cover Photo Banner */}
+                <div className="relative -mt-6 -mx-6 mb-5 overflow-hidden rounded-t-xl group">
+                  {world.coverImage ? (
+                    <div className="relative h-44 sm:h-52 w-full bg-black/60 overflow-hidden">
+                      <img
+                        src={world.coverImage}
+                        alt={`${world.name} Cover`}
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-black/30" />
+                      
+                      {/* Action buttons overlay */}
+                      <div className="absolute top-3 right-3 flex items-center gap-2">
+                        <button
+                          type="button"
+                          disabled={uploadingCover}
+                          onClick={() => coverFileInputRef.current?.click()}
+                          className="px-2.5 py-1.5 rounded-lg bg-black/70 hover:bg-black/90 text-amber-200 border border-amber-500/30 text-xs flex items-center gap-1.5 backdrop-blur-md transition-all shadow-lg hover:border-amber-400 disabled:opacity-50 cursor-pointer"
+                          title="Change World Cover Photo"
+                        >
+                          {uploadingCover ? <Loader2 size={13} className="animate-spin" /> : <Camera size={13} />}
+                          <span>Change Cover</span>
+                        </button>
+                        <button
+                          type="button"
+                          disabled={uploadingCover}
+                          onClick={handleRemoveCover}
+                          className="p-1.5 rounded-lg bg-red-950/70 hover:bg-red-900/90 text-red-300 border border-red-500/30 text-xs flex items-center justify-center backdrop-blur-md transition-all shadow-lg hover:border-red-400 disabled:opacity-50 cursor-pointer"
+                          title="Remove Cover Photo"
+                        >
+                          <Trash2 size={13} />
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="p-4 border-b border-amber-500/15 bg-gradient-to-r from-amber-950/20 via-black/40 to-amber-950/20">
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                        <div className="flex items-center gap-2.5 text-left">
+                          <div className="p-2 rounded-lg bg-amber-500/10 border border-amber-500/25 text-amber-400 shrink-0">
+                            <Camera size={16} />
+                          </div>
+                          <div>
+                            <p className="text-xs font-semibold text-amber-200" style={{ fontFamily: "'Silkscreen', sans-serif" }}>
+                              World Cover Photo
+                            </p>
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          disabled={uploadingCover}
+                          onClick={() => coverFileInputRef.current?.click()}
+                          className="px-3 py-1.5 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 border border-amber-500/40 text-xs flex items-center gap-1.5 transition-all shadow-md shrink-0 disabled:opacity-50 cursor-pointer"
+                        >
+                          {uploadingCover ? <Loader2 size={13} className="animate-spin" /> : <Camera size={13} />}
+                          <span>Upload Cover</span>
+                        </button>
+                      </div>
+                      {coverError && (
+                        <p className="text-xs text-red-400 mt-2 font-mono">⚠️ {coverError}</p>
+                      )}
+                    </div>
+                  )}
+                </div>
+
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center gap-2">
                     <h1

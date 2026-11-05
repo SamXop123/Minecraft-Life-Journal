@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Pencil } from "lucide-react";
+import { X, Pencil, Camera, Trash2, Loader2 } from "lucide-react";
+import { compressImage } from "@/lib/utils/compressImage";
 
 const mcGuiContainer = {
   backgroundColor: "rgba(33, 27, 22, 0.98)",
@@ -89,11 +90,14 @@ export default function EditWorldModal({ isOpen, onClose, world, onSaved }) {
     type: "solo",
     seed: "",
     startedAt: "",
+    coverImage: "",
   });
 
   const [loading, setLoading] = useState(false);
+  const [uploadingCover, setUploadingCover] = useState(false);
   const [error, setError] = useState("");
   const [focusedInput, setFocusedInput] = useState("");
+  const modalFileInputRef = useRef(null);
 
   useEffect(() => {
     if (world) {
@@ -111,6 +115,7 @@ export default function EditWorldModal({ isOpen, onClose, world, onSaved }) {
         type: world.type || "solo",
         seed: world.seed || "",
         startedAt: formattedDate,
+        coverImage: world.coverImage || "",
       });
       setError("");
     }
@@ -120,6 +125,40 @@ export default function EditWorldModal({ isOpen, onClose, world, onSaved }) {
 
   function handleChange(e) {
     setForm({ ...form, [e.target.name]: e.target.value });
+  }
+
+  async function handleModalCoverUpload(e) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingCover(true);
+    setError("");
+
+    try {
+      const token = localStorage.getItem("accessToken");
+      if (!token) throw new Error("Please log in.");
+
+      const compressed = await compressImage(file, { maxWidth: 1920, maxHeight: 1080, quality: 0.85 });
+      const formData = new FormData();
+      formData.append("file", compressed);
+
+      const uploadRes = await fetch("/api/upload", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData,
+      });
+
+      const uploadData = await uploadRes.json();
+      if (!uploadRes.ok) throw new Error(uploadData.message || "Failed to upload image");
+
+      setForm((prev) => ({ ...prev, coverImage: uploadData.imageUrl }));
+    } catch (err) {
+      console.error("Cover upload error:", err);
+      setError(err.message || "Failed to upload cover photo.");
+    } finally {
+      setUploadingCover(false);
+      if (modalFileInputRef.current) modalFileInputRef.current.value = "";
+    }
   }
 
   async function handleSubmit(e) {
@@ -183,7 +222,7 @@ export default function EditWorldModal({ isOpen, onClose, world, onSaved }) {
     <AnimatePresence>
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
         <motion.div
-          className="relative w-full max-w-xl p-6 sm:p-8"
+          className="relative w-full max-w-xl p-6 sm:p-8 max-h-[90vh] overflow-y-auto custom-scrollbar"
           style={mcGuiContainer}
           initial={{ opacity: 0, scale: 0.9, y: 15 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -214,6 +253,63 @@ export default function EditWorldModal({ isOpen, onClose, world, onSaved }) {
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            {/* World Cover Photo */}
+            <div className="sm:col-span-2">
+              <label className="block mb-1.5" style={mcGuiLabel}>
+                Cover Photo
+              </label>
+              <input
+                ref={modalFileInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleModalCoverUpload}
+              />
+              {form.coverImage ? (
+                <div className="relative rounded-lg overflow-hidden border border-amber-900/40 bg-black/60 h-32 sm:h-36 group">
+                  <img
+                    src={form.coverImage}
+                    alt="Cover preview"
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
+                    <button
+                      type="button"
+                      disabled={uploadingCover}
+                      onClick={() => modalFileInputRef.current?.click()}
+                      className="px-3 py-1.5 rounded bg-amber-600/90 hover:bg-amber-500 text-white text-xs font-mono flex items-center gap-1 cursor-pointer"
+                    >
+                      {uploadingCover ? <Loader2 size={12} className="animate-spin" /> : <Camera size={12} />}
+                      <span>Change</span>
+                    </button>
+                    <button
+                      type="button"
+                      disabled={uploadingCover}
+                      onClick={() => setForm((prev) => ({ ...prev, coverImage: "" }))}
+                      className="px-3 py-1.5 rounded bg-red-600/90 hover:bg-red-500 text-white text-xs font-mono flex items-center gap-1 cursor-pointer"
+                    >
+                      <Trash2 size={12} />
+                      <span>Remove</span>
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  disabled={uploadingCover}
+                  onClick={() => modalFileInputRef.current?.click()}
+                  className="w-full py-4 px-4 rounded-lg border-2 border-dashed border-amber-500/25 hover:border-amber-500/50 bg-black/40 hover:bg-black/60 text-amber-200/60 hover:text-amber-200 flex flex-col items-center justify-center gap-1.5 transition-all text-xs cursor-pointer"
+                >
+                  {uploadingCover ? (
+                    <Loader2 size={20} className="text-amber-400 animate-spin" />
+                  ) : (
+                    <Camera size={20} className="text-amber-400" />
+                  )}
+                  <span>{uploadingCover ? "Uploading cover..." : "Upload World Cover Photo"}</span>
+                </button>
+              )}
+            </div>
+
             {/* World Name */}
             <div className="sm:col-span-2">
               <label htmlFor="edit-name" className="block mb-1.5" style={mcGuiLabel}>
@@ -340,7 +436,7 @@ export default function EditWorldModal({ isOpen, onClose, world, onSaved }) {
               <motion.button
                 type="button"
                 onClick={onClose}
-                className="px-6 py-2.5 font-bold uppercase text-xs"
+                className="px-6 py-2.5 font-bold uppercase text-xs cursor-pointer"
                 style={{ ...mcGrayButton, fontFamily: "'Silkscreen', sans-serif" }}
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ y: 2 }}
@@ -350,11 +446,11 @@ export default function EditWorldModal({ isOpen, onClose, world, onSaved }) {
 
               <motion.button
                 type="submit"
-                disabled={loading}
-                className="px-6 py-2.5 font-bold uppercase text-xs disabled:opacity-50"
+                disabled={loading || uploadingCover}
+                className="px-6 py-2.5 font-bold uppercase text-xs disabled:opacity-50 cursor-pointer"
                 style={{ ...mcGoldButton, fontFamily: "'Silkscreen', sans-serif" }}
-                whileHover={loading ? {} : { scale: 1.03 }}
-                whileTap={loading ? {} : { y: 2 }}
+                whileHover={loading || uploadingCover ? {} : { scale: 1.03 }}
+                whileTap={loading || uploadingCover ? {} : { y: 2 }}
               >
                 {loading ? "Saving..." : "Save Changes"}
               </motion.button>
