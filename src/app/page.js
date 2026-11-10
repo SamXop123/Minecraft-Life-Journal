@@ -4,34 +4,25 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import {
-  ChevronDown,
-  BookOpen,
-  Terminal,
-  Camera,
-  Trophy,
-  MapPin,
-  Share2,
-  ArrowRight,
-  Activity,
-  User,
-  ExternalLink,
+  ChevronDown,BookOpen, Terminal, Camera, 
+  Trophy, MapPin, Share2, ArrowRight, 
+  Activity, User, ExternalLink,
 } from "lucide-react";
 import PixelParticles from "@/components/PixelParticles";
 
-/* ─── Constants ─── */
+
 const CYCLE = 60; // Full day-night cycle in seconds
 
-/* ─── Pre-computed data ─── */
 const stars = Array.from({ length: 60 }, (_, i) => ({
   id: i,
-  left: `${(i * 41 + 17) % 100}%`,
-  top: `${(i * 29 + 11) % 55}%`,
-  size: i % 5 === 0 ? 2.5 : i % 3 === 0 ? 1.5 : 1,
+  left: `${(i*41+17)%100}%`,
+  top: `${(i*29+11)%55}%`,
+  size: i%5===0 ? 2.5 : i%3===0 ? 1.5 : 1,
 }));
 
 const grassBlocks = Array.from({ length: 40 }, (_, i) => ({
   id: i,
-  height: 6 + (((i * 7 + 3) % 5) * 3),
+  height: 6 + (((i*7+3)%5) * 3),
 }));
 
 /* Elliptical orbit keyframes */
