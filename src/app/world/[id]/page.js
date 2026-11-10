@@ -13,7 +13,7 @@ import EditCoordinateModal from "@/components/EditCoordinateModal";
 import ActivityHeatmap from "@/components/ActivityHeatmap";
 import ConfirmDeleteModal from "@/components/ConfirmDeleteModal";
 import TrashBinModal from "@/components/TrashBinModal";
-import WorldPassportModal from "@/components/WorldPassportModal";
+import MLJCardModal from "@/components/MLJCardModal";
 import MinecraftCardIcon from "@/components/MinecraftCardIcon";
 import WorldSearchOverlay, { MinecraftSearchIcon } from "@/components/WorldSearchOverlay";
 import ScreenshotLightbox from "@/components/ScreenshotLightbox";
@@ -100,7 +100,7 @@ export default function WorldDetailPage({ params }) {
   const [sharingLoading, setSharingLoading] = useState(false);
   const [memoryToDelete, setMemoryToDelete] = useState(null);
   const [isTrashOpen, setIsTrashOpen] = useState(false);
-  const [isPassportOpen, setIsPassportOpen] = useState(false);
+  const [isCardModalOpen, setIsCardModalOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchOrigin, setSearchOrigin] = useState(null);
   const searchButtonRef = useRef(null);
@@ -1181,7 +1181,7 @@ export default function WorldDetailPage({ params }) {
                 >
                   <button
                     type="button"
-                    onClick={() => setIsPassportOpen(true)}
+                    onClick={() => setIsCardModalOpen(true)}
                     className="w-full py-2.5 px-4 rounded-lg text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition-all cursor-pointer border shadow-sm group"
                     style={{
                       backgroundColor: "rgba(218,165,32,0.14)",
@@ -2169,10 +2169,10 @@ export default function WorldDetailPage({ params }) {
         triggerOrigin={searchOrigin}
       />
 
-      {/* World Passport Modal */}
-      <WorldPassportModal
-        isOpen={isPassportOpen}
-        onClose={() => setIsPassportOpen(false)}
+      {/* MLJ Card Modal */}
+      <MLJCardModal
+        isOpen={isCardModalOpen}
+        onClose={() => setIsCardModalOpen(false)}
         world={world}
         memories={orderedMemories}
         coordinates={coordinates}
