@@ -11,8 +11,6 @@ import {
 
 export const runtime = "nodejs";
 
-const RESEND_COOLDOWN_SECONDS = 60;
-
 export async function POST(req) {
   try {
     await connectDB();
@@ -56,15 +54,18 @@ export async function POST(req) {
       );
     }
 
-    const existingEmailUser = await User.findOne({ email: normalizedEmail });
     const existingUsernameUser = await User.findOne({ username: trimmedUsername });
-
-    if (
-      existingUsernameUser &&
-      existingUsernameUser.email !== normalizedEmail
-    ) {
+    if (existingUsernameUser) {
       return NextResponse.json(
         { message: "Username is already taken" },
+        { status: 400 }
+      );
+    }
+
+    const existingEmailUser = await User.findOne({ email: normalizedEmail });
+    if (existingEmailUser) {
+      return NextResponse.json(
+        { message: "An account with this email already exists. Please log in or reset your password." },
         { status: 400 }
       );
     }
@@ -72,57 +73,18 @@ export async function POST(req) {
     const verificationCode = generateVerificationCode();
     const hashedCode = hashVerificationCode(verificationCode);
     const verificationExpiry = createVerificationExpiry();
-    let user;
-    let createdNewUser = false;
+    const hashedPassword = await hashPassword(password);
 
-    if (existingEmailUser?.isEmailVerified) {
-      return NextResponse.json(
-        { message: "An account with this email already exists" },
-        { status: 400 }
-      );
-    }
-
-    if (existingEmailUser) {
-      const lastSentAt = existingEmailUser.emailVerificationLastSentAt;
-      const secondsSinceLastEmail = lastSentAt
-        ? Math.floor((Date.now() - lastSentAt.getTime()) / 1000)
-        : RESEND_COOLDOWN_SECONDS;
-
-      if (secondsSinceLastEmail < RESEND_COOLDOWN_SECONDS) {
-        const retryAfterSeconds =
-          RESEND_COOLDOWN_SECONDS - secondsSinceLastEmail;
-        return NextResponse.json(
-          {
-            message: `A verification code was already sent. Please wait ${retryAfterSeconds} seconds and try again.`,
-            requiresVerification: true,
-            email: existingEmailUser.email,
-            retryAfterSeconds,
-          },
-          { status: 429 }
-        );
-      }
-
-      existingEmailUser.emailVerificationCodeHash = hashedCode;
-      existingEmailUser.emailVerificationExpiresAt = verificationExpiry;
-      existingEmailUser.emailVerificationLastSentAt = new Date();
-      existingEmailUser.emailVerificationAttempts = 0;
-      user = existingEmailUser;
-      await user.save();
-    } else {
-      const hashedPassword = await hashPassword(password);
-
-      user = await User.create({
-        username: trimmedUsername,
-        email: normalizedEmail,
-        password: hashedPassword,
-        isEmailVerified: false,
-        emailVerificationCodeHash: hashedCode,
-        emailVerificationExpiresAt: verificationExpiry,
-        emailVerificationLastSentAt: new Date(),
-        emailVerificationAttempts: 0,
-      });
-      createdNewUser = true;
-    }
+    const user = await User.create({
+      username: trimmedUsername,
+      email: normalizedEmail,
+      password: hashedPassword,
+      isEmailVerified: false,
+      emailVerificationCodeHash: hashedCode,
+      emailVerificationExpiresAt: verificationExpiry,
+      emailVerificationLastSentAt: new Date(),
+      emailVerificationAttempts: 0,
+    });
 
     try {
       await sendVerificationCodeEmail({
@@ -131,9 +93,7 @@ export async function POST(req) {
         code: verificationCode,
       });
     } catch (emailError) {
-      if (createdNewUser) {
-        await User.findByIdAndDelete(user._id);
-      }
+      await User.findByIdAndDelete(user._id);
 
       console.error("Verification email error:", emailError);
       return NextResponse.json(
@@ -151,7 +111,7 @@ export async function POST(req) {
         requiresVerification: true,
         email: user.email,
       },
-      { status: createdNewUser ? 201 : 200 }
+      { status: 201 }
     );
   } catch (error) {
     console.error("Registration error:", error);

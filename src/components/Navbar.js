@@ -7,7 +7,14 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Home, Settings } from "lucide-react";
 import { useSettings } from "@/context/SettingsContext";
 
-const HIDDEN_ROUTES = ["/login", "/register", "/"];
+const HIDDEN_ROUTES = [
+  "/login",
+  "/register",
+  "/forgot-password",
+  "/reset-password",
+  "/verify-email",
+  "/",
+];
 
 /* ─── App logo icon with hover animation ─── */
 function PickaxeIcon() {
@@ -112,7 +119,9 @@ export default function Navbar() {
   if (
     HIDDEN_ROUTES.includes(pathname) ||
     pathname.startsWith("/public/") ||
-    pathname.startsWith("/share/")
+    pathname.startsWith("/share/") ||
+    pathname.startsWith("/reset-password") ||
+    pathname.startsWith("/forgot-password")
   ) {
     return null;
   }

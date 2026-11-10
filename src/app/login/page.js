@@ -384,7 +384,7 @@ export default function LoginPage() {
 
                 <div className="flex justify-end">
                   <Link
-                    href="/forgot-password"
+                    href={form.email ? `/forgot-password?email=${encodeURIComponent(form.email)}` : "/forgot-password"}
                     className="transition-colors hover:underline"
                     style={{
                       fontFamily: "'Silkscreen', cursive",

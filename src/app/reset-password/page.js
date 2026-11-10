@@ -22,6 +22,7 @@ function ResetPasswordContent() {
   const [loading, setLoading] = useState(false);
   const [checkingToken, setCheckingToken] = useState(true);
   const [tokenValid, setTokenValid] = useState(false);
+  const [targetEmail, setTargetEmail] = useState("");
 
   useEffect(() => {
     let ignore = false;
@@ -46,9 +47,13 @@ function ResetPasswordContent() {
         if (!response.ok) {
           setError(data.message || "This reset link is invalid or has expired.");
           setTokenValid(false);
+          setTargetEmail("");
         } else {
           setTokenValid(true);
           setError("");
+          if (data.email) {
+            setTargetEmail(data.email);
+          }
         }
       } catch {
         if (!ignore) {
@@ -188,6 +193,25 @@ function ResetPasswordContent() {
               {notice && (
                 <div className="mt-6 rounded-sm border border-emerald-400/35 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-200">
                   {notice}
+                </div>
+              )}
+
+              {targetEmail && tokenValid && (
+                <div
+                  className="mt-5 p-3 rounded-sm border border-emerald-400/30 bg-emerald-950/50 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 shadow-inner"
+                >
+                  <span
+                    className="text-[0.68rem] uppercase tracking-wider text-emerald-300/70"
+                    style={{ fontFamily: "'Silkscreen', cursive" }}
+                  >
+                    Resetting Password For:
+                  </span>
+                  <span
+                    className="text-sm font-bold text-emerald-200"
+                    style={{ fontFamily: "'VT323', monospace", fontSize: "1.25rem" }}
+                  >
+                    {targetEmail}
+                  </span>
                 </div>
               )}
 

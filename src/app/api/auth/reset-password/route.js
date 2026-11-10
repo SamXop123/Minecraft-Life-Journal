@@ -38,7 +38,11 @@ export async function GET(req) {
     }
 
     return NextResponse.json(
-      { message: "Reset token is valid" },
+      {
+        message: "Reset token is valid",
+        email: user.email,
+        username: user.username,
+      },
       { status: 200 }
     );
   } catch (error) {
@@ -88,7 +92,10 @@ export async function POST(req) {
     await user.save();
 
     return NextResponse.json(
-      { message: "Password reset successfully" },
+      {
+        message: "Password reset successfully",
+        email: user.email,
+      },
       { status: 200 }
     );
   } catch (error) {
