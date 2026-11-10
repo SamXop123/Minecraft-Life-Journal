@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import World from "@/models/World";
+import User from "@/models/User";
 import WorldActivity from "@/models/WorldActivity";
 import { requireAuth } from "@/lib/requireAuth";
 
@@ -12,7 +13,7 @@ export async function GET(req, { params }) {
 
     const { id } = await params;
 
-    const world = await World.findById(id);
+    const world = await World.findById(id).populate("userId", "username displayName avatarUrl");
 
     if (!world) {
       return NextResponse.json(
@@ -21,7 +22,8 @@ export async function GET(req, { params }) {
       );
     }
 
-    if (world.userId.toString() !== decoded.userId) {
+    const ownerId = world.userId?._id ? world.userId._id.toString() : world.userId.toString();
+    if (ownerId !== decoded.userId) {
       return NextResponse.json(
         { message: "Forbidden" },
         { status: 403 }
@@ -65,7 +67,7 @@ export async function PATCH(req, { params }) {
 
     const { id } = await params;
 
-    const world = await World.findById(id);
+    const world = await World.findById(id).populate("userId", "username displayName avatarUrl");
 
     if (!world) {
       return NextResponse.json(
@@ -74,7 +76,8 @@ export async function PATCH(req, { params }) {
       );
     }
 
-    if (world.userId.toString() !== decoded.userId) {
+    const ownerId = world.userId?._id ? world.userId._id.toString() : world.userId.toString();
+    if (ownerId !== decoded.userId) {
       return NextResponse.json(
         { message: "Forbidden" },
         { status: 403 }
