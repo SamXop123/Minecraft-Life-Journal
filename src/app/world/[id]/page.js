@@ -13,11 +13,14 @@ import EditCoordinateModal from "@/components/EditCoordinateModal";
 import ActivityHeatmap from "@/components/ActivityHeatmap";
 import ConfirmDeleteModal from "@/components/ConfirmDeleteModal";
 import TrashBinModal from "@/components/TrashBinModal";
+import WorldPassportModal from "@/components/WorldPassportModal";
+import MinecraftCardIcon from "@/components/MinecraftCardIcon";
+import WorldSearchOverlay, { MinecraftSearchIcon } from "@/components/WorldSearchOverlay";
 import ScreenshotLightbox from "@/components/ScreenshotLightbox";
 import FavoritesWallDrawer from "@/components/FavoritesWallDrawer";
 import FavoriteStarButton from "@/components/FavoriteStarButton";
 import { compressImage } from "@/lib/utils/compressImage";
-import { Pencil, Star, Camera, Trash2, Loader2 } from "lucide-react";
+import { Pencil, Star, Camera, Trash2, Loader2, Search } from "lucide-react";
 
 const CATEGORIES = [
   "achievement",
@@ -97,6 +100,21 @@ export default function WorldDetailPage({ params }) {
   const [sharingLoading, setSharingLoading] = useState(false);
   const [memoryToDelete, setMemoryToDelete] = useState(null);
   const [isTrashOpen, setIsTrashOpen] = useState(false);
+  const [isPassportOpen, setIsPassportOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchOrigin, setSearchOrigin] = useState(null);
+  const searchButtonRef = useRef(null);
+
+  function handleOpenSearch() {
+    if (searchButtonRef.current) {
+      const rect = searchButtonRef.current.getBoundingClientRect();
+      setSearchOrigin({
+        x: rect.left + rect.width / 2,
+        y: rect.top + rect.height / 2,
+      });
+    }
+    setIsSearchOpen(true);
+  }
 
   // Coordinate Tracker state
   const coordFormRef = useRef(null);
@@ -145,6 +163,27 @@ export default function WorldDetailPage({ params }) {
   const favoriteMemories = useMemo(() => {
     return orderedMemories.filter((m) => !!m.isFavorite && !m.isDeleted);
   }, [orderedMemories]);
+
+  function handleSelectSearchedMemory(selectedMemory) {
+    if (!selectedMemory?._id) return;
+    const element = document.getElementById(`memory-${selectedMemory._id}`);
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth", block: "center" });
+      element.classList.add(
+        "ring-2",
+        "ring-amber-400",
+        "shadow-[0_0_35px_rgba(245,158,11,0.6)]",
+        "rounded-xl"
+      );
+      setTimeout(() => {
+        element.classList.remove(
+          "ring-2",
+          "ring-amber-400",
+          "shadow-[0_0_35px_rgba(245,158,11,0.6)]"
+        );
+      }, 2500);
+    }
+  }
 
   function getToken() {
     return localStorage.getItem("accessToken");
@@ -1134,6 +1173,38 @@ export default function WorldDetailPage({ params }) {
                     )}
                   </AnimatePresence>
                 </div>
+
+                {/* Shareable MLJ Card Button */}
+                <div
+                  className="mt-5 pt-4"
+                  style={{ borderTop: "1px solid rgba(218,165,32,0.12)" }}
+                >
+                  <button
+                    type="button"
+                    onClick={() => setIsPassportOpen(true)}
+                    className="w-full py-2.5 px-4 rounded-lg text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition-all cursor-pointer border shadow-sm group"
+                    style={{
+                      backgroundColor: "rgba(218,165,32,0.14)",
+                      borderColor: "rgba(218,165,32,0.32)",
+                      color: "#ffd896",
+                      textShadow: "0 1px 3px rgba(0,0,0,0.5)",
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = "rgba(218,165,32,0.26)";
+                      e.currentTarget.style.borderColor = "rgba(218,165,32,0.5)";
+                      e.currentTarget.style.transform = "translateY(-1px)";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = "rgba(218,165,32,0.14)";
+                      e.currentTarget.style.borderColor = "rgba(218,165,32,0.32)";
+                      e.currentTarget.style.transform = "translateY(0)";
+                    }}
+                    title="Generate Shareable MLJ Card"
+                  >
+                    <MinecraftCardIcon size={18} className="group-hover:scale-115 group-hover:rotate-[-6deg] transition-transform drop-shadow" />
+                    <span>Generate MLJ Card</span>
+                  </button>
+                </div>
               </motion.div>
 
               {/* Activity Heatmap */}
@@ -1568,6 +1639,31 @@ export default function WorldDetailPage({ params }) {
                   </h2>
                   <div className="flex items-center gap-2">
                     <button
+                      ref={searchButtonRef}
+                      type="button"
+                      onClick={handleOpenSearch}
+                      className="px-3 py-2 text-sm font-medium rounded-lg transition-colors border flex items-center justify-center cursor-pointer group"
+                      style={{
+                        backgroundColor: "rgba(0,0,0,0.3)",
+                        borderColor: "rgba(218,165,32,0.18)",
+                        color: "rgba(255,224,176,0.7)",
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.04)";
+                        e.currentTarget.style.borderColor = "rgba(218,165,32,0.35)";
+                        e.currentTarget.style.color = "rgba(255,224,176,0.95)";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = "rgba(0,0,0,0.3)";
+                        e.currentTarget.style.borderColor = "rgba(218,165,32,0.18)";
+                        e.currentTarget.style.color = "rgba(255,224,176,0.7)";
+                      }}
+                      title="Search Memories"
+                      aria-label="Search Memories"
+                    >
+                      <MinecraftSearchIcon size={16} className="group-hover:scale-110 transition-transform" />
+                    </button>
+                    <button
                       onClick={() => setIsTrashOpen(true)}
                       className="px-4 py-2 text-sm font-medium rounded-lg transition-colors border flex items-center gap-1.5"
                       style={{
@@ -1890,7 +1986,7 @@ export default function WorldDetailPage({ params }) {
                     style={{ borderLeft: "2px solid rgba(218,165,32,0.15)" }}
                   >
                     {orderedMemories.map((memory) => (
-                      <div key={memory._id} className="relative group">
+                      <div key={memory._id} id={`memory-${memory._id}`} className="relative group scroll-mt-28">
                         {/* Timeline dot */}
                         <div
                           className="absolute -left-8.25 top-1 w-3 h-3 rounded-full transition-all"
@@ -2062,6 +2158,24 @@ export default function WorldDetailPage({ params }) {
         worldId={worldId}
         onRefreshRequired={() => fetchMemories(worldId)}
         fetchWithAuthRetry={fetchWithAuthRetry}
+      />
+
+      {/* World Search Overlay */}
+      <WorldSearchOverlay
+        isOpen={isSearchOpen}
+        onClose={() => setIsSearchOpen(false)}
+        memories={orderedMemories}
+        onSelectMemory={handleSelectSearchedMemory}
+        triggerOrigin={searchOrigin}
+      />
+
+      {/* World Passport Modal */}
+      <WorldPassportModal
+        isOpen={isPassportOpen}
+        onClose={() => setIsPassportOpen(false)}
+        world={world}
+        memories={orderedMemories}
+        coordinates={coordinates}
       />
 
       {/* Edit World Modal */}
